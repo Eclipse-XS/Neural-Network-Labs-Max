@@ -1,0 +1,8 @@
+{
+  "Test Accuracy": 0.97,
+  "Test Precision": 0.9466,
+  "Test Recall": 0.9878,
+  "Test F1-score": 0.9668,
+  "Test Loss": 0.0964,
+  "Тестових зразків": 1666
+}
