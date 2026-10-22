@@ -1,0 +1,21 @@
+{
+  "series": "steps_experiment",
+  "input_image": "01_coastal_lighthouse.png",
+  "output_image": "lighthouse_strength0p6_cfg7p5_steps50_seed42.png",
+  "prompt": "a vibrant oil painting of a coastal lighthouse at sunset, rich impasto texture, dramatic ocean waves, golden hour lighting, artstation masterpiece",
+  "negative_prompt": null,
+  "strength": 0.6,
+  "guidance_scale": 7.5,
+  "num_inference_steps": 50,
+  "actual_denoising_steps": 30,
+  "seed": 42,
+  "resolution": [
+    512,
+    512
+  ],
+  "model_id": "stable-diffusion-v1-5/stable-diffusion-v1-5",
+  "generation_time_seconds": 8.9,
+  "input_sha256": "f71f5d9c045852ebb9e8936afdf94b39441e547c8f384602b733a23c82b6fe63",
+  "output_sha256": "2ffbf4f3c63c02a7ff532087125eb55d086d96f99d1b1bf5760bd00fe668b349",
+  "timestamp": "2026-10-22 20:55:35"
+}

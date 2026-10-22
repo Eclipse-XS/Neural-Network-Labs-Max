@@ -1,0 +1,34 @@
+QUERY ID: Q7
+CATEGORY: Metadata Filter (source=07_txt)
+QUERY: What are the primary incident severity levels and automated circuit breaker strategies for production ML?
+FILTER: {'source': '07_incident_response.txt'}
+
+============================================================
+SIMILARITY RETRIEVER ANSWER:
+============================================================
+The primary incident severity levels are defined as follows:
+
+- **Severity 1 (P1 - Critical)**: Includes complete prediction endpoint outage or cascading timeout failures exceeding SLA budgets (p99 latency > 1000ms), catastrophic distribution drift (PSI >= 0.35) resulting in severe business disruption, and critical adversarial compromise or mass prompt injection exfiltrating sensitive context [07_incident_response.txt, chunk 002].
+- **Severity 2 (P2 - Major)**: Includes significant performance deterioration across primary KPIs (e.g., F1-score drop > 15% on daily audited holdout samples), upstream feature corruption affecting > 20% of active inference requests, and failure of scheduled daily automated retraining or checkpoint validation pipelines [07_incident_response.txt, chunk 002].
+- **Severity 3 (P3 - Moderate)**: Includes moderate covariate drift (0.10 <= PSI < 0.25) across auxiliary non-critical features and minor latency degradation within acceptable buffer limits [07_incident_response.txt, chunk 003].
+
+The primary automated circuit breaker strategies for production ML are:
+
+- **Fallback Heuristics**: Diverting live requests to rule-based fallback decision engines or deterministic business heuristics when confidence scores violate sanity thresholds [07_incident_response.txt, chunk 005].
+- **Rollback to Golden Baseline**: Automatic rollback to the previous validated model checkpoint (N-1 release) via atomic traffic rerouting at the API gateway layer [07_incident_response.txt, chunk 005].
+- **Throttling and Graceful Degradation**: Dropping non-essential compute-intensive features or switching to lightweight quantized models under high load [07_incident_response.txt, chunk 005].
+
+These strategies collectively enable rapid mitigation and system resilience during ML incidents [07_incident_response.txt, chunk 005].
+
+============================================================
+MMR RETRIEVER ANSWER:
+============================================================
+The primary incident severity levels are defined as:
+
+- Severity 3 (P3 - Moderate): Moderate covariate drift (0.10 ≤ PSI < 0.25) across auxiliary non-critical features, with minor latency degradation within acceptable buffer limits. [07_incident_response.txt | ID: 07_incident_response_chunk_003]
+
+The automated circuit breaker strategies for production ML include:
+
+- Fallback Heuristics: Diverting live requests to rule-based fallback decision engines or deterministic business heuristics when confidence scores violate sanity thresholds.  
+- Rollback to Golden Baseline: Automatic rollback to the previous validated model checkpoint (N-1 release) via atomic traffic rerouting at the API gateway layer.  
+- Throttling and Graceful Degradation: Dropping non-essential compute-intensive features or switching to lightweight quantized models under high load. [07_incident_response.txt | ID: 07_incident_response_chunk_005]

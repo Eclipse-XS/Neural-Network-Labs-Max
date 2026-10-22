@@ -1,0 +1,31 @@
+MACHINE LEARNING SECURITY, ADVERSARIAL DEFENSE, AND END-TO-END REPRODUCIBILITY
+
+1. Threat Modeling for Machine Learning Systems
+Enterprise machine learning systems face unique adversarial vulnerabilities across the entire lifecycle from data curation to real-time serving:
+
+1.1 Data Poisoning and Backdoor Attacks
+Adversaries manipulate training corpora or public data partitions by injecting subtle, poisoned triggers. At inference time, inputs containing the designated trigger cause the model to output target malicious labels while maintaining high accuracy on clean validation sets. Defense strategies require data provenance tracking, differential privacy training routines, and robust spectral signature filtering on activation representations.
+
+1.2 Model Extraction and Inversion Attacks
+Through high-volume black-box API queries, attackers can reconstruct proprietary model parameters (model stealing) or invert predictions to reconstruct sensitive training data attributes (model inversion). Mitigations include API rate limiting, perturbation of output probability distributions (temperature scaling, differential noise injection), and strict suppression of raw logits.
+
+1.3 Adversarial Evasion and Perturbation Attacks
+Targeted gradient-based input perturbations (e.g., Fast Gradient Sign Method [FGSM], Projected Gradient Descent [PGD]) force classifiers into erroneous predictions despite alterations remaining imperceptible to human observers. Defenses include adversarial data augmentation during training and input purification via denoising autoencoders.
+
+2. Determinism and Exact Reproducibility Frameworks
+Reproducibility is essential for compliance audits, forensic incident investigation, and rigorous empirical research.
+
+2.1 Eliminating Non-Deterministic Sources
+Exact bitwise reproducibility requires comprehensive deterministic controls:
+- Seed Pinning: Explicit initialization of random number generator seeds across Python random, NumPy, PyTorch CPU, and PyTorch CUDA:
+  torch.manual_seed(seed)
+  torch.cuda.manual_seed_all(seed)
+  np.random.seed(seed)
+  random.seed(seed)
+- Deterministic Algorithm Enforcement: Enforcing torch.use_deterministic_algorithms(True) and setting torch.backends.cudnn.deterministic = True. Note that certain atomic operations (e.g., atomicAdd in scattered reduction kernels) may throw runtime errors if deterministic implementations are unavailable.
+- Environment Freezing: Packaging exact software dependencies using strict lockfiles (e.g., uv.lock, poetry.lock) and running inside hermetic, immutable container images (Docker / OCI).
+
+3. Model Governance and Lineage Tracking
+Production governance mandates cryptographically verifiable artifact registries:
+- Data and Model Hashing: Generating immutable SHA-256 checksums for datasets, weight files, and serialized pipelines.
+- Metadata Lineage: Logging training hyperparameter configurations, git commit SHAs, author identity, compute resource specifications, and validation metrics into centralized registries such as MLflow, Weights & Biases, or Kubeflow Metadata.

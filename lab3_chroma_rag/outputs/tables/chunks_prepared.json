@@ -1,0 +1,827 @@
+[
+  {
+    "page_content": "# Production Machine Learning Data Quality and Validation Frameworks\n\n## 1. Fundamental Principles of Training Data Quality\nData quality is the foundational prerequisite for reproducible and generalizable machine learning systems. In high-throughput predictive architectures, downstream model degradation is predominantly driven by upstream data anomalies rather than algorithmic deficiencies. High-integrity data engineering requires systematic validation of completeness, uniqueness, timeliness, validity, and statistical consistency.",
+    "metadata": {
+      "source": "01_data_quality.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\01_data_quality.md",
+      "filename": "01_data_quality.md",
+      "type": "md",
+      "document_id": "01_data_quality",
+      "chunk_id": "01_data_quality_chunk_001",
+      "chunk_index": 1,
+      "total_chunks_in_doc": 8,
+      "char_count": 536,
+      "word_count": 62
+    }
+  },
+  {
+    "page_content": "### 1.1 Structural and Semantic Invariants\nEvery data pipeline must enforce schema invariants and semantic boundary assertions prior to ingestion into feature stores:\n- **Completeness and Missingness**: Evaluation of Missing Completely at Random (MCAR), Missing at Random (MAR), and Missing Not at Random (MNAR) patterns. While MCAR allows mean or median imputation without structural bias, MNAR demands explicit missingness indicator features or specialized causal adjustments.",
+    "metadata": {
+      "source": "01_data_quality.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\01_data_quality.md",
+      "filename": "01_data_quality.md",
+      "type": "md",
+      "document_id": "01_data_quality",
+      "chunk_id": "01_data_quality_chunk_002",
+      "chunk_index": 2,
+      "total_chunks_in_doc": 8,
+      "char_count": 478,
+      "word_count": 65
+    }
+  },
+  {
+    "page_content": "- **Syntactic and Domain Constraints**: Strict validation of enumeration sets, regular expression patterns for categorical identifiers, and closed intervals for numerical attributes (e.g., probability scores bounded within $[0, 1]$, non-negative transaction amounts).\n- **Temporal Consistency and Watermarking**: Event timestamps must strictly precede processing timestamps to prevent lookahead leakage. Out-of-order event streams must be reconciled using deterministic watermarking windows.",
+    "metadata": {
+      "source": "01_data_quality.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\01_data_quality.md",
+      "filename": "01_data_quality.md",
+      "type": "md",
+      "document_id": "01_data_quality",
+      "chunk_id": "01_data_quality_chunk_003",
+      "chunk_index": 3,
+      "total_chunks_in_doc": 8,
+      "char_count": 491,
+      "word_count": 58
+    }
+  },
+  {
+    "page_content": "## 2. Statistical Ingestion Checks and Automated Profiling\nAutomated data profiling operates as an active guardrail at the ingestion boundary. Tools such as Great Expectations, AWS Deequ, and TensorFlow Data Validation (TFDV) compile declarative expectation suites against incoming batches.",
+    "metadata": {
+      "source": "01_data_quality.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\01_data_quality.md",
+      "filename": "01_data_quality.md",
+      "type": "md",
+      "document_id": "01_data_quality",
+      "chunk_id": "01_data_quality_chunk_004",
+      "chunk_index": 4,
+      "total_chunks_in_doc": 8,
+      "char_count": 290,
+      "word_count": 39
+    }
+  },
+  {
+    "page_content": "### 2.1 Key Ingestion Verification Metrics\n1. **Null Ratio Thresholds**: Hard rejection if null proportions on non-nullable primary keys exceed 0.0%, or if auxiliary features exceed predefined baseline tolerances (e.g., $\\Delta > 1.5\\%$).\n2. **Cardinality Verification**: Sudden expansion or collapse of categorical cardinality frequently signals upstream schema mutations or upstream API contract breakage.\n3. **Distributional Distance Bounds**: Quantile comparisons (p01, p25, p50, p75, p99) against rolling 30-day baseline reference windows.",
+    "metadata": {
+      "source": "01_data_quality.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\01_data_quality.md",
+      "filename": "01_data_quality.md",
+      "type": "md",
+      "document_id": "01_data_quality",
+      "chunk_id": "01_data_quality_chunk_005",
+      "chunk_index": 5,
+      "total_chunks_in_doc": 8,
+      "char_count": 544,
+      "word_count": 70
+    }
+  },
+  {
+    "page_content": "## 3. Detecting Data Leakage at Ingestion Time\nData leakage occurs when information from the target distribution or future states inadvertently enters the model training dataset. Common failure modes include:\n- **Temporal Leakage**: Normalizing numerical features (e.g., standard scaling $\\mu, \\sigma$) computed across the entire historical partition rather than strictly within the causal training window.\n- **Group Leakage**: Splitting hierarchical entities (such as patient longitudinal records or customer multi-session interactions) randomly across train and test partitions rather than using stratified group-based partitioning.",
+    "metadata": {
+      "source": "01_data_quality.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\01_data_quality.md",
+      "filename": "01_data_quality.md",
+      "type": "md",
+      "document_id": "01_data_quality",
+      "chunk_id": "01_data_quality_chunk_006",
+      "chunk_index": 6,
+      "total_chunks_in_doc": 8,
+      "char_count": 634,
+      "word_count": 82
+    }
+  },
+  {
+    "page_content": "- **Proxy Leakage**: Inadvertent inclusion of downstream operational artifacts (such as customer dispute flags created only post-transaction) as predictive features.",
+    "metadata": {
+      "source": "01_data_quality.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\01_data_quality.md",
+      "filename": "01_data_quality.md",
+      "type": "md",
+      "document_id": "01_data_quality",
+      "chunk_id": "01_data_quality_chunk_007",
+      "chunk_index": 7,
+      "total_chunks_in_doc": 8,
+      "char_count": 165,
+      "word_count": 20
+    }
+  },
+  {
+    "page_content": "## 4. Pipeline Testing Protocols and Continuous Quality\nData testing must be integrated into automated continuous integration (CI) workflows. Pre-commit hooks validate synthetic test fixtures, integration pipelines assert data transformation idempotency, and automated contract testing validates schema compatibility across producer and consumer microservices.",
+    "metadata": {
+      "source": "01_data_quality.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\01_data_quality.md",
+      "filename": "01_data_quality.md",
+      "type": "md",
+      "document_id": "01_data_quality",
+      "chunk_id": "01_data_quality_chunk_008",
+      "chunk_index": 8,
+      "total_chunks_in_doc": 8,
+      "char_count": 360,
+      "word_count": 43
+    }
+  },
+  {
+    "page_content": "# Feature Engineering, Representation Learning, and Feature Store Architecture\n\n## 1. Feature Representation and Transformation Strategies\nFeature engineering transforms raw, heterogeneous operational records into dense, informative numerical representations optimized for gradient-based or tree-based statistical learners. The process requires disciplined design to maintain mathematical stability and semantic fidelity.",
+    "metadata": {
+      "source": "02_feature_engineering.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\02_feature_engineering.md",
+      "filename": "02_feature_engineering.md",
+      "type": "md",
+      "document_id": "02_feature_engineering",
+      "chunk_id": "02_feature_engineering_chunk_001",
+      "chunk_index": 1,
+      "total_chunks_in_doc": 7,
+      "char_count": 421,
+      "word_count": 47
+    }
+  },
+  {
+    "page_content": "### 1.1 Numerical Transformations\n- **Variance Stabilization**: Logarithmic transforms ($\\log(1+x)$) and Box-Cox or Yeo-Johnson power transformations normalize right-skewed heavy-tailed distributions typical of financial volumes or latency metrics.\n- **Feature Scaling**: Robust scaling via Interquartile Range (IQR) mitigates the distortion caused by extreme outliers, outperforming standard z-score standardization when underlying distributions violate normality assumptions:\n$$x_{\\text{scaled}} = \\frac{x - Q_1}{Q_3 - Q_1}$$",
+    "metadata": {
+      "source": "02_feature_engineering.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\02_feature_engineering.md",
+      "filename": "02_feature_engineering.md",
+      "type": "md",
+      "document_id": "02_feature_engineering",
+      "chunk_id": "02_feature_engineering_chunk_002",
+      "chunk_index": 2,
+      "total_chunks_in_doc": 7,
+      "char_count": 527,
+      "word_count": 60
+    }
+  },
+  {
+    "page_content": "$$x_{\\text{scaled}} = \\frac{x - Q_1}{Q_3 - Q_1}$$\n- **Cyclical Encoding**: Periodic features such as hour-of-day ($t \\in [0, 23]$) or day-of-year require dual trigonometric projection to preserve continuous periodic proximity:\n$$f_{\\sin} = \\sin\\left(\\frac{2\\pi t}{T}\\right), \\quad f_{\\cos} = \\cos\\left(\\frac{2\\pi t}{T}\\right)$$",
+    "metadata": {
+      "source": "02_feature_engineering.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\02_feature_engineering.md",
+      "filename": "02_feature_engineering.md",
+      "type": "md",
+      "document_id": "02_feature_engineering",
+      "chunk_id": "02_feature_engineering_chunk_003",
+      "chunk_index": 3,
+      "total_chunks_in_doc": 7,
+      "char_count": 327,
+      "word_count": 39
+    }
+  },
+  {
+    "page_content": "### 1.2 Categorical Embeddings and High-Cardinality Encodings\nHigh-cardinality nominal variables (e.g., zip codes, merchant IDs) suffer from dimensionality explosion when handled via one-hot encoding. Preferred production strategies include:\n- **Target Encoding with Empirical Bayes Smoothing**: Computing conditional target expectations smoothed by overall global priors to prevent overfitting on rare categories:\n$$\\hat{S}_i = \\lambda(n_i) \\bar{y}_i + (1 - \\lambda(n_i)) \\bar{y}_{\\text{global}}$$\n- **Entity Embeddings**: Projecting categorical indices through low-dimensional learned embedding layers within neural networks, capturing latent semantic manifolds.",
+    "metadata": {
+      "source": "02_feature_engineering.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\02_feature_engineering.md",
+      "filename": "02_feature_engineering.md",
+      "type": "md",
+      "document_id": "02_feature_engineering",
+      "chunk_id": "02_feature_engineering_chunk_004",
+      "chunk_index": 4,
+      "total_chunks_in_doc": 7,
+      "char_count": 664,
+      "word_count": 77
+    }
+  },
+  {
+    "page_content": "## 2. Feature Store Architecture: Offline vs. Online Storage\nModern enterprise ML systems decouple feature calculation from model training and serving via centralized Feature Stores (e.g., Feast, Hopsworks, Tecton).",
+    "metadata": {
+      "source": "02_feature_engineering.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\02_feature_engineering.md",
+      "filename": "02_feature_engineering.md",
+      "type": "md",
+      "document_id": "02_feature_engineering",
+      "chunk_id": "02_feature_engineering_chunk_005",
+      "chunk_index": 5,
+      "total_chunks_in_doc": 7,
+      "char_count": 215,
+      "word_count": 29
+    }
+  },
+  {
+    "page_content": "### 2.1 Dual-Storage Synchronization\n1. **Offline Store (Analytical Layer)**: Backed by distributed columnar engines (e.g., Apache Iceberg, Delta Lake, Snowflake, BigQuery). Tailored for petabyte-scale historical batch joins and point-in-time correct training dataset extraction.\n2. **Online Store (Low-Latency Serving)**: Backed by distributed in-memory key-value databases (e.g., Redis, DynamoDB, Cassandra). Provides sub-10ms lookup latency for real-time feature vector assembly during inference.",
+    "metadata": {
+      "source": "02_feature_engineering.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\02_feature_engineering.md",
+      "filename": "02_feature_engineering.md",
+      "type": "md",
+      "document_id": "02_feature_engineering",
+      "chunk_id": "02_feature_engineering_chunk_006",
+      "chunk_index": 6,
+      "total_chunks_in_doc": 7,
+      "char_count": 499,
+      "word_count": 59
+    }
+  },
+  {
+    "page_content": "### 2.2 Point-in-Time Correct Joins (Time-Travel Joins)\nTo prevent temporal data leakage during feature generation, the feature store evaluates the exact state of a feature as of the observation timestamp $t_{\\text{obs}}$. Any feature update occurring at $t > t_{\\text{obs}}$ is excluded from the training tuple.\n\n## 3. Drift Resilience in Feature Definitions\nFeature pipelines must prioritize robust aggregate representations (e.g., rolling median ratios, decaying exponential averages) rather than volatile raw counters that are vulnerable to infrastructure noise or transient logging delays.",
+    "metadata": {
+      "source": "02_feature_engineering.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\02_feature_engineering.md",
+      "filename": "02_feature_engineering.md",
+      "type": "md",
+      "document_id": "02_feature_engineering",
+      "chunk_id": "02_feature_engineering_chunk_007",
+      "chunk_index": 7,
+      "total_chunks_in_doc": 7,
+      "char_count": 594,
+      "word_count": 81
+    }
+  },
+  {
+    "page_content": "# Distributed Model Training, Optimization Algorithms, and Checkpoint Management\n\n## 1. Mathematical Formulations of Modern Optimizers\nGradient descent optimization in non-convex parameter spaces requires adaptive learning rates, momentum acceleration, and decoupled weight decay to ensure numerical convergence and parameter stability.",
+    "metadata": {
+      "source": "03_model_training.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\03_model_training.md",
+      "filename": "03_model_training.md",
+      "type": "md",
+      "document_id": "03_model_training",
+      "chunk_id": "03_model_training_chunk_001",
+      "chunk_index": 1,
+      "total_chunks_in_doc": 7,
+      "char_count": 336,
+      "word_count": 40
+    }
+  },
+  {
+    "page_content": "### 1.1 AdamW: Decoupled Weight Decay Optimization\nWhile standard Adam incorporates $L_2$ regularization into gradient computations directly, AdamW decouples weight decay from the moving averages of gradients, yielding superior generalization in deep neural networks and transformer backbones:\n$$m_t = \\beta_1 m_{t-1} + (1 - \\beta_1) g_t$$\n$$v_t = \\beta_2 v_{t-1} + (1 - \\beta_2) g_t^2$$\n$$\\hat{m}_t = \\frac{m_t}{1 - \\beta_1^t}, \\quad \\hat{v}_t = \\frac{v_t}{1 - \\beta_2^t}$$\n$$\\theta_t = \\theta_{t-1} - \\eta \\left( \\frac{\\hat{m}_t}{\\sqrt{\\hat{v}_t} + \\epsilon} + \\lambda \\theta_{t-1} \\right)$$",
+    "metadata": {
+      "source": "03_model_training.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\03_model_training.md",
+      "filename": "03_model_training.md",
+      "type": "md",
+      "document_id": "03_model_training",
+      "chunk_id": "03_model_training_chunk_002",
+      "chunk_index": 2,
+      "total_chunks_in_doc": 7,
+      "char_count": 593,
+      "word_count": 79
+    }
+  },
+  {
+    "page_content": "where $\\lambda$ represents the decoupled weight decay factor, preventing exponential weight explosion during training.",
+    "metadata": {
+      "source": "03_model_training.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\03_model_training.md",
+      "filename": "03_model_training.md",
+      "type": "md",
+      "document_id": "03_model_training",
+      "chunk_id": "03_model_training_chunk_003",
+      "chunk_index": 3,
+      "total_chunks_in_doc": 7,
+      "char_count": 118,
+      "word_count": 14
+    }
+  },
+  {
+    "page_content": "### 1.2 Learning Rate Scheduling\nEffective convergence requires dynamic learning rate schedules:\n- **Linear Warmup with Cosine Decay**: Gradually increasing $\\eta$ from 0 to $\\eta_{\\max}$ over initial steps to stabilize early gradient variances, followed by half-period cosine decay toward an asymptotic minimum $\\eta_{\\min}$.",
+    "metadata": {
+      "source": "03_model_training.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\03_model_training.md",
+      "filename": "03_model_training.md",
+      "type": "md",
+      "document_id": "03_model_training",
+      "chunk_id": "03_model_training_chunk_004",
+      "chunk_index": 4,
+      "total_chunks_in_doc": 7,
+      "char_count": 326,
+      "word_count": 43
+    }
+  },
+  {
+    "page_content": "## 2. Distributed Training Paradigms: DDP vs. FSDP vs. Megatron-LM\nScaling neural architectures across multi-node GPU clusters relies on specialized parallelization paradigms:\n- **Distributed Data Parallel (DDP)**: Model parameters and optimizer states are replicated across all GPU ranks. Each worker computes forward and backward passes over distinct micro-batches; gradients are globally synchronized via ring AllReduce collectives.",
+    "metadata": {
+      "source": "03_model_training.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\03_model_training.md",
+      "filename": "03_model_training.md",
+      "type": "md",
+      "document_id": "03_model_training",
+      "chunk_id": "03_model_training_chunk_005",
+      "chunk_index": 5,
+      "total_chunks_in_doc": 7,
+      "char_count": 435,
+      "word_count": 56
+    }
+  },
+  {
+    "page_content": "- **Fully Sharded Data Parallel (FSDP / ZeRO)**: Shards model parameters, gradients, and optimizer states across ranks, dramatically reducing per-device VRAM footprint from $O(M)$ to $O(M / N)$. Parameters are gathered on-demand during forward and backward passes.\n- **Tensor and Pipeline Parallelism**: Partitioning individual weight matrices across tensor dimensions or splitting sequential network layers across pipeline stages for ultra-large foundation models.",
+    "metadata": {
+      "source": "03_model_training.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\03_model_training.md",
+      "filename": "03_model_training.md",
+      "type": "md",
+      "document_id": "03_model_training",
+      "chunk_id": "03_model_training_chunk_006",
+      "chunk_index": 6,
+      "total_chunks_in_doc": 7,
+      "char_count": 465,
+      "word_count": 61
+    }
+  },
+  {
+    "page_content": "## 3. Checkpointing and Fault Tolerance Strategies\nProduction training jobs lasting hours or days require fault-tolerant persistence mechanisms:\n- **Atomic Checkpoint Serialization**: Writing PyTorch state dictionaries (`model.state_dict()`, `optimizer.state_dict()`, RNG states) to staged local storage before atomic symlink swapping, preventing corrupted partial writes.\n- **Elastic Horovod / TorchElastic**: Dynamic orchestrator handling automatic worker rendezvous and training resumption following spot instance preemptions or transient hardware failures without restarting the complete epoch.",
+    "metadata": {
+      "source": "03_model_training.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\03_model_training.md",
+      "filename": "03_model_training.md",
+      "type": "md",
+      "document_id": "03_model_training",
+      "chunk_id": "03_model_training_chunk_007",
+      "chunk_index": 7,
+      "total_chunks_in_doc": 7,
+      "char_count": 598,
+      "word_count": 69
+    }
+  },
+  {
+    "page_content": "# Model Validation Methodologies, Statistical Evaluation, and Metric Selection\n\n## 1. Cross-Validation and Data Splitting Protocols\nRigorous empirical evaluation protects production models from optimistic bias and unseen distribution shifts.",
+    "metadata": {
+      "source": "04_validation_and_metrics.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\04_validation_and_metrics.md",
+      "filename": "04_validation_and_metrics.md",
+      "type": "md",
+      "document_id": "04_validation_and_metrics",
+      "chunk_id": "04_validation_and_metrics_chunk_001",
+      "chunk_index": 1,
+      "total_chunks_in_doc": 7,
+      "char_count": 241,
+      "word_count": 29
+    }
+  },
+  {
+    "page_content": "### 1.1 Partitioning Strategies\n- **Stratified K-Fold**: Maintains target class balance across folds; critical for severely imbalanced classification tasks ($< 5\\%$ positive rate).\n- **Temporal Block Splitting (Purged & Embargoed Cross-Validation)**: Eliminates auto-correlation and information leakage in time-series data. Training periods strictly precede validation periods, with buffer intervals (embargoes) removing post-event overlap.\n- **GroupKFold**: Guarantees that records from the same real-world entity (e.g., patient, sensor cluster, company) reside exclusively in train or validation sets, testing generalization across distinct entities.",
+    "metadata": {
+      "source": "04_validation_and_metrics.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\04_validation_and_metrics.md",
+      "filename": "04_validation_and_metrics.md",
+      "type": "md",
+      "document_id": "04_validation_and_metrics",
+      "chunk_id": "04_validation_and_metrics_chunk_002",
+      "chunk_index": 2,
+      "total_chunks_in_doc": 7,
+      "char_count": 652,
+      "word_count": 79
+    }
+  },
+  {
+    "page_content": "## 2. Comprehensive Metric Formulations\nEvaluation metrics must mirror business utility and loss asymmetries:",
+    "metadata": {
+      "source": "04_validation_and_metrics.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\04_validation_and_metrics.md",
+      "filename": "04_validation_and_metrics.md",
+      "type": "md",
+      "document_id": "04_validation_and_metrics",
+      "chunk_id": "04_validation_and_metrics_chunk_003",
+      "chunk_index": 3,
+      "total_chunks_in_doc": 7,
+      "char_count": 109,
+      "word_count": 14
+    }
+  },
+  {
+    "page_content": "### 2.1 Classification Under Asymmetric Costs\n- **Precision, Recall, and $F_\\beta$-Score**:\n$$F_\\beta = (1 + \\beta^2) \\frac{\\text{Precision} \\cdot \\text{Recall}}{\\beta^2 \\cdot \\text{Precision} + \\text{Recall}}$$\nWhen False Negatives carry prohibitive costs (e.g., medical diagnostics, fraud detection), setting $\\beta = 2$ weights recall over precision.\n- **PR-AUC vs. ROC-AUC**: In heavily skewed datasets, ROC-AUC yields overly optimistic interpretations due to massive True Negative counts. Precision-Recall AUC (PR-AUC) evaluates trade-offs exclusively on the minority class.\n- **Brier Score and Calibration**: Assesses probabilistic reliability:",
+    "metadata": {
+      "source": "04_validation_and_metrics.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\04_validation_and_metrics.md",
+      "filename": "04_validation_and_metrics.md",
+      "type": "md",
+      "document_id": "04_validation_and_metrics",
+      "chunk_id": "04_validation_and_metrics_chunk_004",
+      "chunk_index": 4,
+      "total_chunks_in_doc": 7,
+      "char_count": 650,
+      "word_count": 79
+    }
+  },
+  {
+    "page_content": "- **Brier Score and Calibration**: Assesses probabilistic reliability:\n$$\\text{BS} = \\frac{1}{N} \\sum_{i=1}^N (p_i - y_i)^2$$\nCalibrated probabilities (via Platt Scaling or Isotonic Regression) are mandatory when decisions depend on risk thresholds.",
+    "metadata": {
+      "source": "04_validation_and_metrics.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\04_validation_and_metrics.md",
+      "filename": "04_validation_and_metrics.md",
+      "type": "md",
+      "document_id": "04_validation_and_metrics",
+      "chunk_id": "04_validation_and_metrics_chunk_005",
+      "chunk_index": 5,
+      "total_chunks_in_doc": 7,
+      "char_count": 249,
+      "word_count": 31
+    }
+  },
+  {
+    "page_content": "### 2.2 Ranking and Retrieval Metrics\nInformation retrieval and recommendation engines rely on position-aware quality metrics:\n- **Mean Reciprocal Rank (MRR)**: Average reciprocal rank of the first relevant retrieved document:\n$$\\text{MRR} = \\frac{1}{|Q|} \\sum_{i=1}^{|Q|} \\frac{1}{\\text{rank}_i}$$\n- **Normalized Discounted Cumulative Gain (NDCG@K)**: Measures graded relevance with logarithmic rank discounting:\n$$\\text{DCG}@K = \\sum_{i=1}^K \\frac{2^{\\text{rel}_i} - 1}{\\log_2(i + 1)}, \\quad \\text{NDCG}@K = \\frac{\\text{DCG}@K}{\\text{IDCG}@K}$$",
+    "metadata": {
+      "source": "04_validation_and_metrics.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\04_validation_and_metrics.md",
+      "filename": "04_validation_and_metrics.md",
+      "type": "md",
+      "document_id": "04_validation_and_metrics",
+      "chunk_id": "04_validation_and_metrics_chunk_006",
+      "chunk_index": 6,
+      "total_chunks_in_doc": 7,
+      "char_count": 546,
+      "word_count": 60
+    }
+  },
+  {
+    "page_content": "## 3. Offline-to-Online Evaluation Parity\nOffline validation gains frequently fail to translate to online business impact due to feedback loops, cannibalization, or delayed label attribution. Establishing explicit offline-online correlation benchmarks is essential prior to deployment.",
+    "metadata": {
+      "source": "04_validation_and_metrics.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\04_validation_and_metrics.md",
+      "filename": "04_validation_and_metrics.md",
+      "type": "md",
+      "document_id": "04_validation_and_metrics",
+      "chunk_id": "04_validation_and_metrics_chunk_007",
+      "chunk_index": 7,
+      "total_chunks_in_doc": 7,
+      "char_count": 285,
+      "word_count": 35
+    }
+  },
+  {
+    "page_content": "# Machine Learning Serving Architectures, Quantization, and Runtime Optimization",
+    "metadata": {
+      "source": "05_deployment_architecture.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\05_deployment_architecture.md",
+      "filename": "05_deployment_architecture.md",
+      "type": "md",
+      "document_id": "05_deployment_architecture",
+      "chunk_id": "05_deployment_architecture_chunk_001",
+      "chunk_index": 1,
+      "total_chunks_in_doc": 8,
+      "char_count": 80,
+      "word_count": 9
+    }
+  },
+  {
+    "page_content": "## 1. Inference Paradigms: Real-Time vs. Batch vs. Streaming\nProduction machine learning models operate under strict operational constraints regarding throughput, latency budgets, and availability:\n- **Synchronous Real-Time Microservices**: REST or gRPC endpoints backed by high-performance inference runtimes (e.g., Triton Inference Server, TorchServe, vLLM). Target latency: $p95 < 25\\text{ms}$.\n- **Asynchronous Decoupled Queues**: Request-response patterns brokered via message buses (Apache Kafka, RabbitMQ), decoupling compute-intensive model inference from frontend web services.",
+    "metadata": {
+      "source": "05_deployment_architecture.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\05_deployment_architecture.md",
+      "filename": "05_deployment_architecture.md",
+      "type": "md",
+      "document_id": "05_deployment_architecture",
+      "chunk_id": "05_deployment_architecture_chunk_002",
+      "chunk_index": 2,
+      "total_chunks_in_doc": 8,
+      "char_count": 586,
+      "word_count": 69
+    }
+  },
+  {
+    "page_content": "- **Embedded Edge Serving**: Executing compiled and quantized models on device hardware (ONNX Runtime, CoreML, TensorRT-LLM) without network roundtrips.",
+    "metadata": {
+      "source": "05_deployment_architecture.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\05_deployment_architecture.md",
+      "filename": "05_deployment_architecture.md",
+      "type": "md",
+      "document_id": "05_deployment_architecture",
+      "chunk_id": "05_deployment_architecture_chunk_003",
+      "chunk_index": 3,
+      "total_chunks_in_doc": 8,
+      "char_count": 152,
+      "word_count": 19
+    }
+  },
+  {
+    "page_content": "## 2. Model Compression and Hardware Acceleration\nDeploying large neural architectures within strict memory budgets requires structural optimization:",
+    "metadata": {
+      "source": "05_deployment_architecture.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\05_deployment_architecture.md",
+      "filename": "05_deployment_architecture.md",
+      "type": "md",
+      "document_id": "05_deployment_architecture",
+      "chunk_id": "05_deployment_architecture_chunk_004",
+      "chunk_index": 4,
+      "total_chunks_in_doc": 8,
+      "char_count": 149,
+      "word_count": 18
+    }
+  },
+  {
+    "page_content": "### 2.1 Post-Training Quantization (PTQ) vs. Quantization-Aware Training (QAT)\n- **INT8/INT4 Numerical Precision**: Quantizing FP32/FP16 weights and activation tensors down to lower bit-widths reduces memory bandwidth saturation and accelerates arithmetic throughput:\n$$q = \\text{round}\\left(\\frac{x}{S}\\right) + Z$$\nwhere $S$ is the scale factor and $Z$ is the zero-point integer offset.\n- **AWQ (Activation-aware Weight Quantization)**: Protects the most salient $1\\%$ of weight channels based on activation magnitudes, maintaining model perplexity while achieving $4\\times$ footprint reduction.",
+    "metadata": {
+      "source": "05_deployment_architecture.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\05_deployment_architecture.md",
+      "filename": "05_deployment_architecture.md",
+      "type": "md",
+      "document_id": "05_deployment_architecture",
+      "chunk_id": "05_deployment_architecture_chunk_005",
+      "chunk_index": 5,
+      "total_chunks_in_doc": 8,
+      "char_count": 597,
+      "word_count": 74
+    }
+  },
+  {
+    "page_content": "### 2.2 Inference Engines and Compilation\n- **TensorRT & Torch Dynamo / Inductor**: Graph fusion techniques merge linear transformations, bias additions, and activation layers into single fused GPU kernels, eliminating intermediate memory I/O roundtrips.\n- **PagedAttention & KV-Caching**: For autoregressive transformer generation, dynamic block paging prevents VRAM fragmentation and allows massive concurrent serving batch sizes.",
+    "metadata": {
+      "source": "05_deployment_architecture.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\05_deployment_architecture.md",
+      "filename": "05_deployment_architecture.md",
+      "type": "md",
+      "document_id": "05_deployment_architecture",
+      "chunk_id": "05_deployment_architecture_chunk_006",
+      "chunk_index": 6,
+      "total_chunks_in_doc": 8,
+      "char_count": 432,
+      "word_count": 55
+    }
+  },
+  {
+    "page_content": "## 3. Deployment Patterns: Canary, Blue-Green, and Shadow Testing\nTo mitigate catastrophic regressions during model rollout, platforms employ graduated traffic shifting:\n1. **Shadow Deployment (Dark Launch)**: Duplicates live production traffic to the candidate model asynchronously. Responses are discarded; system verifies runtime stability, tail latency, and output parity without customer exposure.\n2. **Canary Routing**: Diverts a small fractional volume (e.g., $1\\% \\to 5\\% \\to 25\\% \\to 100\\%$) of traffic to candidate model instances while continuously validating error rates and health metrics.",
+    "metadata": {
+      "source": "05_deployment_architecture.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\05_deployment_architecture.md",
+      "filename": "05_deployment_architecture.md",
+      "type": "md",
+      "document_id": "05_deployment_architecture",
+      "chunk_id": "05_deployment_architecture_chunk_007",
+      "chunk_index": 7,
+      "total_chunks_in_doc": 8,
+      "char_count": 602,
+      "word_count": 80
+    }
+  },
+  {
+    "page_content": "3. **Blue-Green Cutover**: Instantaneous atomic router switchover between identical environments with rollback capabilities in case of immediate service alerts.",
+    "metadata": {
+      "source": "05_deployment_architecture.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\05_deployment_architecture.md",
+      "filename": "05_deployment_architecture.md",
+      "type": "md",
+      "document_id": "05_deployment_architecture",
+      "chunk_id": "05_deployment_architecture_chunk_008",
+      "chunk_index": 8,
+      "total_chunks_in_doc": 8,
+      "char_count": 160,
+      "word_count": 19
+    }
+  },
+  {
+    "page_content": "# Continuous Model Monitoring, Drift Detection, and Performance Observability\n\n## 1. Taxonomy of Production Model Degradation\nOnce deployed, machine learning systems deteriorate over time due to dynamic shifts in real-world environments. Observability frameworks must detect three distinct categories of distribution shifts:\n\n### 1.1 Covariate Shift (Data Drift)\nCovariate shift occurs when the marginal input feature distribution changes over time, while the conditional ground-truth relationship remains constant:\n$$P_t(X) \\neq P_0(X), \\quad \\text{while } P_t(Y|X) = P_0(Y|X)$$\nExamples include changing demographic trends, evolving user behavior, or seasonal purchase pattern shifts.",
+    "metadata": {
+      "source": "06_model_monitoring.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\06_model_monitoring.md",
+      "filename": "06_model_monitoring.md",
+      "type": "md",
+      "document_id": "06_model_monitoring",
+      "chunk_id": "06_model_monitoring_chunk_001",
+      "chunk_index": 1,
+      "total_chunks_in_doc": 5,
+      "char_count": 686,
+      "word_count": 88
+    }
+  },
+  {
+    "page_content": "### 1.2 Concept Drift (Relationship Decay)\nConcept drift manifests when the underlying relationship between inputs and targets shifts fundamentally:\n$$P_t(Y|X) \\neq P_0(Y|X), \\quad \\text{while } P_t(X) \\approx P_0(X)$$\nExamples include macroeconomic crises altering borrower repayment dynamics or fraudsters circumventing security detection heuristics.\n\n### 1.3 Prior Probability Shift (Target Drift)\nTarget drift occurs when the unconditional distribution of ground-truth labels changes: $P_t(Y) \\neq P_0(Y)$, altering baseline class prevalence.",
+    "metadata": {
+      "source": "06_model_monitoring.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\06_model_monitoring.md",
+      "filename": "06_model_monitoring.md",
+      "type": "md",
+      "document_id": "06_model_monitoring",
+      "chunk_id": "06_model_monitoring_chunk_002",
+      "chunk_index": 2,
+      "total_chunks_in_doc": 5,
+      "char_count": 546,
+      "word_count": 67
+    }
+  },
+  {
+    "page_content": "## 2. Statistical Drift Detection Algorithms\nAutomated monitoring engines compute divergence metrics across sliding production windows against baseline reference datasets:",
+    "metadata": {
+      "source": "06_model_monitoring.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\06_model_monitoring.md",
+      "filename": "06_model_monitoring.md",
+      "type": "md",
+      "document_id": "06_model_monitoring",
+      "chunk_id": "06_model_monitoring_chunk_003",
+      "chunk_index": 3,
+      "total_chunks_in_doc": 5,
+      "char_count": 171,
+      "word_count": 20
+    }
+  },
+  {
+    "page_content": "### 2.1 Population Stability Index (PSI)\nWidely adopted in credit scoring and enterprise risk systems. Computes symmetric divergence across binned reference ($A_i$) and target ($B_i$) populations:\n$$\\text{PSI} = \\sum_{i=1}^K (B_i - A_i) \\times \\ln\\left(\\frac{B_i}{A_i}\\right)$$\n- $\\text{PSI} < 0.10$: Negligible shift; no intervention required.\n- $0.10 \\le \\text{PSI} < 0.25$: Moderate drift; initiate warning state and schedule model retraining.\n- $\\text{PSI} \\ge 0.25$: Significant divergence; potential model fallback required.",
+    "metadata": {
+      "source": "06_model_monitoring.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\06_model_monitoring.md",
+      "filename": "06_model_monitoring.md",
+      "type": "md",
+      "document_id": "06_model_monitoring",
+      "chunk_id": "06_model_monitoring_chunk_004",
+      "chunk_index": 4,
+      "total_chunks_in_doc": 5,
+      "char_count": 530,
+      "word_count": 68
+    }
+  },
+  {
+    "page_content": "### 2.2 Continuous Statistical Tests\n- **Kolmogorov-Smirnov (KS) Test**: Non-parametric two-sample test comparing empirical cumulative distribution functions (ECDF). Sensitive to location and shape shifts.\n- **Wasserstein Distance (Earth Mover's Distance)**: Measures minimal operational work required to transform distribution $P$ into $Q$; ideal for continuous multi-modal feature tracking.\n\n## 3. Real-Time Telemetry and Alerting Thresholds\nProduction monitoring architectures instrument OpenTelemetry spans to capture inference latency, input vector snapshots, and prediction histograms, streaming logs into Prometheus, Grafana, or Evidently AI dashboards with PagerDuty escalation policies.",
+    "metadata": {
+      "source": "06_model_monitoring.md",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\06_model_monitoring.md",
+      "filename": "06_model_monitoring.md",
+      "type": "md",
+      "document_id": "06_model_monitoring",
+      "chunk_id": "06_model_monitoring_chunk_005",
+      "chunk_index": 5,
+      "total_chunks_in_doc": 5,
+      "char_count": 695,
+      "word_count": 83
+    }
+  },
+  {
+    "page_content": "PRODUCTION MACHINE LEARNING INCIDENT RESPONSE PROTOCOLS AND MITIGATION PLAYBOOKS\n\n1. Incident Classification and Severity Levels\nMachine learning incidents differ fundamentally from traditional software defects. While microservice crashes trigger HTTP 5xx codes, model failures typically present as \"silent degradation\" where inference endpoints return HTTP 200 OK with mathematically degraded, nonsensical, or biased predictions.",
+    "metadata": {
+      "source": "07_incident_response.txt",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\07_incident_response.txt",
+      "filename": "07_incident_response.txt",
+      "type": "txt",
+      "document_id": "07_incident_response",
+      "chunk_id": "07_incident_response_chunk_001",
+      "chunk_index": 1,
+      "total_chunks_in_doc": 6,
+      "char_count": 430,
+      "word_count": 52
+    }
+  },
+  {
+    "page_content": "Severity 1 (P1 - Critical):\n- Complete prediction endpoint outage or cascading timeout failures exceeding SLA budgets (p99 latency > 1000ms).\n- Catastrophic distribution drift (PSI >= 0.35) resulting in severe business disruption or severe loss of operational margin.\n- Critical adversarial compromise or mass prompt injection exfiltrating sensitive context.\n\nSeverity 2 (P2 - Major):\n- Significant performance deterioration across primary KPIs (e.g., F1-score drop > 15% on daily audited holdout samples).\n- Upstream feature corruption affecting > 20% of active inference requests.\n- Failure of scheduled daily automated retraining or checkpoint validation pipelines.",
+    "metadata": {
+      "source": "07_incident_response.txt",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\07_incident_response.txt",
+      "filename": "07_incident_response.txt",
+      "type": "txt",
+      "document_id": "07_incident_response",
+      "chunk_id": "07_incident_response_chunk_002",
+      "chunk_index": 2,
+      "total_chunks_in_doc": 6,
+      "char_count": 668,
+      "word_count": 94
+    }
+  },
+  {
+    "page_content": "Severity 3 (P3 - Moderate):\n- Moderate covariate drift (0.10 <= PSI < 0.25) across auxiliary non-critical features.\n- Minor latency degradation within acceptable buffer limits.\n\n2. Diagnostic Triaging and Root Cause Analysis (RCA)\nUpon incident declaration, on-call ML engineers execute a standard 4-phase diagnostic workflow:\nPhase 1: Upstream Pipeline Audit\nInspect raw schema consistency, null frequency anomalies, and feature store replication lags. Verify whether data ingestion contracts were violated by third-party upstream APIs.",
+    "metadata": {
+      "source": "07_incident_response.txt",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\07_incident_response.txt",
+      "filename": "07_incident_response.txt",
+      "type": "txt",
+      "document_id": "07_incident_response",
+      "chunk_id": "07_incident_response_chunk_003",
+      "chunk_index": 3,
+      "total_chunks_in_doc": 6,
+      "char_count": 537,
+      "word_count": 74
+    }
+  },
+  {
+    "page_content": "Phase 2: Distribution Comparison\nExtract production request payload snapshots from the active incident window and execute Kolmogorov-Smirnov and PSI comparisons against training baseline splits.\n\nPhase 3: Model Health and Resource Utilization\nExamine GPU VRAM saturation, CUDA kernel execution timeouts, worker thread deadlocks, and memory fragmentation.\n\nPhase 4: Calibration and Prediction Density Inspection\nAssess prediction probability distributions. A severe clustering of confidence scores near decision boundaries indicates model uncertainty induced by unseen input domains.",
+    "metadata": {
+      "source": "07_incident_response.txt",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\07_incident_response.txt",
+      "filename": "07_incident_response.txt",
+      "type": "txt",
+      "document_id": "07_incident_response",
+      "chunk_id": "07_incident_response_chunk_004",
+      "chunk_index": 4,
+      "total_chunks_in_doc": 6,
+      "char_count": 582,
+      "word_count": 73
+    }
+  },
+  {
+    "page_content": "3. Automated Mitigation and Circuit Breakers\nTo prevent widespread damage, production inference gateways implement automatic circuit breakers:\n- Fallback Heuristics: Diverting live requests to rule-based fallback decision engines or deterministic business heuristics when confidence scores violate sanity thresholds.\n- Rollback to Golden Baseline: Automatic rollback to the previous validated model checkpoint (N-1 release) via atomic traffic rerouting at the API gateway layer.\n- Throttling and Graceful Degradation: Dropping non-essential compute-intensive features or switching to lightweight quantized models under high load.",
+    "metadata": {
+      "source": "07_incident_response.txt",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\07_incident_response.txt",
+      "filename": "07_incident_response.txt",
+      "type": "txt",
+      "document_id": "07_incident_response",
+      "chunk_id": "07_incident_response_chunk_005",
+      "chunk_index": 5,
+      "total_chunks_in_doc": 6,
+      "char_count": 629,
+      "word_count": 80
+    }
+  },
+  {
+    "page_content": "4. Post-Incident Review and Prevention\nEvery P1/P2 incident requires an exhaustive blameless post-mortem document covering timeline of detection, time to mitigation (TTM), architectural vulnerabilities exposed, and action items for proactive test coverage enhancement.",
+    "metadata": {
+      "source": "07_incident_response.txt",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\07_incident_response.txt",
+      "filename": "07_incident_response.txt",
+      "type": "txt",
+      "document_id": "07_incident_response",
+      "chunk_id": "07_incident_response_chunk_006",
+      "chunk_index": 6,
+      "total_chunks_in_doc": 6,
+      "char_count": 268,
+      "word_count": 33
+    }
+  },
+  {
+    "page_content": "MACHINE LEARNING SECURITY, ADVERSARIAL DEFENSE, AND END-TO-END REPRODUCIBILITY\n\n1. Threat Modeling for Machine Learning Systems\nEnterprise machine learning systems face unique adversarial vulnerabilities across the entire lifecycle from data curation to real-time serving:",
+    "metadata": {
+      "source": "08_security_and_reproducibility.txt",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\08_security_and_reproducibility.txt",
+      "filename": "08_security_and_reproducibility.txt",
+      "type": "txt",
+      "document_id": "08_security_and_reproducibility",
+      "chunk_id": "08_security_and_reproducibility_chunk_001",
+      "chunk_index": 1,
+      "total_chunks_in_doc": 7,
+      "char_count": 272,
+      "word_count": 33
+    }
+  },
+  {
+    "page_content": "1.1 Data Poisoning and Backdoor Attacks\nAdversaries manipulate training corpora or public data partitions by injecting subtle, poisoned triggers. At inference time, inputs containing the designated trigger cause the model to output target malicious labels while maintaining high accuracy on clean validation sets. Defense strategies require data provenance tracking, differential privacy training routines, and robust spectral signature filtering on activation representations.",
+    "metadata": {
+      "source": "08_security_and_reproducibility.txt",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\08_security_and_reproducibility.txt",
+      "filename": "08_security_and_reproducibility.txt",
+      "type": "txt",
+      "document_id": "08_security_and_reproducibility",
+      "chunk_id": "08_security_and_reproducibility_chunk_002",
+      "chunk_index": 2,
+      "total_chunks_in_doc": 7,
+      "char_count": 477,
+      "word_count": 61
+    }
+  },
+  {
+    "page_content": "1.2 Model Extraction and Inversion Attacks\nThrough high-volume black-box API queries, attackers can reconstruct proprietary model parameters (model stealing) or invert predictions to reconstruct sensitive training data attributes (model inversion). Mitigations include API rate limiting, perturbation of output probability distributions (temperature scaling, differential noise injection), and strict suppression of raw logits.",
+    "metadata": {
+      "source": "08_security_and_reproducibility.txt",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\08_security_and_reproducibility.txt",
+      "filename": "08_security_and_reproducibility.txt",
+      "type": "txt",
+      "document_id": "08_security_and_reproducibility",
+      "chunk_id": "08_security_and_reproducibility_chunk_003",
+      "chunk_index": 3,
+      "total_chunks_in_doc": 7,
+      "char_count": 427,
+      "word_count": 51
+    }
+  },
+  {
+    "page_content": "1.3 Adversarial Evasion and Perturbation Attacks\nTargeted gradient-based input perturbations (e.g., Fast Gradient Sign Method [FGSM], Projected Gradient Descent [PGD]) force classifiers into erroneous predictions despite alterations remaining imperceptible to human observers. Defenses include adversarial data augmentation during training and input purification via denoising autoencoders.\n\n2. Determinism and Exact Reproducibility Frameworks\nReproducibility is essential for compliance audits, forensic incident investigation, and rigorous empirical research.",
+    "metadata": {
+      "source": "08_security_and_reproducibility.txt",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\08_security_and_reproducibility.txt",
+      "filename": "08_security_and_reproducibility.txt",
+      "type": "txt",
+      "document_id": "08_security_and_reproducibility",
+      "chunk_id": "08_security_and_reproducibility_chunk_004",
+      "chunk_index": 4,
+      "total_chunks_in_doc": 7,
+      "char_count": 561,
+      "word_count": 64
+    }
+  },
+  {
+    "page_content": "2.1 Eliminating Non-Deterministic Sources\nExact bitwise reproducibility requires comprehensive deterministic controls:\n- Seed Pinning: Explicit initialization of random number generator seeds across Python random, NumPy, PyTorch CPU, and PyTorch CUDA:\n  torch.manual_seed(seed)\n  torch.cuda.manual_seed_all(seed)\n  np.random.seed(seed)\n  random.seed(seed)\n- Deterministic Algorithm Enforcement: Enforcing torch.use_deterministic_algorithms(True) and setting torch.backends.cudnn.deterministic = True. Note that certain atomic operations (e.g., atomicAdd in scattered reduction kernels) may throw runtime errors if deterministic implementations are unavailable.",
+    "metadata": {
+      "source": "08_security_and_reproducibility.txt",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\08_security_and_reproducibility.txt",
+      "filename": "08_security_and_reproducibility.txt",
+      "type": "txt",
+      "document_id": "08_security_and_reproducibility",
+      "chunk_id": "08_security_and_reproducibility_chunk_005",
+      "chunk_index": 5,
+      "total_chunks_in_doc": 7,
+      "char_count": 660,
+      "word_count": 65
+    }
+  },
+  {
+    "page_content": "- Environment Freezing: Packaging exact software dependencies using strict lockfiles (e.g., uv.lock, poetry.lock) and running inside hermetic, immutable container images (Docker / OCI).",
+    "metadata": {
+      "source": "08_security_and_reproducibility.txt",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\08_security_and_reproducibility.txt",
+      "filename": "08_security_and_reproducibility.txt",
+      "type": "txt",
+      "document_id": "08_security_and_reproducibility",
+      "chunk_id": "08_security_and_reproducibility_chunk_006",
+      "chunk_index": 6,
+      "total_chunks_in_doc": 7,
+      "char_count": 185,
+      "word_count": 23
+    }
+  },
+  {
+    "page_content": "3. Model Governance and Lineage Tracking\nProduction governance mandates cryptographically verifiable artifact registries:\n- Data and Model Hashing: Generating immutable SHA-256 checksums for datasets, weight files, and serialized pipelines.\n- Metadata Lineage: Logging training hyperparameter configurations, git commit SHAs, author identity, compute resource specifications, and validation metrics into centralized registries such as MLflow, Weights & Biases, or Kubeflow Metadata.",
+    "metadata": {
+      "source": "08_security_and_reproducibility.txt",
+      "full_path": "C:\\Users\\Eclipse\\PycharmProjects\\neural-network-technologies-and-systems\\NNTS_VARIANT_2\\lab03_chroma_rag\\data\\knowledge_base\\08_security_and_reproducibility.txt",
+      "filename": "08_security_and_reproducibility.txt",
+      "type": "txt",
+      "document_id": "08_security_and_reproducibility",
+      "chunk_id": "08_security_and_reproducibility_chunk_007",
+      "chunk_index": 7,
+      "total_chunks_in_doc": 7,
+      "char_count": 482,
+      "word_count": 59
+    }
+  }
+]

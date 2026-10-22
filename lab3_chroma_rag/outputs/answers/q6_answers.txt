@@ -1,0 +1,14 @@
+QUERY ID: Q6
+CATEGORY: Metadata Filter (type=md)
+QUERY: What post-training quantization techniques like AWQ reduce memory footprint without losing accuracy?
+FILTER: {'type': 'md'}
+
+============================================================
+SIMILARITY RETRIEVER ANSWER:
+============================================================
+AWQ (Activation-aware Weight Quantization) is a post-training quantization technique that reduces memory footprint without losing accuracy by protecting the most salient 1% of weight channels based on activation magnitudes, thereby maintaining model perplexity while achieving a 4× footprint reduction [05_deployment_architecture.md].
+
+============================================================
+MMR RETRIEVER ANSWER:
+============================================================
+AWQ (Activation-aware Weight Quantization) is a post-training quantization technique that reduces memory footprint without losing accuracy by protecting the most salient 1% of weight channels based on activation magnitudes, thereby maintaining model perplexity while achieving a 4× footprint reduction [05_deployment_architecture.md].

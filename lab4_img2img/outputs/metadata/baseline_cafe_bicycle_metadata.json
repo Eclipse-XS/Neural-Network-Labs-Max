@@ -1,0 +1,27 @@
+{
+  "generation_id": "baseline_cafe_bicycle",
+  "input_image": "02_cafe_bicycle.png",
+  "output_image": "baseline_cafe_bicycle_strength0p6_cfg7p5_steps30_seed42.png",
+  "prompt": "a watercolor painting of a vintage bicycle outside a cozy Parisian cafe, delicate brush strokes, soft pastel colors, architectural sketch, detailed watercolor wash",
+  "negative_prompt": null,
+  "style": "Watercolor",
+  "strength": 0.6,
+  "guidance_scale": 7.5,
+  "num_inference_steps": 30,
+  "actual_denoising_steps": 18,
+  "seed": 42,
+  "resolution": [
+    512,
+    512
+  ],
+  "model_id": "stable-diffusion-v1-5/stable-diffusion-v1-5",
+  "scheduler": "PNDMScheduler",
+  "pipeline_class": "StableDiffusionImg2ImgPipeline",
+  "torch_version": "2.6.0+cu124",
+  "diffusers_version": "0.41.0",
+  "device": "NVIDIA GeForce RTX 3050 Laptop GPU",
+  "generation_time_seconds": 6.51,
+  "input_sha256": "f4bc1420d0125328f3ed44e74452858b32f001943e8d464577cb8e138939707e",
+  "output_sha256": "73c99af1e96ae2901180840dbc0e204badfb1d63e197b72d95ca33879ea0ea95",
+  "timestamp": "2026-10-22 20:53:27"
+}

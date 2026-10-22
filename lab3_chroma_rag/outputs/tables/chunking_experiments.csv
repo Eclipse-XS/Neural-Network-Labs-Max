@@ -1,0 +1,4 @@
+Config,Chunk Size,Overlap,Total Chunks,Min Length,Max Length,Mean Length,Median Length,Std Dev,Mean Words
+Small (400/60),400,60,92,39,399,261.36,267.5,95.62,32.32
+Medium (700/100),700,100,55,80,695,434.76,478.0,179.47,53.65
+Large (1000/150),1000,150,34,280,990,700.71,776.5,216.96,86.35

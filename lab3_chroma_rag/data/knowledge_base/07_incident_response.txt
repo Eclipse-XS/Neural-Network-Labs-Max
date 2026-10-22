@@ -1,0 +1,41 @@
+PRODUCTION MACHINE LEARNING INCIDENT RESPONSE PROTOCOLS AND MITIGATION PLAYBOOKS
+
+1. Incident Classification and Severity Levels
+Machine learning incidents differ fundamentally from traditional software defects. While microservice crashes trigger HTTP 5xx codes, model failures typically present as "silent degradation" where inference endpoints return HTTP 200 OK with mathematically degraded, nonsensical, or biased predictions.
+
+Severity 1 (P1 - Critical):
+- Complete prediction endpoint outage or cascading timeout failures exceeding SLA budgets (p99 latency > 1000ms).
+- Catastrophic distribution drift (PSI >= 0.35) resulting in severe business disruption or severe loss of operational margin.
+- Critical adversarial compromise or mass prompt injection exfiltrating sensitive context.
+
+Severity 2 (P2 - Major):
+- Significant performance deterioration across primary KPIs (e.g., F1-score drop > 15% on daily audited holdout samples).
+- Upstream feature corruption affecting > 20% of active inference requests.
+- Failure of scheduled daily automated retraining or checkpoint validation pipelines.
+
+Severity 3 (P3 - Moderate):
+- Moderate covariate drift (0.10 <= PSI < 0.25) across auxiliary non-critical features.
+- Minor latency degradation within acceptable buffer limits.
+
+2. Diagnostic Triaging and Root Cause Analysis (RCA)
+Upon incident declaration, on-call ML engineers execute a standard 4-phase diagnostic workflow:
+Phase 1: Upstream Pipeline Audit
+Inspect raw schema consistency, null frequency anomalies, and feature store replication lags. Verify whether data ingestion contracts were violated by third-party upstream APIs.
+
+Phase 2: Distribution Comparison
+Extract production request payload snapshots from the active incident window and execute Kolmogorov-Smirnov and PSI comparisons against training baseline splits.
+
+Phase 3: Model Health and Resource Utilization
+Examine GPU VRAM saturation, CUDA kernel execution timeouts, worker thread deadlocks, and memory fragmentation.
+
+Phase 4: Calibration and Prediction Density Inspection
+Assess prediction probability distributions. A severe clustering of confidence scores near decision boundaries indicates model uncertainty induced by unseen input domains.
+
+3. Automated Mitigation and Circuit Breakers
+To prevent widespread damage, production inference gateways implement automatic circuit breakers:
+- Fallback Heuristics: Diverting live requests to rule-based fallback decision engines or deterministic business heuristics when confidence scores violate sanity thresholds.
+- Rollback to Golden Baseline: Automatic rollback to the previous validated model checkpoint (N-1 release) via atomic traffic rerouting at the API gateway layer.
+- Throttling and Graceful Degradation: Dropping non-essential compute-intensive features or switching to lightweight quantized models under high load.
+
+4. Post-Incident Review and Prevention
+Every P1/P2 incident requires an exhaustive blameless post-mortem document covering timeline of detection, time to mitigation (TTM), architectural vulnerabilities exposed, and action items for proactive test coverage enhancement.

@@ -1,0 +1,28 @@
+QUERY ID: Q5
+CATEGORY: Diversity Stress Test
+QUERY: What are the key architectural differences in memory footprint between Distributed Data Parallel (DDP) and Fully Sharded Data Parallel (FSDP)?
+FILTER: None
+
+============================================================
+SIMILARITY RETRIEVER ANSWER:
+============================================================
+The key architectural difference in memory footprint between Distributed Data Parallel (DDP) and Fully Sharded Data Parallel (FSDP) lies in how model parameters, gradients, and optimizer states are distributed across GPU ranks.
+
+In DDP, model parameters and optimizer states are replicated across all GPU ranks, leading to a per-device VRAM footprint of $O(M)$, where $M$ is the total model size. This replication results in high memory usage, especially for large models, as each GPU holds a full copy of the model state [03_model_training.md].
+
+In contrast, FSDP shards model parameters, gradients, and optimizer states across ranks, reducing the per-device VRAM footprint from $O(M)$ to $O(M / N)$, where $N$ is the number of GPU ranks. This is achieved by gathering parameters on-demand during forward and backward passes, significantly lowering memory consumption without sacrificing training efficiency [03_model_training.md].
+
+Thus, FSDP provides a more efficient memory utilization compared to DDP, particularly in large-scale model training scenarios. 
+
+[Citation: 03_model_training.md]
+
+============================================================
+MMR RETRIEVER ANSWER:
+============================================================
+The key architectural difference in memory footprint between Distributed Data Parallel (DDP) and Fully Sharded Data Parallel (FSDP) lies in how model parameters, gradients, and optimizer states are distributed across GPU ranks.
+
+In DDP, model parameters and optimizer states are replicated across all GPU ranks, leading to a per-device VRAM footprint of $O(M)$, where $M$ is the total model parameter count. This replication results in significant memory overhead, especially for large models, as each GPU holds a full copy of the model state [03_model_training_chunk_005].
+
+In contrast, FSDP shards model parameters, gradients, and optimizer states across ranks, reducing the per-device VRAM footprint from $O(M)$ to $O(M / N)$, where $N$ is the number of GPU ranks. This is achieved through on-demand gathering of parameters during forward and backward passes, minimizing the memory footprint per device [03_model_training_chunk_006].
+
+Thus, FSDP provides a substantially more efficient memory utilization compared to DDP, particularly in large-scale model training scenarios.
