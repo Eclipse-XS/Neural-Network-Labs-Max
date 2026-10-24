@@ -43,7 +43,7 @@ lab4_img2img/
 ### Вимоги:
 - Python 3.12+ у віртуальному середовищі (`.venv-lab04`);
 - Відеокарта з підтримкою CUDA (NVIDIA GeForce RTX 3050 Laptop GPU або аналогічна з $\ge 4$ ГБ VRAM);
-- Бібліотеки `diffusers==0.41.0`, `transformers==5.20.2`, `accelerate==1.15.0`, `torch==2.6.0+cu124`.
+- Бібліотеки `diffusers==0.40.0`, `transformers==5.17.0`, `accelerate==1.15.0`, `torch==2.14.1+cu130` (або сумісний PyTorch 2.x з CUDA).
 
 ### Запуск тестів:
 ```powershell
