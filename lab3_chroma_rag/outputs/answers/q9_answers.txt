@@ -6,7 +6,7 @@ FILTER: None
 ============================================================
 SIMILARITY RETRIEVER ANSWER:
 ============================================================
-Based on the provided technical documentation, there is insufficient information to answer this question. The context documents cover topics such as data quality, model training, validation metrics, and deployment architectures, but none of them address quantum supremacy benchmark metrics for superconducting qubit quantum annealing. [01_data_quality.md], [03_model_training.md], [04_validation_and_metrics.md], and [05_deployment_architecture.md] do not contain any information related to quantum computing or quantum annealing.
+Based on the provided technical documentation, there is insufficient information to answer this question. The context documents cover topics such as data quality, model training, validation metrics, and deployment architectures, but none of them address quantum supremacy benchmark metrics for superconducting qubit quantum annealing. [01_data_quality.md], [03_model_training.md], [04_validation_and_metrics.md], and [05_deployment_architecture.md] do not contain any information related to quantum computing or qubit systems.
 
 ============================================================
 MMR RETRIEVER ANSWER:

@@ -6,17 +6,16 @@ FILTER: None
 ============================================================
 SIMILARITY RETRIEVER ANSWER:
 ============================================================
-Covariate data drift differs from concept drift in that covariate drift involves a change in the distribution of input features ($P_t(X) \neq P_0(X)$) while the conditional relationship between inputs and targets remains constant ($P_t(Y|X) = P_0(Y|X)$) [06_model_monitoring.md|ID:06_model_monitoring_chunk_001]. In contrast, concept drift involves a fundamental shift in the underlying relationship between inputs and targets ($P_t(Y|X) \neq P_0(Y|X)$), even if the input feature distribution remains stable [06_model_monitoring.md|ID:06_model_monitoring_chunk_002].
+Covariate data drift differs from concept drift in the nature of the distribution shift:
 
-Regarding incident triage and diagnosis of distribution shifts, the process includes a Phase 1: Upstream Pipeline Audit, where ML engineers inspect raw schema consistency, null frequency anomalies, and feature store replication lags to determine whether data ingestion contracts were violated by third-party upstream APIs [07_incident_response.txt|ID:07_incident_response_chunk_003]. This audit helps identify potential sources of distribution shifts, such as data drift, by detecting inconsistencies in data ingestion that may lead to altered input feature distributions or data quality issues. However, the provided context does not explicitly describe how the triage process directly detects or quantifies concept drift or target drift, only that it investigates upstream data integrity. Thus, while upstream pipeline issues can contribute to covariate drift, the diagnostic workflow does not explicitly cover concept or target drift detection.
+- **Covariate drift** occurs when the marginal input feature distribution changes over time, while the conditional relationship between inputs and targets remains constant: $P_t(X) \neq P_0(X)$, while $P_t(Y|X) = P_0(Y|X)$ [06_model_monitoring.md|ID:06_model_monitoring_chunk_001].
+- **Concept drift** manifests when the underlying relationship between inputs and targets shifts fundamentally: $P_t(Y|X) \neq P_0(Y|X)$, while $P_t(X) \approx P_0(X)$ [06_model_monitoring.md|ID:06_model_monitoring_chunk_002].
 
-Therefore, based on the provided technical documentation:
-- Covariate drift is defined and contrasted with concept drift [06_model_monitoring.md|ID:06_model_monitoring_chunk_001, 06_model_monitoring.md|ID:06_model_monitoring_chunk_002].
-- Incident triage diagnoses distribution shifts by auditing upstream data pipelines for anomalies that may cause data drift [07_incident_response.txt|ID:07_incident_response_chunk_003].
-- There is no explicit mention of how the triage process detects or analyzes concept or target drift.
+Regarding incident triage and diagnosis of distribution shifts:
 
-Final Answer:
-Covariate drift involves a shift in input feature distributions while the conditional relationship between inputs and outputs remains stable, whereas concept drift involves a shift in the conditional relationship between inputs and outputs [06_model_monitoring.md|ID:06_model_monitoring_chunk_001, 06_model_monitoring.md|ID:06_model_monitoring_chunk_002]. Incident triage diagnoses distribution shifts by auditing upstream pipeline data integrity, which can reveal anomalies leading to covariate drift, but does not explicitly address concept or target drift detection [07_incident_response.txt|ID:07_incident_response_chunk_003].
+Incident triage diagnoses distribution shifts through a structured 4-phase workflow, with **Phase 1: Upstream Pipeline Audit**, which specifically inspects raw schema consistency, null frequency anomalies, and feature store replication lags to determine whether data ingestion contracts were violated by third-party upstream APIs [07_incident_response.txt|ID:07_incident_response_chunk_003]. This phase helps identify potential sources of covariate drift or data quality degradation that may be driving observed distribution shifts in production models.
+
+Thus, while the monitoring framework detects statistical drift via divergence metrics (e.g., PSI) across time windows [06_model_monitoring.md|ID:06_model_monitoring_chunk_003], incident triage focuses on root cause analysis by auditing upstream data pipelines to validate the origin of distribution shifts.
 
 ============================================================
 MMR RETRIEVER ANSWER:
@@ -30,4 +29,4 @@ Regarding incident triage and diagnosis of distribution shifts:
 
 Incident triage diagnoses distribution shifts through a structured 4-phase workflow, with **Phase 1: Upstream Pipeline Audit**, which specifically inspects raw schema consistency, null frequency anomalies, and feature store replication lags to determine whether data ingestion contracts were violated by third-party upstream APIs [07_incident_response.txt|ID:07_incident_response_chunk_003]. This phase helps identify potential sources of covariate drift or data quality degradation that may be contributing to observed distribution shifts in production models.
 
-Thus, while the monitoring framework detects statistical drift via divergence metrics (e.g., PSI) across time windows [06_model_monitoring.md|ID:06_model_monitoring_chunk_003], incident triage focuses on root cause analysis by auditing upstream data pipelines to validate the origin of distribution shifts.
+Thus, while the monitoring framework detects statistical drift via divergence metrics (e.g., PSI) across time windows, incident triage uses upstream pipeline audits to root-cause data distribution shifts, particularly those stemming from data ingestion anomalies [06_model_monitoring.md|ID:06_model_monitoring_chunk_003].

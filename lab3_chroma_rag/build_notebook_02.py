@@ -527,7 +527,7 @@ print("Тест фільтрації за метаданими успішно п
     return nb
 
 if __name__ == "__main__":
-    out_dir = Path("NNTS_VARIANT_2/lab03_chroma_rag/notebooks")
+    out_dir = Path(__file__).resolve().parent / "notebooks"
     out_dir.mkdir(parents=True, exist_ok=True)
     nb = build_notebook_02()
     nb_path = out_dir / "02_chroma_retrieval.ipynb"

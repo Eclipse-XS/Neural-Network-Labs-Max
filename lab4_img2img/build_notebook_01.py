@@ -330,7 +330,7 @@ print(f"Порівняльну сітку збережено у {cmp_fig_path}")
     return nb
 
 if __name__ == "__main__":
-    out_dir = Path("NNTS_VARIANT_2/lab04_img2img/notebooks")
+    out_dir = Path(__file__).resolve().parent / "notebooks"
     out_dir.mkdir(parents=True, exist_ok=True)
     nb = build_lab04_notebook_01()
     nb_path = out_dir / "01_input_images_and_pipeline.ipynb"

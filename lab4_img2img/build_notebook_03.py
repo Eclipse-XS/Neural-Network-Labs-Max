@@ -324,7 +324,7 @@ $$Q = W_Q \cdot z_t, \quad K = W_K \cdot c, \quad V = W_V \cdot c$$
     return nb
 
 if __name__ == "__main__":
-    out_dir = Path("NNTS_VARIANT_2/lab04_img2img/notebooks")
+    out_dir = Path(__file__).resolve().parent / "notebooks"
     out_dir.mkdir(parents=True, exist_ok=True)
     nb = build_lab04_notebook_03()
     nb_path = out_dir / "03_results_analysis.ipynb"

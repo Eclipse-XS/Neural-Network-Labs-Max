@@ -8,7 +8,7 @@
 ## 1. Склад проєкту
 
 ```text
-lab03_chroma_rag/
+lab3_chroma_rag/
 ├── README.md                              # Опис структури та інструкції запуску
 ├── data/
 │   └── knowledge_base/                    # 8 тематичних документів (6 .md, 2 .txt)
@@ -42,17 +42,17 @@ lab03_chroma_rag/
 ## 2. Швидкий запуск
 
 ### Вимоги:
-- Python 3.12+ у віртуальному оточенні (`NNTS_VARIANT_2/.venv`);
+- Python 3.12+ у віртуальному оточенні (`.venv-lab04`);
 - Локальний OpenAI-сумісний сервер (наприклад, Ollama з моделлю `qwen3:4b-instruct` або vLLM за адресою `http://127.0.0.1:11434/v1`).
 
 ### Запуск тестів:
 ```powershell
-.\NNTS_VARIANT_2\.venv\Scripts\python.exe -m pytest NNTS_VARIANT_2/lab03_chroma_rag/tests/test_lab03.py -v
+pytest lab3_chroma_rag/tests/test_lab03.py -v
 ```
 
 ### Запуск ноутбуків у Jupyter:
 ```powershell
-.\NNTS_VARIANT_2\.venv\Scripts\jupyter.exe lab
+jupyter lab
 ```
 
 ---

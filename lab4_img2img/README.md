@@ -8,7 +8,7 @@
 ## 1. Склад проєкту
 
 ```text
-lab04_img2img/
+lab4_img2img/
 ├── README.md                              # Опис структури та інструкції запуску
 ├── inputs/                                # 3 оригінальні вхідні зображення (512x512)
 │   ├── 01_coastal_lighthouse.png
@@ -41,18 +41,18 @@ lab04_img2img/
 ## 2. Швидкий запуск
 
 ### Вимоги:
-- Python 3.12+ у віртуальному середовищі (`NNTS_VARIANT_2/.venv`);
+- Python 3.12+ у віртуальному середовищі (`.venv-lab04`);
 - Відеокарта з підтримкою CUDA (NVIDIA GeForce RTX 3050 Laptop GPU або аналогічна з $\ge 4$ ГБ VRAM);
 - Бібліотеки `diffusers==0.41.0`, `transformers==5.20.2`, `accelerate==1.15.0`, `torch==2.6.0+cu124`.
 
 ### Запуск тестів:
 ```powershell
-.\NNTS_VARIANT_2\.venv\Scripts\python.exe -m pytest NNTS_VARIANT_2/lab04_img2img/tests/test_lab04.py -v
+pytest lab4_img2img/tests/test_lab04.py -v
 ```
 
 ### Запуск ноутбуків у Jupyter:
 ```powershell
-.\NNTS_VARIANT_2\.venv\Scripts\jupyter.exe lab
+jupyter lab
 ```
 
 ---

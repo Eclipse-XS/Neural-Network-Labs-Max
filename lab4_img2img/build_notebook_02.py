@@ -423,7 +423,7 @@ print(df_all_generations[display_cols].to_string(index=False))
     return nb
 
 if __name__ == "__main__":
-    out_dir = Path("NNTS_VARIANT_2/lab04_img2img/notebooks")
+    out_dir = Path(__file__).resolve().parent / "notebooks"
     out_dir.mkdir(parents=True, exist_ok=True)
     nb = build_lab04_notebook_02()
     nb_path = out_dir / "02_parameter_experiments.ipynb"
