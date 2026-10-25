@@ -8335,19 +8335,19 @@ a.anchor-link {
 <li>призводить до катастрофічного забування (catastrophic forgetting) базових знань моделі.</li>
 </ul>
 <h3 id="6.2-%D0%9C%D0%B0%D1%82%D0%B5%D0%BC%D0%B0%D1%82%D0%B8%D1%87%D0%BD%D0%B0-%D0%BE%D1%81%D0%BD%D0%BE%D0%B2%D0%B0-LoRA">6.2 Математична основа LoRA<a class="anchor-link" href="#6.2-%D0%9C%D0%B0%D1%82%D0%B5%D0%BC%D0%B0%D1%82%D0%B8%D1%87%D0%BD%D0%B0-%D0%BE%D1%81%D0%BD%D0%BE%D0%B2%D0%B0-LoRA">¶</a></h3><p>Ідея LoRA (Hu et al., 2021) базується на гіпотезі про внутрішню низьку розмірність (low intrinsic dimension) зміни вагів під час адаптації до специфічної задачі.</p>
-<p>Замість прямої оптимізації повної матриці вагів $W_0 \in \mathbb{R}^{d 	imes k}$, ваги фіксуються, а зміна вагів $\Delta W$ факторизується у добуток двох низькорангових матриць:
-$$W = W_0 + \Delta W = W_0 + rac{lpha}{r} (B \cdot A)$$
+<p>Замість прямої оптимізації повної матриці вагів $W_0 \in \mathbb{R}^{d \times k}$, ваги фіксуються, а зміна вагів $\Delta W$ факторизується у добуток двох низькорангових матриць:
+$$W = W_0 + \Delta W = W_0 + \frac{\alpha}{r} (B \cdot A)$$
 де:</p>
 <ul>
-<li>$A \in \mathbb{R}^{r 	imes k}$ ініціалізується випадковими значеннями з нормального розподілу $\mathcal{N}(0, \sigma^2)$;</li>
-<li>$B \in \mathbb{R}^{d 	imes r}$ ініціалізується нулями (тому на початку навчання $\Delta W = B \cdot A = 0$, що гарантує збереження вихідної поведінки моделі);</li>
+<li>$A \in \mathbb{R}^{r \times k}$ ініціалізується випадковими значеннями з нормального розподілу $\mathcal{N}(0, \sigma^2)$;</li>
+<li>$B \in \mathbb{R}^{d \times r}$ ініціалізується нулями (тому на початку навчання $\Delta W = B \cdot A = 0$, що гарантує збереження вихідної поведінки моделі);</li>
 <li>$r \ll \min(d, k)$ — гіперпараметр рангу (зазвичай $r \in [4, 16]$);</li>
-<li>$lpha$ — константа масштабування (scaling factor).</li>
+<li>$\alpha$ — константа масштабування (scaling factor).</li>
 </ul>
 <h3 id="6.3-%D0%9F%D0%BE%D1%80%D1%96%D0%B2%D0%BD%D1%8F%D0%BD%D0%BD%D1%8F-%D0%BA%D1%96%D0%BB%D1%8C%D0%BA%D0%BE%D1%81%D1%82%D1%96-%D0%BF%D0%B0%D1%80%D0%B0%D0%BC%D0%B5%D1%82%D1%80%D1%96%D0%B2">6.3 Порівняння кількості параметрів<a class="anchor-link" href="#6.3-%D0%9F%D0%BE%D1%80%D1%96%D0%B2%D0%BD%D1%8F%D0%BD%D0%BD%D1%8F-%D0%BA%D1%96%D0%BB%D1%8C%D0%BA%D0%BE%D1%81%D1%82%D1%96-%D0%BF%D0%B0%D1%80%D0%B0%D0%BC%D0%B5%D1%82%D1%80%D1%96%D0%B2">¶</a></h3><p>Для проєкційного шару уваги з $d = 1024, k = 1024$:</p>
 <ul>
-<li>Повна матриця вагів: $1024 	imes 1024 = 1{,}048{,}576$ параметрів;</li>
-<li>LoRA з рангом $r = 8$: $1024 	imes 8 + 8 	imes 1024 = 16{,}384$ параметрів.
+<li>Повна матриця вагів: $1024 \times 1024 = 1{,}048{,}576$ параметрів;</li>
+<li>LoRA з рангом $r = 8$: $1024 \times 8 + 8 \times 1024 = 16{,}384$ параметрів.
 <strong>Економія параметрів складає понад 98.4%!</strong></li>
 </ul>
 <h3 id="6.4-%D0%97%D0%B0%D1%81%D1%82%D0%BE%D1%81%D1%83%D0%B2%D0%B0%D0%BD%D0%BD%D1%8F-LoRA-%D1%83-%D0%B4%D0%B8%D1%84%D1%83%D0%B7%D1%96%D0%B9%D0%BD%D0%B8%D1%85-%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D1%8F%D1%85">6.4 Застосування LoRA у дифузійних моделях<a class="anchor-link" href="#6.4-%D0%97%D0%B0%D1%81%D1%82%D0%BE%D1%81%D1%83%D0%B2%D0%B0%D0%BD%D0%BD%D1%8F-LoRA-%D1%83-%D0%B4%D0%B8%D1%84%D1%83%D0%B7%D1%96%D0%B9%D0%BD%D0%B8%D1%85-%D0%BC%D0%BE%D0%B4%D0%B5%D0%BB%D1%8F%D1%85">¶</a></h3><p>У Stable Diffusion LoRA переважно застосовується до матриць проекцій механізму перехресної уваги (Cross-Attention) всередині блоків UNet:
@@ -8365,8 +8365,7 @@ $$Q = W_Q \cdot z_t, \quad K = W_K \cdot c, \quad V = W_V \cdot c$$
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h2 id="7.-%D0%9F%D1%96%D0%B4%D1%81%D1%83%D0%BC%D0%BA%D0%BE%D0%B2%D1%96-%D0%B2%D0%B8%D1%81%D0%BD%D0%BE%D0%B2%D0%BA%D0%B8-%D0%BB%D0%B0%D0%B1%D0%BE%D1%80%D0%B0%D1%82%D0%BE%D1%80%D0%BD%D0%BE%D1%97-%D1%80%D0%BE%D0%B1%D0%BE%D1%82%D0%B8-%E2%84%964">7. Підсумкові висновки лабораторної роботи №4<a class="anchor-link" href="#7.-%D0%9F%D1%96%D0%B4%D1%81%D1%83%D0%BC%D0%BA%D0%BE%D0%B2%D1%96-%D0%B2%D0%B8%D1%81%D0%BD%D0%BE%D0%B2%D0%BA%D0%B8-%D0%BB%D0%B0%D0%B1%D0%BE%D1%80%D0%B0%D1%82%D0%BE%D1%80%D0%BD%D0%BE%D1%97-%D1%80%D0%BE%D0%B1%D0%BE%D1%82%D0%B8-%E2%84%964">¶</a></h2><ol>
-<li><strong>Image-to-Image парадигма:</strong> Доведено, що Img2Img стартує не з чистого шуму, а з латентного представлення $z_0 = \mathcal{E}(x_0)$, зашумленого до початкового кроку $	ext{init\_timestep} = \min(\lfloor N 	imes 	ext{strength} 
-floor, N)$.</li>
+<li><strong>Image-to-Image парадигма:</strong> Доведено, що Img2Img стартує не з чистого шуму, а з латентного представлення $z_0 = \mathcal{E}(x_0)$, зашумленого до початкового кроку $\text{init\_timestep} = \min(\lfloor N \times \text{strength} \rfloor, N)$.</li>
 <li><strong>Параметричний контроль:</strong><ul>
 <li><code>strength</code>: головний регулятор збереження геометрії. Діапазон $0.5–0.7$ забезпечує найкращий баланс між збереженням впізнаваності об'єкта та новою художньою стилізацією.</li>
 <li><code>CFG</code>: масштаб $7.5$ є універсальним еталоном; значення $10.0$ викликає перенасичення контрасту.</li>

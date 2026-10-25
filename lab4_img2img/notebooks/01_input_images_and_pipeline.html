@@ -7827,23 +7827,22 @@ a.anchor-link {
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h2 id="1.-%D0%A2%D0%B5%D0%BE%D1%80%D0%B5%D1%82%D0%B8%D1%87%D0%BD%D1%96-%D0%B7%D0%B0%D1%81%D0%B0%D0%B4%D0%B8-%D1%82%D0%B5%D1%85%D0%BD%D0%BE%D0%BB%D0%BE%D0%B3%D1%96%D1%97-Image-to-Image-%D1%83-Stable-Diffusion">1. Теоретичні засади технології Image-to-Image у Stable Diffusion<a class="anchor-link" href="#1.-%D0%A2%D0%B5%D0%BE%D1%80%D0%B5%D1%82%D0%B8%D1%87%D0%BD%D1%96-%D0%B7%D0%B0%D1%81%D0%B0%D0%B4%D0%B8-%D1%82%D0%B5%D1%85%D0%BD%D0%BE%D0%BB%D0%BE%D0%B3%D1%96%D1%97-Image-to-Image-%D1%83-Stable-Diffusion">¶</a></h2><h3 id="1.1-%D0%92%D1%96%D0%B4%D0%BC%D1%96%D0%BD%D0%BD%D1%96%D1%81%D1%82%D1%8C-Image-to-Image-%D0%B2%D1%96%D0%B4-Text-to-Image">1.1 Відмінність Image-to-Image від Text-to-Image<a class="anchor-link" href="#1.1-%D0%92%D1%96%D0%B4%D0%BC%D1%96%D0%BD%D0%BD%D1%96%D1%81%D1%82%D1%8C-Image-to-Image-%D0%B2%D1%96%D0%B4-Text-to-Image">¶</a></h3><p>У класичному режимі <strong>Text-to-Image</strong> генерація стартує з чистого випадкового гаусового шуму $z_T \sim \mathcal{N}(0, I)$ у латентному просторі, тобто модель не має жодної початкової геометрії, окрім текстового промпта.</p>
-<p>У режимі <strong>Image-to-Image (Img2Img)</strong> початковою точкою є вже існуюче зображення $x_0 \in \mathbb{R}^{H 	imes W 	imes 3}$. Процес складається з таких фаз:</p>
+<p>У режимі <strong>Image-to-Image (Img2Img)</strong> початковою точкою є вже існуюче зображення $x_0 \in \mathbb{R}^{H \times W \times 3}$. Процес складається з таких фаз:</p>
 <ol>
 <li><strong>Латентне кодування (VAE Encoding):</strong> Вхідне піксельне зображення стискається автокодувальником (VAE Encoder $\mathcal{E}$) у низьковимірний латентний простір:
-$$z_0 = \mathcal{E}(x_0), \quad z_0 \in \mathbb{R}^{4 	imes rac{H}{8} 	imes rac{W}{8}}$$
-Для зображення $512 	imes 512$ розмір латентного представлення складає $4 	imes 64 	imes 64$.</li>
+$$z_0 = \mathcal{E}(x_0), \quad z_0 \in \mathbb{R}^{4 \times \frac{H}{8} \times \frac{W}{8}}$$
+Для зображення $512 \times 512$ розмір латентного представлення складає $4 \times 64 \times 64$.</li>
 <li><strong>Часткове зашумлення та розрахунок таймстепів (Forward Diffusion / Timesteps calculation):</strong>
-У бібліотеці Hugging Face Diffusers (клас <code>StableDiffusionImg2ImgPipeline</code>) кількість та індекси активних кроків денойзингу розраховуються відповідно до параметра сили перетворення $	ext{strength} \in [0, 1]$:
-$$	ext{init\_timestep} = \min(\lfloor 	ext{num\_inference\_steps} 	imes 	ext{strength} 
-floor, 	ext{num\_inference\_steps})$$
-$$t_{	ext{start}} = \max(	ext{num\_inference\_steps} - 	ext{init\_timestep}, 0)$$
-$$	ext{timesteps} = 	ext{scheduler.timesteps}[t_{	ext{start}} 	imes 	ext{scheduler.order} : ]$$
-Початковий шум додається до латентного вектора $z_0$ відповідно до найбільшого залишкового кроку $t_{	ext{latent}} = 	ext{timesteps}[0]$:
-$$z_{t_{	ext{latent}}} = \sqrt{ar{lpha}_{t_{	ext{latent}}}} z_0 + \sqrt{1 - ar{lpha}_{t_{	ext{latent}}}} \epsilon, \quad \epsilon \sim \mathcal{N}(0, I)$$
-Фактична кількість виконаних ітерацій UNet складає $	ext{actual\_steps} = 	ext{num\_inference\_steps} - t_{	ext{start}} = 	ext{init\_timestep}$.</li>
-<li><strong>Кероване зворотне знешумлення (Reverse Denoising Process):</strong> Починаючи не з $t=T$, а саме з $t=t_{	ext{latent}}$, модель UNet ітеративно передбачає шум, спрямовуючи генерацію вектором текстового промпта $c$:
-$$	ilde{\epsilon}_	heta(z_t, c) = \epsilon_	heta(z_t, \emptyset) + s \cdot (\epsilon_	heta(z_t, c) - \epsilon_	heta(z_t, \emptyset))$$
-де $s$ — коефіцієнт Classifier-Free Guidance (CFG).</li>
+У бібліотеці Hugging Face Diffusers (клас <code>StableDiffusionImg2ImgPipeline</code>) кількість та індекси активних кроків денойзингу розраховуються відповідно до параметра сили перетворення $\text{strength} \in [0, 1]$:
+$$\text{init\_timestep} = \min(\lfloor \text{num\_inference\_steps} \times \text{strength} \rfloor, \text{num\_inference\_steps})$$
+$$t_{\text{start}} = \max(\text{num\_inference\_steps} - \text{init\_timestep}, 0)$$
+$$\text{timesteps} = \text{scheduler.timesteps}[t_{\text{start}} \times \text{scheduler.order} : ]$$
+Початковий шум додається до латентного вектора $z_0$ відповідно до найбільшого залишкового кроку $t_{\text{latent}} = \text{timesteps}[0]$:
+$$z_{t_{\text{latent}}} = \sqrt{\bar{\alpha}_{t_{\text{latent}}}} z_0 + \sqrt{1 - \bar{\alpha}_{t_{\text{latent}}}} \epsilon, \quad \epsilon \sim \mathcal{N}(0, I)$$
+Фактична кількість виконаних ітерацій UNet складає $\text{actual\_steps} = \text{num\_inference\_steps} - t_{\text{start}} = \text{init\_timestep}$.</li>
+<li><strong>Кероване зворотне знешумлення (Reverse Denoising Process):</strong> Починаючи не з $t=T$, а саме з $t=t_{\text{latent}}$, модель UNet ітеративно передбачає шум, спрямовуючи генерацію вектором текстового промпта $c$ та масштабом Classifier-Free Guidance (CFG):
+$$\hat{\epsilon} = \epsilon_\theta(z_t, \emptyset) + s \cdot (\epsilon_\theta(z_t, c) - \epsilon_\theta(z_t, \emptyset))$$
+де $s$ — коефіцієнт Classifier-Free Guidance (CFG, $\text{guidance\_scale}$).</li>
 <li><strong>Латентне декодування (VAE Decoding):</strong> Очищений вектор $z_0^*$ декодується VAE Decoder $\mathcal{D}$ назад у піксельний простір: $x^* = \mathcal{D}(z_0^*)$.</li>
 </ol>
 </div>
@@ -7940,11 +7939,11 @@ Pillow version:      12.3.0
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<h2 id="3.-%D0%90%D1%83%D0%B4%D0%B8%D1%82-%D1%82%D0%B0-%D0%B2%D1%96%D0%B7%D1%83%D0%B0%D0%BB%D1%96%D0%B7%D0%B0%D1%86%D1%96%D1%8F-%D0%BE%D1%80%D0%B8%D0%B3%D1%96%D0%BD%D0%B0%D0%BB%D1%8C%D0%BD%D0%B8%D1%85-%D0%B2%D1%85%D1%96%D0%B4%D0%BD%D0%B8%D1%85-%D0%B7%D0%BE%D0%B1%D1%80%D0%B0%D0%B6%D0%B5%D0%BD%D1%8C">3. Аудит та візуалізація оригінальних вхідних зображень<a class="anchor-link" href="#3.-%D0%90%D1%83%D0%B4%D0%B8%D1%82-%D1%82%D0%B0-%D0%B2%D1%96%D0%B7%D1%83%D0%B0%D0%BB%D1%96%D0%B7%D0%B0%D1%86%D1%96%D1%8F-%D0%BE%D1%80%D0%B8%D0%B3%D1%96%D0%BD%D0%B0%D0%BB%D1%8C%D0%BD%D0%B8%D1%85-%D0%B2%D1%85%D1%96%D0%B4%D0%BD%D0%B8%D1%85-%D0%B7%D0%BE%D0%B1%D1%80%D0%B0%D0%B6%D0%B5%D0%BD%D1%8C">¶</a></h2><p>Відповідно до методичних вказівок варіанта №2, підготовлено 3 незалежні структуровані вхідні зображення з роздільною здатністю $512 	imes 512$:</p>
+<p>Відповідно до методичних вказівок варіанта №2, підготовлено 3 незалежні структуровані вхідні зображення з роздільною здатністю $512 \times 512$:</p>
 <ol>
-<li><code>01_coastal_lighthouse.png</code> — скелястий мис із червоно-білим маяком, вечірнє сонце та хвилі океану;</li>
-<li><code>02_cafe_bicycle.png</code> — затишне європейське кафе з терасою, цегляна стіна та бірюзовий вінтажний велосипед;</li>
-<li><code>03_library_interior.png</code> — інтер'єр класичної бібліотеки з високими дерев'яними книжковими стелажами та арочним вікном.</li>
+<li><strong>01_coastal_lighthouse.png</strong> — пейзаж із чітким центральним об'єктом (маяк на скелястому узбережжі, океан, вечірнє небо).</li>
+<li><strong>02_cafe_bicycle.png</strong> — урбаністичний сюжет із вираженими геометричними лініями (велосипед біля літнього кафе, бруківка, арка).</li>
+<li><strong>03_library_interior.png</strong> — інтер'єр із багатою просторовою перспективою та ритмічними повтореннями (книжкові полиці, тепле світло, геометрія зали).</li>
 </ol>
 </div>
 </div>
@@ -8911,8 +8910,7 @@ You have disabled the safety checker for &lt;class 'diffusers.pipelines.stable_d
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h2 id="6.-%D0%92%D0%B8%D1%81%D0%BD%D0%BE%D0%B2%D0%BA%D0%B8-%D0%BF%D0%B5%D1%80%D1%88%D0%BE%D0%B3%D0%BE-%D0%B5%D1%82%D0%B0%D0%BF%D1%83">6. Висновки першого етапу<a class="anchor-link" href="#6.-%D0%92%D0%B8%D1%81%D0%BD%D0%BE%D0%B2%D0%BA%D0%B8-%D0%BF%D0%B5%D1%80%D1%88%D0%BE%D0%B3%D0%BE-%D0%B5%D1%82%D0%B0%D0%BF%D1%83">¶</a></h2><ol>
-<li><strong>Теоретичне підтвердження:</strong> Досліджено механізм Image-to-Image генерації. Встановлено, що ключову роль відіграє початкове латентне представлення $z_0 = \mathcal{E}(x_0)$ та кількість активних кроків денойзингу $	ext{init\_timestep} = \min(\lfloor N 	imes 	ext{strength} 
-floor, N)$.</li>
+<li><strong>Теоретичне підтвердження:</strong> Досліджено механізм Image-to-Image генерації. Встановлено, що ключову роль відіграє початкове латентне представлення $z_0 = \mathcal{E}(x_0)$ та кількість активних кроків денойзингу $\text{init\_timestep} = \min(\lfloor N \times \text{strength} \rfloor, N)$.</li>
 <li><strong>Апаратна оптимізація:</strong> Успішно запущено <code>StableDiffusionImg2ImgPipeline</code> на відеокарті NVIDIA GeForce RTX 3050 Laptop (4 ГБ VRAM) у форматі FP16 із динамічним model CPU offload без помилок вичерпання пам'яті (середній час генерації одного кадру ~5.2–5.5 секунд).</li>
 <li><strong>Базові трансформації:</strong> Отримано стилізовані версії для всіх трьох сюжетів (олійний живопис для маяка, акварель для велосипеда біля кафе та ренесансний живопис для бібліотеки). При значенні <code>strength=0.6</code> спостерігається стійке збереження основних просторових контурів та низькочастотного розташування ключових сегментів (башта маяка, обриси велосипеда, геометрія віконної арки), тоді як високочастотні текстури та колірна палітра зазнають вираженої генеративної трансформації згідно з текстовим промптом.</li>
 </ol>
