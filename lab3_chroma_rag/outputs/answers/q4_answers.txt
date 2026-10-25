@@ -8,27 +8,27 @@ SIMILARITY RETRIEVER ANSWER:
 ============================================================
 Decoupled weight decay in AdamW prevents exponential weight explosion compared to standard L2 regularization by decoupling the weight decay term from the gradient updates, ensuring that the regularization is applied independently of the gradient moving averages.
 
-In standard Adam, L2 regularization is incorporated directly into the gradient computation, which means that the weight decay term is added to the gradient before it is used to update the parameters. This can lead to an exponential amplification of the weights during training because the gradient updates are simultaneously influenced by both the gradient dynamics and the regularization term, especially when the gradients are large or noisy. As a result, the regularization effect is not consistently applied and may be overwhelmed by large gradient updates, leading to instability and potential explosion of weights.
+In standard Adam, L2 regularization is incorporated directly into the gradient computation, which means that the weight decay term is added to the gradient before it is used to update the parameters. This can lead to an exponential amplification of the weights during training because the decay term interacts with the gradient updates in a way that may exacerbate instability, especially when gradients are large or noisy.
 
 In contrast, AdamW decouples the weight decay factor $\lambda$ from the gradient moving averages. The update rule in AdamW is:
 $$
 \theta_t = \theta_{t-1} - \eta \left( \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} + \lambda \theta_{t-1} \right)
 $$
-Here, the weight decay term $\lambda \theta_{t-1}$ is applied directly to the parameter value $\theta_{t-1}$, independent of the gradient computation. This ensures that the regularization is consistently applied to the parameter values throughout training, without being modulated by the gradient magnitude or the adaptive learning rate. As a result, the regularization effect is stable and does not interact with the gradient dynamics in a way that could amplify weights.
+Here, the weight decay term $\lambda \theta_{t-1}$ is applied directly to the parameter value $\theta_{t-1}$, independent of the gradient computation. This separation ensures that the regularization effect is not modulated by the gradient dynamics, thus avoiding the exponential growth of weights that can occur when the regularization is embedded within the gradient update.
 
-This decoupling prevents exponential weight explosion because the weight decay term acts as a consistent stabilizing force on the parameter values, regardless of the magnitude of the gradients. In contrast, standard L2 regularization, when embedded in the gradient update, can interact with large gradients and lead to unstable updates that may cause weights to grow exponentially.
+This decoupling prevents exponential weight explosion because the weight decay acts as a stabilizing force on the parameter values themselves, rather than being subject to the same amplification effects as the gradient updates. As a result, the model maintains better stability and generalization during training.
 
 [03_model_training.md]
 
 ============================================================
 MMR RETRIEVER ANSWER:
 ============================================================
-Decoupled weight decay in AdamW prevents exponential weight explosion compared to standard L2 regularization by decoupling the weight decay term from the gradient updates, ensuring that the regularization is applied independently of the gradient moving averages. In standard Adam, the $L_2$ regularization is incorporated directly into the gradient computation, which can lead to an exponential amplification of large gradient components during training, especially when gradients are large or noisy. This integration causes the weight decay to interact with the gradient updates in a way that may exacerbate instability and lead to explosive weight updates.
+Decoupled weight decay in AdamW prevents exponential weight explosion compared to standard L2 regularization by decoupling the weight decay term from the gradient updates, ensuring that the regularization is applied independently of the gradient moving averages. In standard Adam, the $L_2$ regularization is incorporated directly into the gradient computation, which can lead to an exponential amplification of large gradient components during training, especially when gradients are large or noisy. This integration causes the weight decay to be applied in a way that is sensitive to the magnitude of the gradients, potentially exacerbating instability and leading to explosive weight updates.
 
-In contrast, AdamW separates the weight decay term $\lambda \theta_{t-1}$ from the gradient update step, applying it directly to the parameter values rather than modifying the gradient. This decoupling ensures that the regularization effect is consistent and stable, independent of the magnitude of the gradient. As a result, the weight decay factor $\lambda$ acts as a consistent penalty on the parameter values, preventing exponential growth of weights during training [03_model_training.md].
+In contrast, AdamW decouples the weight decay factor $\lambda$ from the gradient updates through the update rule:
+$$
+\theta_t = \theta_{t-1} - \eta \left( \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} + \lambda \theta_{t-1} \right)
+$$
+Here, the term $\lambda \theta_{t-1}$ is applied directly to the parameter values, independent of the gradient estimates ($\hat{m}_t$ and $\hat{v}_t$). This decoupling ensures that the regularization effect is consistent and stable, regardless of the gradient magnitude, thereby preventing exponential weight explosion during training [03_model_training.md].
 
-This separation avoids the interaction between the gradient magnitude and the regularization term, which in standard Adam can lead to an exponential weight explosion due to the combined effect of gradient scaling and regularization. Thus, AdamW provides superior generalization and stability in deep neural networks and transformer backbones by maintaining a stable, decoupled regularization mechanism [03_model_training.md].
-
-Note: The provided context does not explicitly describe the mechanism of "exponential weight explosion" in standard L2 regularization. The explanation is based on the technical implication of decoupling in AdamW as described in the context, and the known literature. However, since the user question specifically asks for a comparison and the context does not contain a direct explanation of exponential weight explosion in standard L2 regularization, the answer is limited to what is explicitly stated in the provided documents.
-
-Therefore, based on the provided technical documentation, the explanation of how decoupled weight decay prevents exponential weight explosion is supported by the description of the decoupling mechanism in AdamW [03_model_training.md].
+This separation allows the optimizer to maintain stable parameter updates without interference from the gradient-based components, which is a key advantage over standard Adam's integrated $L_2$ regularization [03_model_training.md].

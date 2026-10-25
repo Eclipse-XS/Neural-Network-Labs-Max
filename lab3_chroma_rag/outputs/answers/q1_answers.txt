@@ -29,7 +29,7 @@ $$
 \text{PSI} = \sum_{i=1}^K (B_i - A_i) \times \ln\left(\frac{B_i}{A_i}\right)
 $$
 
-where $A_i$ is the reference population bin and $B_i$ is the target population bin [06_model_monitoring.md].
+where $A_i$ is the reference population distribution and $B_i$ is the target population distribution across $K$ bins [06_model_monitoring.md].
 
 The standard drift thresholds for PSI are:
 

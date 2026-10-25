@@ -407,7 +407,7 @@ print(f"Успішно збережено {len(serialized_chunks)} чанків 
     return nb
 
 if __name__ == "__main__":
-    out_dir = Path("NNTS_VARIANT_2/lab03_chroma_rag/notebooks")
+    out_dir = Path(__file__).resolve().parent / "notebooks"
     out_dir.mkdir(parents=True, exist_ok=True)
     nb = build_notebook_01()
     nb_path = out_dir / "01_corpus_preparation.ipynb"

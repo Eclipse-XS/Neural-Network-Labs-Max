@@ -40,7 +40,7 @@ def build_lab04_notebook_01():
 6. Зберегти вихідні зображення у високій якості та сформувати повні метадані кожного запуску."""))
 
     # Section 1: Theory of Img2Img
-    cells.append(nbf.v4.new_markdown_cell("""## 1. Теоретичні засади технології Image-to-Image у Stable Diffusion
+    cells.append(nbf.v4.new_markdown_cell(r"""## 1. Теоретичні засади технології Image-to-Image у Stable Diffusion
 
 ### 1.1 Відмінність Image-to-Image від Text-to-Image
 У класичному режимі **Text-to-Image** генерація стартує з чистого випадкового гаусового шуму $z_T \sim \mathcal{N}(0, I)$ у латентному просторі, тобто модель не має жодної початкової геометрії, окрім текстового промпта.
@@ -57,9 +57,9 @@ def build_lab04_notebook_01():
    Початковий шум додається до латентного вектора $z_0$ відповідно до найбільшого залишкового кроку $t_{\text{latent}} = \text{timesteps}[0]$:
    $$z_{t_{\text{latent}}} = \sqrt{\bar{\alpha}_{t_{\text{latent}}}} z_0 + \sqrt{1 - \bar{\alpha}_{t_{\text{latent}}}} \epsilon, \quad \epsilon \sim \mathcal{N}(0, I)$$
    Фактична кількість виконаних ітерацій UNet складає $\text{actual\_steps} = \text{num\_inference\_steps} - t_{\text{start}} = \text{init\_timestep}$.
-3. **Кероване зворотне знешумлення (Reverse Denoising Process):** Починаючи не з $t=T$, а саме з $t=t_{\text{latent}}$, модель UNet ітеративно передбачає шум, спрямовуючи генерацію вектором текстового промпта $c$:
-   $$\tilde{\epsilon}_\theta(z_t, c) = \epsilon_\theta(z_t, \emptyset) + s \cdot (\epsilon_\theta(z_t, c) - \epsilon_\theta(z_t, \emptyset))$$
-   де $s$ — коефіцієнт Classifier-Free Guidance (CFG).
+3. **Кероване зворотне знешумлення (Reverse Denoising Process):** Починаючи не з $t=T$, а саме з $t=t_{\text{latent}}$, модель UNet ітеративно передбачає шум, спрямовуючи генерацію вектором текстового промпта $c$ та масштабом Classifier-Free Guidance (CFG):
+   $$\hat{\epsilon} = \epsilon_\theta(z_t, \emptyset) + s \cdot (\epsilon_\theta(z_t, c) - \epsilon_\theta(z_t, \emptyset))$$
+   де $s$ — коефіцієнт Classifier-Free Guidance (CFG, $\text{guidance\_scale}$).
 4. **Латентне декодування (VAE Decoding):** Очищений вектор $z_0^*$ декодується VAE Decoder $\mathcal{D}$ назад у піксельний простір: $x^* = \mathcal{D}(z_0^*)$."""))
 
     # Section 2: Environment Diagnostics
@@ -99,7 +99,7 @@ assert torch.cuda.is_available(), "Потрібен GPU із підтримко�
 """))
 
     # Section 3: Input Images Audit
-    cells.append(nbf.v4.new_markdown_cell("""## 3. Аудит та візуалізація оригінальних вхідних зображень
+    cells.append(nbf.v4.new_markdown_cell(r"""## 3. Аудит та візуалізація оригінальних вхідних зображень
 
 Відповідно до методичних вказівок варіанта №2, підготовлено 3 незалежні структуровані вхідні зображення з роздільною здатністю $512 \times 512$:
 1. `01_coastal_lighthouse.png` — скелястий мис із червоно-білим маяком, вечірнє сонце та хвилі океану;
@@ -320,7 +320,7 @@ print(f"Порівняльну сітку збережено у {cmp_fig_path}")
 """))
 
     # Conclusions
-    cells.append(nbf.v4.new_markdown_cell("""## 6. Висновки першого етапу
+    cells.append(nbf.v4.new_markdown_cell(r"""## 6. Висновки першого етапу
 
 1. **Теоретичне підтвердження:** Досліджено механізм Image-to-Image генерації. Встановлено, що ключову роль відіграє початкове латентне представлення $z_0 = \mathcal{E}(x_0)$ та кількість активних кроків денойзингу $\text{init\_timestep} = \min(\lfloor N \times \text{strength} \rfloor, N)$.
 2. **Апаратна оптимізація:** Успішно запущено `StableDiffusionImg2ImgPipeline` на відеокарті NVIDIA GeForce RTX 3050 Laptop (4 ГБ VRAM) у форматі FP16 із динамічним model CPU offload без помилок вичерпання пам'яті (середній час генерації одного кадру ~5.2–5.5 секунд).
@@ -330,7 +330,7 @@ print(f"Порівняльну сітку збережено у {cmp_fig_path}")
     return nb
 
 if __name__ == "__main__":
-    out_dir = Path("NNTS_VARIANT_2/lab04_img2img/notebooks")
+    out_dir = Path(__file__).resolve().parent / "notebooks"
     out_dir.mkdir(parents=True, exist_ok=True)
     nb = build_lab04_notebook_01()
     nb_path = out_dir / "01_input_images_and_pipeline.ipynb"
