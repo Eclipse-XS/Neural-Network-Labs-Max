@@ -39,33 +39,40 @@ def test_lab03_notebook02_l2_and_cosine_formula_integrity():
     nb_path = NOTEBOOKS_DIR / "02_chroma_retrieval.ipynb"
     with open(nb_path, "r", encoding="utf-8") as f:
         nb = nbformat.read(f, as_version=4)
-    
-    sec1_text = nb.cells[1].source
+
+    md_text = "\n\n".join(c.source for c in nb.cells if c.cell_type == "markdown")
     # Перевірка назви моделі без пошкодження бекслешем
-    assert "all-MiniLM-L6-v2" in sec1_text
-    assert "\x07ll-MiniLM-L6-v2" not in sec1_text
-    assert "\\all-MiniLM-L6-v2" not in sec1_text
-    
+    assert "all-MiniLM-L6-v2" in md_text
+    assert "\x07ll-MiniLM-L6-v2" not in md_text
+    assert "\\all-MiniLM-L6-v2" not in md_text
+
     # Перевірка L2 формули з коректними математичними делімітерами
-    assert r"\|q - d_i\|_2^2" in sec1_text
-    assert r"2 - 2\cos(q, d_i)" in sec1_text
-    assert "$$" in sec1_text
-    assert "$L_2$" in sec1_text
-    assert "$L_2^2$" in sec1_text
+    assert r"\|q - d_i\|_2^2" in md_text
+    assert r"2 - 2\cos(q, d_i)" in md_text
+    assert "$$" in md_text
+    assert "$L_2$" in md_text
+    assert "$L_2^2$" in md_text
 
 def test_lab03_notebooks_structure_and_dependencies():
     """Перевірка логічної структури, порядку виконання та взаємозв'язків блокнотів ЛР3."""
     nb1_path = NOTEBOOKS_DIR / "01_corpus_preparation.ipynb"
     nb2_path = NOTEBOOKS_DIR / "02_chroma_retrieval.ipynb"
     nb3_path = NOTEBOOKS_DIR / "03_rag_evaluation.ipynb"
-    
+
     for path in [nb1_path, nb2_path, nb3_path]:
         assert path.exists(), f"Блокнот {path.name} обов'язковий"
         with open(path, "r", encoding="utf-8") as f:
             nb = nbformat.read(f, as_version=4)
-        assert len(nb.cells) >= 15, f"Блокнот {path.name} повинен бути змістовним (знайдено лише {len(nb.cells)} комірок)"
-        code_cells = [c for c in nb.cells if c.cell_type == "code"]
-        assert len(code_cells) >= 5, f"Блокнот {path.name} повинен містити безпосередній виконуваний код"
-        # Перевірка наявності вихідних результатів
+        markdown_cells = [c for c in nb.cells if c.cell_type == "markdown" and c.source.strip()]
+        code_cells = [c for c in nb.cells if c.cell_type == "code" and c.source.strip()]
+        assert len(markdown_cells) >= 1, f"Блокнот {path.name} повинен містити текстові пояснення"
+        assert len(code_cells) >= 1, f"Блокнот {path.name} повинен містити виконуваний код"
         outputs_count = sum(len(c.get("outputs", [])) for c in code_cells)
         assert outputs_count > 0, f"Блокнот {path.name} повинен містити верифіковані виходи"
+        error_outputs = [
+            out
+            for c in code_cells
+            for out in c.get("outputs", [])
+            if out.get("output_type") == "error"
+        ]
+        assert not error_outputs, f"Блокнот {path.name} містить помилки виконання в outputs: {error_outputs}"

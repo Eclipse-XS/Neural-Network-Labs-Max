@@ -42,7 +42,7 @@ max/lab1/
 ├── README.md                              # Головний опис проєкту, інструкції та результати
 ├── requirements.txt                      # Залежності середовища
 ├── utils.py                              # Спільні утиліти (токенізація, Vocabulary, PE, маски)
-├── REPORT_DRAFT.md                       # Розгорнутий академічний драфт звіту з формулами та таблицями
+├── REPORT_DRAFT.md                       # Повний академічний звіт з формулами та таблицями
 ├── DEFENSE_NOTES.md                      # Конспект для захисту та відповіді на 10 контрольних питань
 ├── notebooks/
 │   ├── 01_enron_eda_preprocessing.ipynb  # EDA, фільтрація, дедуплікація, словник Enron
@@ -100,10 +100,10 @@ pip install -r requirements.txt
 4. **`notebooks/04_wikitext_transformer_decoder.ipynb`**  
    Завантажує `wikitext_processed.pt`, перевіряє відсутність витоку майбутніх токенів (тест маски), проводить порівняльний тюнінг декодера, навчає мовну модель, генерує текст (Greedy Decoding) та оцінює Perplexity, BLEU і ROUGE-L на тестовому спліті.
 
-Для перегляду готових результатів повторне навчання не потрібне: відкрийте notebooks, у яких уже збережені outputs. Для контрольованого повторного виконання використовується `FORCE_RETRAIN = False`; моделі завантажуються з checkpoints. Послідовний запуск:
+Для перегляду готових результатів повторне навчання не потрібне: відкрийте notebooks, у яких уже збережені outputs. Для контрольованого повторного виконання використовується `FORCE_RETRAIN = False`; моделі завантажуються з checkpoints. Виконайте ноутбуки послідовно у Jupyter (`01` → `04`) або через `nbconvert`:
 
 ```powershell
-.\.venv\Scripts\python.exe max/lab1/execute_and_save_notebooks.py
+jupyter nbconvert --to notebook --execute --inplace notebooks/01_enron_eda_preprocessing.ipynb notebooks/02_enron_transformer_classifier.ipynb notebooks/03_wikitext_eda_preprocessing.ipynb notebooks/04_wikitext_transformer_decoder.ipynb
 ```
 
 Ноутбуки 01 і 03 детерміновано перебудовують processed tensors. Перед таким запуском доцільно звірити, що сирі файли не змінювалися.

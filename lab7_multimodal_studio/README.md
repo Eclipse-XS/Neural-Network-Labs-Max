@@ -120,9 +120,9 @@ lab7_multimodal_studio/
 ### Трасовані сценарії агента (`outputs/traces/`):
 | Сценарій | Цільове завдання | Порядок інструментів | Затримка | Security Policy Enforced | User Task Success |
 |:---:|---|---|:---:|:---:|:---:|
-| **SCN_01** | Опис лабораторії та перегляд галереї | `caption_image`, `inspect_studio_gallery` | 52.68 с | ✅ 100% OK | ✅ SUCCESS |
-| **SCN_02** | Cross-Component: VQA маяка $\rightarrow$ SD 1.5 Van Gogh | `answer_visual_question`, `transform_image_style` | 127.92 с | ✅ 100% OK | ✅ SUCCESS |
-| **SCN_03** | Спроба доступу до зовнішнього файлу (`../lab4_img2img/inputs/...`) | `caption_image` (заблоковано пісочницею) | 44.95 с | ✅ 100% BLOCKED | ❌ FAILED (Заборонено) |
+| **SCN_01** | Опис лабораторії та перегляд галереї | `caption_image`, `inspect_studio_gallery` | 52.68 с | OK | SUCCESS |
+| **SCN_02** | Cross-Component: VQA маяка $\rightarrow$ SD 1.5 Van Gogh | `answer_visual_question`, `transform_image_style` | 127.92 с | OK | SUCCESS |
+| **SCN_03** | Спроба доступу до зовнішнього файлу (`../lab4_img2img/inputs/...`) | `caption_image` (заблоковано пісочницею) | 44.95 с | BLOCKED | FAILED (Заборонено) |
 
 - **Tool Ordering Accuracy:** **100.0%** (3/3 сценарії викликали правильні інструменти у правильній послідовності).
 - **Security Policy Enforcement:** **100.0%** (1/1 загроза виходу за межі дозволених каталогів надійно перехоплена з `SecurityValidationError`).
@@ -144,5 +144,4 @@ streamlit run app.py
 ### Запуск верифікаційних тестів
 ```bash
 pytest tests/ -v
-# 32 passed in ~14.0s (Tier 1-3)
 ```
