@@ -37,3 +37,7 @@ lab3_chroma_rag/notebooks/*.html
 lab3_chroma_rag/outputs/html/
 lab4_img2img/notebooks/*.html
 lab4_img2img/outputs/html/
+
+# Local derived caches rebuilt by notebooks
+lab1/data/processed/*.pt
+lab3_chroma_rag/outputs/chroma_db/
