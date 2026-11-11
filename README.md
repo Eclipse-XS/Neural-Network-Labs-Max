@@ -21,7 +21,7 @@
 | **ЛР 4** | Генерація зображень через Diffusion | **Варіант 2** (Stable Diffusion Img2Img) | Diffusers, SD 1.5 FP16, CPU Offload | Notebook-First | ✅ 14/14 PASS |
 | **ЛР 5** | Мультимодальний зір: Captioning | **Варіант 2** (LLaVA Captioning & Settings) | `LLaVA-Interleave-Qwen-0.5B`, PyTorch FP16 | Notebook-First | ✅ 11/11 PASS |
 | **ЛР 6** | Інтелектуальні агенти з пам'яттю | **Варіант 2** (LlamaIndex Agent + Memory) | LlamaIndex `AgentWorkflow`, ChatMemoryBuffer, Ollama | Notebook-First | ✅ 15/15 PASS |
-| **ЛР 7** | Мультимодальна студія візуального контенту | **Варіант 2** (Studio App + Multi-Model) | Streamlit, LLaVA, SD 1.5, LlamaIndex, SQLite | **Application-First** + 3 Notebooks | ✅ 16/16 PASS |
+| **ЛР 7** | Мультимодальна студія візуального контенту | **Варіант 2** (Studio App + Multi-Model) | Streamlit, LLaVA, SD 1.5, LlamaIndex, SQLite | **Application-First** + 3 Notebooks | ✅ 20/20 PASS |
 
 ---
 

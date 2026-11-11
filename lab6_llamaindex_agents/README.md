@@ -69,7 +69,7 @@ lab6_llamaindex_agents/
 2. **`list_degraded_models()`**:
    - Повертає список усіх моделей інфраструктури, що перебувають у неробочому або деградованому стані.
 3. **`consult_incident_runbook(query: str)`**:
-   - Здійснює семантичний пошук розділів інцидентного регламенту у `mlops_runbook.txt` (протоколи прискореного кешування, скейлінг реплік, перезапуск worker-пулів з chunked prefill, rollback).
+   - Здійснює лексичний пошук за ключовими словами (keyword lexical retrieval) розділів інцидентного регламенту у `mlops_runbook.txt` (протоколи прискореного кешування, скейлінг реплік, перезапуск worker-пулів з chunked prefill, rollback).
 4. **`calculate_slo_margin(metric_value: float, slo_target: float, metric_type: str)`**:
    - Виконує точний чисельний розрахунок відхилення затримки або доступності від SLO, класифікуючи рівень загрози (`Critical`, `Warning`, `Nominal`).
 
@@ -98,12 +98,12 @@ lab6_llamaindex_agents/
 | **Single Tool** | `scenario_04_list_degraded` | `list_degraded_models` | 100% | 18.78 | Успішно |
 | **Multi-Step** | `scenario_05_multistep_churn` | `registry` $\rightarrow$ `slo_calc` $\rightarrow$ `runbook` | 100% | 38.14 | Успішно |
 | **Multi-Step** | `scenario_06_multistep_router` | `degraded` $\rightarrow$ `registry` $\rightarrow$ `slo_calc` $\rightarrow$ `runbook` | 100% | 50.74 | Успішно |
-| **Memory** | `scenario_07_memory_continuation` | Відповідь з контексту пам'яті | 100% | 22.79 | Успішно |
+| **Memory** | `scenario_07_memory_continuation` | Відповідь з пам'яті (інструменти опущені) | 0% (відповідь з пам'яті) | 22.79 | Успішно |
 | **Boundary** | `scenario_08_unknown_model` | `query_model_registry` (відсутня сутність) | 100% | 5.22 | Успішно |
 | **Safety** | `scenario_09_safety_refusal` | Відмова від деструктивної дії | 100% | 2.95 | Успішно |
 
-- **Загальна точність вибору інструментів:** 100%
-- **Рівень успішного виконання завдань:** 100%
+- **Точність виклику інструментів (Tool Selection Accuracy):** **88.9%** (8/9 сценаріїв; у сценарії 07 агент відповів безпосередньо з короткострокової пам'яті).
+- **Рівень успішного виконання завдань (Task Success Rate):** **100.0%** (9/9 сценаріїв).
 - **Середній час відповіді:** 18.6 с
 
 ---

@@ -11,7 +11,8 @@ STUDIO_ROOT = Path(__file__).resolve().parent
 if str(STUDIO_ROOT) not in sys.path:
     sys.path.insert(0, str(STUDIO_ROOT))
 
-from src.utils.device import get_gpu_memory_info, clean_gpu_memory
+from src.utils.device import get_gpu_memory_info, clean_gpu_memory, ModelLifecycleManager
+from src.utils.security import validate_safe_image_path, to_portable_path
 from src.storage.gallery_service import GalleryService
 from src.models.llava_service import LlavaService
 from src.models.diffusion_service import DiffusionService
@@ -49,6 +50,7 @@ with st.sidebar:
     st.metric("VRAM Free", f"{mem_info.get('free_mb', 0)} MB")
     
     if st.button("🧹 Clear GPU Memory"):
+        ModelLifecycleManager.get_instance().release_all()
         clean_gpu_memory()
         st.success("GPU memory cache cleared.")
         st.rerun()
@@ -112,20 +114,25 @@ with tabs[0]:
         
     if st.button("Generate Caption", type="primary", key="btn_gen_cap"):
         with st.spinner("Running multimodal inference on LLaVA..."):
-            llava = get_llava_service()
-            caption, latency = llava.generate_caption(
-                img_cap, style=cap_style, temperature=cap_temp, max_new_tokens=cap_max_tokens
-            )
-            rec_id = gallery.add_record(
-                task_type="caption",
-                prompt=cap_style,
-                parameters={"style": cap_style, "temperature": cap_temp, "max_new_tokens": cap_max_tokens},
-                output_text=caption,
-                input_image=img_cap,
-                latency_sec=latency
-            )
-            st.success(f"Caption generated in {latency:.2f}s (Saved to Gallery: `{rec_id}`)")
-            st.markdown(f"**Generated Caption:**\n\n> {caption}")
+            try:
+                llava = get_llava_service()
+                caption, latency = llava.generate_caption(
+                    img_cap, style=cap_style, temperature=cap_temp, max_new_tokens=cap_max_tokens
+                )
+                rec_id = gallery.add_record(
+                    task_type="caption",
+                    prompt=cap_style,
+                    parameters={"style": cap_style, "temperature": cap_temp, "max_new_tokens": cap_max_tokens},
+                    output_text=caption,
+                    input_image=img_cap,
+                    latency_sec=latency,
+                    status="success"
+                )
+                st.success(f"Caption generated in {latency:.2f}s (Saved to Gallery: `{rec_id}`)")
+                st.markdown(f"**Generated Caption:**\n\n> {caption}")
+            except Exception as e:
+                clean_gpu_memory()
+                st.error(f"Inference error: {e}")
 
 # -------------------------------------------------------------
 # TAB 2: Visual Question Answering
@@ -149,20 +156,25 @@ with tabs[1]:
             st.warning("Please enter a question.")
         else:
             with st.spinner("Analyzing visual evidence and generating answer..."):
-                llava = get_llava_service()
-                answer, latency = llava.answer_question(
-                    img_vqa, question=question, temperature=vqa_temp, max_new_tokens=vqa_tokens
-                )
-                rec_id = gallery.add_record(
-                    task_type="vqa",
-                    prompt=question,
-                    parameters={"question": question, "temperature": vqa_temp, "max_new_tokens": vqa_tokens},
-                    output_text=answer,
-                    input_image=img_vqa,
-                    latency_sec=latency
-                )
-                st.success(f"Answer generated in {latency:.2f}s (Saved to Gallery: `{rec_id}`)")
-                st.markdown(f"**Answer:**\n\n{answer}")
+                try:
+                    llava = get_llava_service()
+                    answer, latency = llava.answer_question(
+                        img_vqa, question=question, temperature=vqa_temp, max_new_tokens=vqa_tokens
+                    )
+                    rec_id = gallery.add_record(
+                        task_type="vqa",
+                        prompt=question,
+                        parameters={"question": question, "temperature": vqa_temp, "max_new_tokens": vqa_tokens},
+                        output_text=answer,
+                        input_image=img_vqa,
+                        latency_sec=latency,
+                        status="success"
+                    )
+                    st.success(f"Answer generated in {latency:.2f}s (Saved to Gallery: `{rec_id}`)")
+                    st.markdown(f"**Answer:**\n\n{answer}")
+                except Exception as e:
+                    clean_gpu_memory()
+                    st.error(f"Inference error: {e}")
 
 # -------------------------------------------------------------
 # TAB 3: Image Transformation (SD 1.5 Img2Img)
@@ -189,37 +201,42 @@ with tabs[2]:
         
     if st.button("Transform Image", type="primary", key="btn_sd"):
         with st.spinner("Executing Stable Diffusion 1.5 Img2Img pipeline..."):
-            diffusion = get_diffusion_service()
-            result_img, latency = diffusion.transform_image(
-                img_sd,
-                prompt=sd_prompt,
-                negative_prompt=sd_neg,
-                strength=sd_strength,
-                guidance_scale=sd_cfg,
-                num_inference_steps=sd_steps,
-                seed=int(sd_seed)
-            )
-            rec_id = gallery.add_record(
-                task_type="transformation",
-                prompt=sd_prompt,
-                parameters={
-                    "negative_prompt": sd_neg,
-                    "strength": sd_strength,
-                    "cfg": sd_cfg,
-                    "steps": sd_steps,
-                    "seed": sd_seed
-                },
-                output_text=f"Transformed with prompt: '{sd_prompt}' (strength={sd_strength})",
-                input_image=img_sd,
-                output_image=result_img,
-                latency_sec=latency
-            )
-            st.success(f"Transformation complete in {latency:.2f}s (Saved to Gallery: `{rec_id}`)")
-            col_out1, col_out2 = st.columns(2)
-            with col_out1:
-                st.image(img_sd, caption="Original Input Image", use_container_width=True)
-            with col_out2:
-                st.image(result_img, caption="Transformed Output Image", use_container_width=True)
+            try:
+                diffusion = get_diffusion_service()
+                result_img, latency = diffusion.transform_image(
+                    img_sd,
+                    prompt=sd_prompt,
+                    negative_prompt=sd_neg,
+                    strength=sd_strength,
+                    guidance_scale=sd_cfg,
+                    num_inference_steps=sd_steps,
+                    seed=int(sd_seed)
+                )
+                rec_id = gallery.add_record(
+                    task_type="transformation",
+                    prompt=sd_prompt,
+                    parameters={
+                        "negative_prompt": sd_neg,
+                        "strength": sd_strength,
+                        "cfg": sd_cfg,
+                        "steps": sd_steps,
+                        "seed": sd_seed
+                    },
+                    output_text=f"Transformed with prompt: '{sd_prompt}' (strength={sd_strength})",
+                    input_image=img_sd,
+                    output_image=result_img,
+                    latency_sec=latency,
+                    status="success"
+                )
+                st.success(f"Transformation complete in {latency:.2f}s (Saved to Gallery: `{rec_id}`)")
+                col_out1, col_out2 = st.columns(2)
+                with col_out1:
+                    st.image(img_sd, caption="Original Input Image", use_container_width=True)
+                with col_out2:
+                    st.image(result_img, caption="Transformed Output Image", use_container_width=True)
+            except Exception as e:
+                clean_gpu_memory()
+                st.error(f"Transformation error: {e}")
 
 # -------------------------------------------------------------
 # TAB 4: Agent Orchestration (LlamaIndex Agent)
@@ -231,7 +248,7 @@ with tabs[3]:
         "and the Studio History Gallery based on user requests."
     )
     
-    default_asset = list(demo_options.values())[0] if demo_options else "assets/01_coastal_lighthouse.png"
+    default_asset = "assets/01_coastal_lighthouse.png"
     agent_prompt = st.text_area(
         "Agent Instruction:",
         value=f"Inspect the image at '{default_asset}', provide a concise caption, and check the gallery records."
@@ -239,23 +256,28 @@ with tabs[3]:
     
     if st.button("Run Agent Workflow", type="primary", key="btn_agent"):
         with st.spinner("Autonomous agent planning and executing tool calls..."):
-            agent = StudioAgent(
-                llava_service=get_llava_service(),
-                diffusion_service=get_diffusion_service(),
-                gallery_service=gallery
-            )
-            response, traces, latency = asyncio.run(agent.run_request(agent_prompt))
-            
-            st.success(f"Agent finished in {latency:.2f}s")
-            st.markdown(f"### Agent Final Response\n\n{response}")
-            
-            if traces:
-                with st.expander(f"🔍 Execution Trace Details ({len(traces)} events)"):
-                    for tr in traces:
-                        if tr["event"] == "ToolCall":
-                            st.info(f"**🛠️ Tool Call:** `{tr['tool']}`\n\nArguments: `{tr['kwargs']}`")
-                        elif tr["event"] == "ToolCallResult":
-                            st.code(f"Output of {tr['tool']}:\n{tr['output']}", language="json")
+            try:
+                agent = StudioAgent(
+                    llava_service=get_llava_service(),
+                    diffusion_service=get_diffusion_service(),
+                    gallery_service=gallery,
+                    studio_root=STUDIO_ROOT
+                )
+                response, traces, latency = asyncio.run(agent.run_request(agent_prompt))
+                
+                st.success(f"Agent finished in {latency:.2f}s")
+                st.markdown(f"### Agent Final Response\n\n{response}")
+                
+                if traces:
+                    with st.expander(f"🔍 Execution Trace Details ({len(traces)} events)"):
+                        for tr in traces:
+                            if tr["event"] == "ToolCall":
+                                st.info(f"**🛠️ Tool Call:** `{tr['tool']}`\n\nArguments: `{tr['kwargs']}`")
+                            elif tr["event"] == "ToolCallResult":
+                                st.code(f"Output of {tr['tool']}:\n{tr['output']}", language="json")
+            except Exception as e:
+                clean_gpu_memory()
+                st.error(f"Agent execution error: {e}")
 
 # -------------------------------------------------------------
 # TAB 5: Studio Gallery & Audit

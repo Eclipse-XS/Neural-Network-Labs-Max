@@ -1,9 +1,10 @@
 import time
+import gc
 import torch
 from PIL import Image
 from typing import Tuple, Optional
 from transformers import AutoProcessor, LlavaForConditionalGeneration
-from ..utils.device import get_device, clean_gpu_memory
+from ..utils.device import get_device, clean_gpu_memory, ModelLifecycleManager
 
 MODEL_ID = "llava-hf/llava-interleave-qwen-0.5b-hf"
 
@@ -15,10 +16,15 @@ class LlavaService:
         self.device = get_device()
         self.processor: Optional[AutoProcessor] = None
         self.model: Optional[LlavaForConditionalGeneration] = None
+        
+        # Register with coordinated lifecycle manager
+        self.manager = ModelLifecycleManager.get_instance()
+        self.manager.register("llava", self)
 
     def _ensure_loaded(self):
         if self.model is None or self.processor is None:
-            clean_gpu_memory()
+            # Unload any conflicting heavy models (e.g. Stable Diffusion) before loading LLaVA
+            self.manager.prepare_for_model("llava")
             dtype = torch.float16 if self.device.type == "cuda" else torch.float32
             self.processor = AutoProcessor.from_pretrained(self.model_id)
             self.model = LlavaForConditionalGeneration.from_pretrained(
@@ -47,23 +53,26 @@ class LlavaService:
         prompt = f"<|im_start|>user\n<image>\n{instruction}<|im_end|>\n<|im_start|>assistant\n"
         
         rgb_image = image.convert("RGB")
-        inputs = self.processor(text=prompt, images=rgb_image, return_tensors="pt").to(self.device)
-        
-        t0 = time.time()
-        with torch.inference_mode():
-            output_ids = self.model.generate(
-                **inputs,
-                max_new_tokens=max_new_tokens,
-                do_sample=(temperature > 0.0),
-                temperature=temperature if temperature > 0.0 else None,
-                top_p=0.9 if temperature > 0.0 else None
-            )
-        elapsed = time.time() - t0
-        
-        # Decode only newly generated tokens
-        input_len = inputs.input_ids.shape[1]
-        caption = self.processor.decode(output_ids[0][input_len:], skip_special_tokens=True).strip()
-        return caption, round(elapsed, 3)
+        try:
+            inputs = self.processor(text=prompt, images=rgb_image, return_tensors="pt").to(self.device)
+            
+            t0 = time.time()
+            with torch.inference_mode():
+                output_ids = self.model.generate(
+                    **inputs,
+                    max_new_tokens=max_new_tokens,
+                    do_sample=(temperature > 0.0),
+                    temperature=temperature if temperature > 0.0 else None,
+                    top_p=0.9 if temperature > 0.0 else None
+                )
+            elapsed = time.time() - t0
+            
+            input_len = inputs.input_ids.shape[1]
+            caption = self.processor.decode(output_ids[0][input_len:], skip_special_tokens=True).strip()
+            return caption, round(elapsed, 3)
+        except Exception:
+            clean_gpu_memory()
+            raise
 
     def answer_question(
         self,
@@ -83,25 +92,33 @@ class LlavaService:
         prompt = f"<|im_start|>user\n<image>\n{instruction}<|im_end|>\n<|im_start|>assistant\n"
         
         rgb_image = image.convert("RGB")
-        inputs = self.processor(text=prompt, images=rgb_image, return_tensors="pt").to(self.device)
-        
-        t0 = time.time()
-        with torch.inference_mode():
-            output_ids = self.model.generate(
-                **inputs,
-                max_new_tokens=max_new_tokens,
-                do_sample=(temperature > 0.0),
-                temperature=temperature if temperature > 0.0 else None,
-                top_p=0.9 if temperature > 0.0 else None
-            )
-        elapsed = time.time() - t0
-        
-        input_len = inputs.input_ids.shape[1]
-        answer = self.processor.decode(output_ids[0][input_len:], skip_special_tokens=True).strip()
-        return answer, round(elapsed, 3)
+        try:
+            inputs = self.processor(text=prompt, images=rgb_image, return_tensors="pt").to(self.device)
+            
+            t0 = time.time()
+            with torch.inference_mode():
+                output_ids = self.model.generate(
+                    **inputs,
+                    max_new_tokens=max_new_tokens,
+                    do_sample=(temperature > 0.0),
+                    temperature=temperature if temperature > 0.0 else None,
+                    top_p=0.9 if temperature > 0.0 else None
+                )
+            elapsed = time.time() - t0
+            
+            input_len = inputs.input_ids.shape[1]
+            answer = self.processor.decode(output_ids[0][input_len:], skip_special_tokens=True).strip()
+            return answer, round(elapsed, 3)
+        except Exception:
+            clean_gpu_memory()
+            raise
 
     def unload(self):
-        """Free GPU VRAM allocated to LLaVA model."""
-        self.model = None
-        self.processor = None
+        """Free GPU VRAM allocated to LLaVA model by explicitly breaking references."""
+        if self.model is not None:
+            del self.model
+            self.model = None
+        if self.processor is not None:
+            del self.processor
+            self.processor = None
         clean_gpu_memory()
