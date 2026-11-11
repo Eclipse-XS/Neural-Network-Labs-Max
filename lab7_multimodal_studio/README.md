@@ -1,147 +1,64 @@
-# Лабораторна робота №7 (Варіант 2)
-# Мультимодальна студія візуального контенту (Multimodal Visual Content Studio)
+# Лабораторна робота №7. Мультимодальна студія візуального контенту
 
-**Дисципліна:** Технології та системи нейронних мереж  
-**Заклад:** Національний університет «Львівська політехніка»  
-**Тема:** Фінальний проєкт — Інтегрована локальна студія аналізу та генерації візуального контенту (Variant 2)  
-**Архітектура:** Hybrid Application-First (Автономний додаток на Streamlit + дослідницькі Jupyter-блокноти)
+Інтегрований веб-додаток Streamlit ([`app.py`](./app.py)), що поєднує аналіз зображень (`LLaVA-Interleave-Qwen-0.5B`), генерацію Image-to-Image (`Stable Diffusion 1.5` у FP16), автономного агента `LlamaIndex AgentWorkflow` (`qwen3:4b-instruct`), контрольовану валідацію файлових шляхів і персистентне сховище результатів у SQLite.
 
 ---
 
-## 1. Концепція та архітектурний огляд
+## Архітектура та модулі
 
-Лабораторна робота №7 є підсумковим комплексним проектом дисципліни, що об'єднує напрацювання попередніх досліджень в інтегрований навчальний додаток:
-1. **Мультимодальний зір (Vision-Language):** Генерація текстових підписів та візуальні запитання-відповіді (VQA) на основі моделі `LLaVA-Interleave-Qwen-0.5B`.
-2. **Генеративні дифузійні моделі (Image-to-Image):** Стилізація та художня трансформація вхідних зображень за допомогою `Stable Diffusion 1.5 Img2Img` (розвиток результатів Лабораторної №4).
-3. **Автономна агентна оркестрація:** Інтелектуальний диспетчер на базі `LlamaIndex AgentWorkflow` та локальної моделі `qwen3:4b-instruct` (Ollama), що автономно вибирає потрібні інструменти студії під запити користувача.
-4. **Персистентне сховище та аудит:** Збереження історії промптів, параметрів, затримок та згенерованих зображень у локальній базі даних `SQLite` (`outputs/gallery/gallery.db`), що гарантує збереження даних між перезапусками.
-5. **Модуль валідації вхідних файлів:** `validate_safe_image_path` перевіряє розширення, розміри зображення та обмежує читання файлів межами дозволених каталогів студії (`SecurityValidationError`).
-
-```
-+-----------------------------------------------------------------------------------------+
-|                        Streamlit Web Application (app.py)                               |
-|                                                                                         |
-|  [ 🖼️ Image Captioning ]  [ ❓ Visual QA ]  [ ✨ Transformation ]  [ 🤖 Agent ]  [ 🏛️ Gallery ] |
-+--------------------------------------------|--------------------------------------------+
-                                             |
-                   +-------------------------+-------------------------+
-                   |                         |                         |
-                   v                         v                         v
-       +-----------------------+ +-----------------------+ +-----------------------+
-       |   src/models/llava    | |  src/models/diffusers | |    src/agent/studio   |
-       |  LLaVA-Interleave-0.5B| |   Stable Diffusion    | |   LlamaIndex Workflow |
-       |  (Captioning & VQA)   | |      1.5 Img2Img      | |  (Autonomous Router)  |
-       +-----------------------+ +-----------------------+ +-----------------------+
-                   |                         |                         |
-                   +-------------------------+-------------------------+
-                                             |
-                                             v
-                             +-------------------------------+
-                             |   src/storage/gallery_service |
-                             |   Persistent SQLite + Files   |
-                             +-------------------------------+
-```
+- [`app.py`](./app.py) — інтерфейс Streamlit із бічною панеллю телеметрії VRAM і 5 вкладками (`Image Captioning`, `Visual QA`, `Image Transformation`, `Agent Orchestration`, `Studio Gallery`).
+- [`src/models/llava_service.py`](./src/models/llava_service.py) — сервіс підписів і Visual QA на `llava-hf/llava-interleave-qwen-0.5b-hf`.
+- [`src/models/diffusion_service.py`](./src/models/diffusion_service.py) — сервіс Img2Img на `stable-diffusion-v1-5/stable-diffusion-v1-5` з FP16 та CPU offload.
+- [`src/agent/studio_agent.py`](./src/agent/studio_agent.py) — агент `LlamaIndex` із 4 інструментами (`caption_image`, `answer_visual_question`, `transform_image_style`, `inspect_studio_gallery`).
+- [`src/storage/gallery_service.py`](./src/storage/gallery_service.py) — реляційне сховище історії операцій `outputs/gallery/gallery.db` (таблиця `studio_records`).
+- [`src/utils/security.py`](./src/utils/security.py) — пісочниця шляхів `validate_safe_image_path`, що блокує доступ поза дозволеними каталогами студії (`assets/`, `outputs/`).
+- [`src/utils/device.py`](./src/utils/device.py) — моніторинг та звільнення відеопам'яті (`ModelLifecycleManager`).
 
 ---
 
-## 2. Структура проєкту
+## Структура каталогу
 
-```
+```text
 lab7_multimodal_studio/
 ├── README.md
 ├── requirements.txt
-├── app.py                       # Головна точка входу Streamlit-додатку
-├── src/                         # Продакшн-модулі повторного використання
-│   ├── models/
-│   │   ├── llava_service.py     # Двигун інференсу LLaVA Captioning та VQA (Lazy Loading)
-│   │   └── diffusion_service.py # Конвеєр Stable Diffusion 1.5 Img2Img (Lazy Loading)
-│   ├── agent/
-│   │   └── studio_agent.py      # Агент LlamaIndex для мультимодальної маршрутизації (Lazy Loading)
-│   ├── storage/
-│   │   └── gallery_service.py   # SQLite-база та файлове сховище галереї з авто-міграцією
-│   └── utils/
-│       ├── device.py            # Управління пам'яттю GPU (VRAM) та життєвим циклом моделей
-│       └── security.py          # Валідація шляхів та захист пісочниці від Path Traversal
-├── notebooks/                   # Академічні дослідницькі блокноти
-│   ├── 01_multimodal_models.ipynb       # Дослідження LLaVA та SD 1.5, профілювання VRAM
-│   ├── 02_integrated_workflows.ipynb    # Аналіз та аудит зафіксованих слідів сесій (SCN 1-3)
-│   └── 03_evaluation_and_analysis.ipynb # Системне оцінювання затримок, Ground Truth та матриця збоїв
-├── assets/                      # Кураторські тестові зображення (512x512)
-├── outputs/
-│   ├── gallery/                 # gallery.db та збережені візуальні артефакти
-│   ├── traces/                  # Структурні JSON-трейси роботи агента (SCN 1-3)
-│   ├── tables/                  # studio_model_benchmarks.csv
-│   └── figures/                 # Графік розподілу затримок сервісів
-└── tests/
-    ├── test_services.py         # Тести сервісів, утиліт, безпеки та персистентності
-    ├── test_security_boundary.py# Повний набір тестів безпеки пісочниці та санітизації шляхів
-    ├── test_notebooks.py        # Валідація валідності та виконання блокнотів
-    └── test_app.py              # Синтаксична та UI Smoke перевірка Streamlit-додатку (AppTest)
+├── app.py                                       # Головний Streamlit-додаток
+├── src/                                         # Модулі моделей, агента, галереї, безпеки та GPU
+├── assets/                                      # 4 демонстраційні зображення 512x512 RGB
+├── notebooks/
+│   ├── 01_multimodal_models.ipynb               # Ініціалізація моделей та аудит галереї
+│   ├── 02_integrated_workflows.ipynb            # Офлайн-аналіз 3 JSON-трейсів, безпеки та gallery.db
+│   └── 03_evaluation_and_analysis.ipynb         # Порівняння затримок, аудит артефактів і VRAM
+└── outputs/
+    ├── gallery/                                 # gallery.db (12 записів) і 14 збережених PNG-зображень
+    ├── traces/                                  # 3 JSON-трейси (caption/gallery, VQA->Img2Img, path rejection)
+    ├── tables/                                  # studio_model_benchmarks.csv
+    └── figures/                                 # multimodal_latency_breakdown.png
 ```
 
 ---
 
-## 3. Функціональні можливості додатку (app.py)
+## Встановлення та запуск
 
-1. **Генерація підписів (Image Captioning):**
-   - Завантаження власного зображення або вибір із кураторської колекції `assets/`.
-   - Вибір стилю: лаконічний (`concise`), описовий (`descriptive`) або вичерпний (`detailed`).
-   - Налаштування `temperature` ($0.0 - 1.0$) та `max_new_tokens` ($32 - 256$).
-   - Інференс моделі `LLaVA-Interleave-Qwen-0.5B` у FP16 та автоматична реєстрація в галереї.
-2. **Візуальні запитання-відповіді (Visual Question Answering):**
-   - Довільне текстове запитання щодо візуального змісту зображення.
-   - Відповідь на основі фактів, зафіксованих на фото.
-3. **Художня трансформація зображень (Stable Diffusion 1.5 Img2Img):**
-   - Вхідне зображення + детальний текстовий промпт стилізації (Van Gogh, Cyberpunk тощо).
-   - Керування параметрами перетворення: сила шуму `strength` ($0.1 - 0.9$), `guidance_scale` ($3.0 - 15.0$), кількість кроків та фіксація `seed`.
-   - Порівняльне відображення "до" і "після" в інтерфейсі.
-4. **Агентна оркестрація (LlamaIndex Autonomous Agent):**
-   - Автономне вирішення комплексних інструкцій користувача без жорстких розгалужень у коді.
-   - Виклик інструментів `caption_image`, `answer_visual_question`, `transform_image_style`, `inspect_studio_gallery`.
-   - Інтерактивне розгортання структурованого трейсу виконання (`ToolCall` та `ToolCallResult`).
-5. **Персистентна галерея та аудит:**
-   - Табличний перегляд усіх проведених операцій.
-   - Візуальні мініатюри вхідних та вихідних зображень.
-   - Повне збереження історії генерацій після перезапуску сервера додатку.
+```powershell
+pip install -r lab7_multimodal_studio/requirements.txt
+streamlit run lab7_multimodal_studio/app.py
+```
+
+Для повного локального режиму роботи всіх вкладок потрібні CUDA GPU (від 4 ГБ VRAM) та запущений сервер Ollama (`qwen3:4b-instruct` на порту `11434`). Блокноти `02` і `03` відтворюють аналіз збережених трейсів і бази `gallery.db` без звернення до GPU чи Ollama.
 
 ---
 
-## 4. Результати емпіричного оцінювання та сценарії агента
+## Зафіксовані показники (`outputs/tables/studio_model_benchmarks.csv`)
 
-### Реальні вимірювання затримок компонентів:
-| Модуль / Задача | Модель | Вхідний об'єкт | Затримка (с) | Обсяг відповіді |
-|---|---|---|:---:|:---:|
-| **LLaVA Caption (Descriptive)** | `LLaVA-Interleave-0.5B` | Lighthouse | 3.10 | 10 слів |
-| **LLaVA VQA (Equipment)** | `LLaVA-Interleave-0.5B` | Robotics Lab | 0.39 | 2 слова |
-| **SD 1.5 Img2Img (Van Gogh)** | `SD 1.5 (25 steps, s=0.6)` | Lighthouse | 6.13 | $512\times512$ PNG |
-| **SD 1.5 Img2Img (Cyberpunk)** | `SD 1.5 (25 steps, s=0.65)` | Cafe Bicycle | 4.93 | $512\times512$ PNG |
-| **LlamaIndex Multi-Tool Agent (SCN 1)** | `AgentWorkflow + qwen3:4b` | Robotics + Gallery | 52.68 | 146 слів (2 інструменти) |
+| Завдання | Об'єкт / Конфігурація | Затримка (с) | Згенеровано токенів |
+|:---|:---|---:|---:|
+| LLaVA Caption (Concise) | Lighthouse | `3.101` | `10` |
+| LLaVA VQA (Equipment) | Robotics Lab | `0.387` | `2` |
+| SD 1.5 Img2Img (Van Gogh) | Lighthouse | `6.130` | `—` |
+| SD 1.5 Img2Img (Cyberpunk) | Cafe Bicycle | `4.933` | `—` |
+| LlamaIndex Agent Multi-Tool | Robotics + Gallery | `52.675` | `146` |
 
-### Трасовані сценарії агента (`outputs/traces/`):
-| Сценарій | Цільове завдання | Порядок інструментів | Затримка | Security Policy Enforced | User Task Success |
-|:---:|---|---|:---:|:---:|:---:|
-| **SCN_01** | Опис лабораторії та перегляд галереї | `caption_image`, `inspect_studio_gallery` | 52.68 с | OK | SUCCESS |
-| **SCN_02** | Cross-Component: VQA маяка $\rightarrow$ SD 1.5 Van Gogh | `answer_visual_question`, `transform_image_style` | 127.92 с | OK | SUCCESS |
-| **SCN_03** | Спроба доступу до зовнішнього файлу (`../lab4_img2img/inputs/...`) | `caption_image` (заблоковано пісочницею) | 44.95 с | BLOCKED | FAILED (Заборонено) |
+Безпека та персистентність: `validate_safe_image_path` відхиляє спроби обходу шляхів (зокрема `../lab4_img2img/inputs/...`, `../../etc/shadow`, `C:/Windows/System32/cmd.exe`), а `gallery.db` містить 12 консистентних записів, що посилаються на наявні файли у `outputs/gallery/`.
 
-- **Tool Ordering Accuracy:** **100.0%** (3/3 сценарії викликали правильні інструменти у правильній послідовності).
-- **Security Policy Enforcement:** **100.0%** (1/1 загроза виходу за межі дозволених каталогів надійно перехоплена з `SecurityValidationError`).
-- **User Task Success Rate:** **66.7%** (2 легітимні виконано успішно, 1 нелегітимна спроба безпечно відхилена).
-
----
-
-## 5. Запуск додатку та тестування
-
-### Запуск веб-додатку Streamlit
-```bash
-# Перейти в директорію проекту
-cd max/lab7_multimodal_studio
-
-# Запустити веб-інтерфейс
-streamlit run app.py
-```
-
-### Запуск верифікаційних тестів
-```bash
-pytest tests/ -v
-```
+Обмеження: одночасне завантаження LLaVA, SD 1.5 та Ollama на GPU з 4 ГБ VRAM вимагає почергового звільнення пам'яті через `ModelLifecycleManager`; багатоінструментні запити агента мають підвищену затримку (~53 с).
