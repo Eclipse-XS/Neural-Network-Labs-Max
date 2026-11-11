@@ -33,6 +33,7 @@ class StudioAgent:
         self.llava = llava_service or LlavaService()
         self.diffusion = diffusion_service or DiffusionService()
         self.gallery = gallery_service or GalleryService()
+        self._AgentWorkflow = AgentWorkflow
         
         self.llm = OpenAILike(
             model=llm_model,
@@ -184,7 +185,7 @@ class StudioAgent:
             "Do not execute destructive operations. Respect image path safety constraints."
         )
 
-        return AgentWorkflow.from_tools_or_functions(
+        return self._AgentWorkflow.from_tools_or_functions(
             [caption_image, answer_visual_question, transform_image_style, inspect_studio_gallery],
             llm=self.llm,
             system_prompt=system_prompt,

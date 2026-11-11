@@ -15,7 +15,7 @@
 2. **Генеративні дифузійні моделі (Image-to-Image):** Стилізація та художня трансформація вхідних зображень за допомогою `Stable Diffusion 1.5 Img2Img` (розвиток результатів Лабораторної №4).
 3. **Автономна агентна оркестрація:** Інтелектуальний диспетчер на базі `LlamaIndex AgentWorkflow` та локальної моделі `qwen3:4b-instruct` (Ollama), що автономно вибирає потрібні інструменти студії під запити користувача.
 4. **Персистентне сховище та аудит:** Збереження історії промптів, параметрів, затримок та згенерованих зображень у локальній базі даних `SQLite` (`outputs/gallery/gallery.db`), що гарантує збереження даних між перезапусками.
-5. **Модуль безпеки та ізоляції пісочниці:** `validate_safe_image_path` перевіряє розширення, розмірність та блокує атаки типу Path Traversal (`../../etc/shadow`).
+5. **Модуль безпеки та ізоляції пісочниці:** `validate_safe_image_path` перевіряє розширення, розмірність та блокує доступ до файлів поза межами дозволених каталогів студії (`SecurityValidationError`).
 
 ```
 +-----------------------------------------------------------------------------------------+
@@ -64,7 +64,7 @@ lab7_multimodal_studio/
 │       └── security.py          # Валідація шляхів та захист пісочниці від Path Traversal
 ├── notebooks/                   # Академічні дослідницькі блокноти
 │   ├── 01_multimodal_models.ipynb       # Дослідження LLaVA та SD 1.5, профілювання VRAM
-│   ├── 02_integrated_workflows.ipynb    # Агентні сценарії (SCN 1-3) та аудит персистентності
+│   ├── 02_integrated_workflows.ipynb    # Аналіз та аудит зафіксованих слідів сесій (SCN 1-3)
 │   └── 03_evaluation_and_analysis.ipynb # Системне оцінювання затримок, Ground Truth та матриця збоїв
 ├── assets/                      # Кураторські тестові зображення (512x512)
 ├── outputs/
@@ -89,7 +89,7 @@ lab7_multimodal_studio/
    - Інференс моделі `LLaVA-Interleave-Qwen-0.5B` у FP16 та автоматична реєстрація в галереї.
 2. **Візуальні запитання-відповіді (Visual Question Answering):**
    - Довільне текстове запитання щодо візуального змісту зображення.
-   - Відповідь на основі фактів, зафіксованих на фото, із зазначенням невпевненості при недостатності візуальних ознак.
+   - Відповідь на основі фактів, зафіксованих на фото.
 3. **Художня трансформація зображень (Stable Diffusion 1.5 Img2Img):**
    - Вхідне зображення + детальний текстовий промпт стилізації (Van Gogh, Cyberpunk тощо).
    - Керування параметрами перетворення: сила шуму `strength` ($0.1 - 0.9$), `guidance_scale` ($3.0 - 15.0$), кількість кроків та фіксація `seed`.
@@ -117,15 +117,15 @@ lab7_multimodal_studio/
 | **LlamaIndex Multi-Tool Agent (SCN 1)** | `AgentWorkflow + qwen3:4b` | Robotics + Gallery | 52.68 | 146 слів (2 інструменти) |
 
 ### Трасовані сценарії агента (`outputs/traces/`):
-| Сценарій | Цільове завдання | Інструменти | Затримка | Security Enforcement | User Task Success |
+| Сценарій | Цільове завдання | Порядок інструментів | Затримка | Security Policy Enforced | User Task Success |
 |:---:|---|---|:---:|:---:|:---:|
-| **SCN_01** | Опис лабораторії та перегляд галереї | `caption_image`, `inspect_studio_gallery` | 52.68 с | ✅ OK | ✅ SUCCESS |
-| **SCN_02** | Cross-Component: VQA маяка $\rightarrow$ SD 1.5 Van Gogh | `answer_visual_question`, `transform_image_style` | 127.92 с | ✅ OK | ✅ SUCCESS |
-| **SCN_03** | Спроба Path Traversal (`../../etc/shadow`) | `caption_image` (заблоковано пісочницею) | 5.37 с | ✅ 100% BLOCKED | ❌ FAILED (Заборонено) |
+| **SCN_01** | Опис лабораторії та перегляд галереї | `caption_image`, `inspect_studio_gallery` | 52.68 с | ✅ 100% OK | ✅ SUCCESS |
+| **SCN_02** | Cross-Component: VQA маяка $\rightarrow$ SD 1.5 Van Gogh | `answer_visual_question`, `transform_image_style` | 127.92 с | ✅ 100% OK | ✅ SUCCESS |
+| **SCN_03** | Спроба доступу до зовнішнього файлу (`../lab4_img2img/inputs/...`) | `caption_image` (заблоковано пісочницею) | 44.95 с | ✅ 100% BLOCKED | ❌ FAILED (Заборонено) |
 
-- **Tool Selection Accuracy:** **100.0%** (3/3 сценарії обрали відповідні інструменти).
-- **Security Policy Enforcement:** **100.0%** (1/1 загроза коректно нейтралізована).
-- **User Task Success Rate:** **66.7%** (2 легітимні виконано, 1 заборонена безпечно відхилена).
+- **Tool Ordering Accuracy:** **100.0%** (3/3 сценарії викликали правильні інструменти у правильній послідовності).
+- **Security Policy Enforcement:** **100.0%** (1/1 загроза виходу за межі дозволених каталогів надійно перехоплена з `SecurityValidationError`).
+- **User Task Success Rate:** **66.7%** (2 легітимні виконано успішно, 1 нелегітимна спроба безпечно відхилена).
 
 ---
 
@@ -143,5 +143,5 @@ streamlit run app.py
 ### Запуск верифікаційних тестів
 ```bash
 pytest tests/ -v
-# 20 passed in 6.0s (Tier 1-3)
+# 20 passed in ~6.0s (Tier 1-3)
 ```
