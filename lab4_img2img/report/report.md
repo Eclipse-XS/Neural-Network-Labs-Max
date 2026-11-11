@@ -254,5 +254,4 @@ flowchart TD
 - Метадані генерацій: директорія [`outputs/metadata/`](../outputs/metadata/)
 - Зведений реєстр генерацій: [`outputs/tables/generations_registry.csv`](../outputs/tables/generations_registry.csv)
 - Автоматизовані тести: [`tests/test_lab04.py`](../tests/test_lab04.py) (10/10 passed)
-- Матриця відповідності методичці: [`report/methodology_audit.md`](methodology_audit.md)
 - Матеріали до захисту: [`report/defense_notes.md`](defense_notes.md)

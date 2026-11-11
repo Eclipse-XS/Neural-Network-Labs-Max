@@ -255,5 +255,4 @@ flowchart TD
 - Текстові файли відповідей LLM: [`outputs/answers/`](../outputs/answers/)
 - Графічні ілюстрації: [`outputs/figures/`](../outputs/figures/)
 - Автоматичні тести: [`tests/test_lab03.py`](../tests/test_lab03.py) (10/10 passed)
-- Матриця відповідності методичці: [`report/methodology_audit.md`](methodology_audit.md)
 - Матеріали до захисту: [`report/defense_notes.md`](defense_notes.md)

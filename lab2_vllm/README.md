@@ -47,7 +47,6 @@ lab2_vllm/
 │   └── test_cli.py
 └── outputs/
     └── dialogs/
-        ├── .gitkeep
         └── dialog_*.md
 ```
 
