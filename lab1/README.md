@@ -3,7 +3,7 @@
 **Дисципліна:** Нейромережеві технології і системи  
 **Студент:** Max  
 **Спеціальність:** 122 «Комп'ютерні науки (Обчислювальний інтелект та смарт-системи)»  
-**Середовище розробки:** Python 3.11–3.13 (протестовано на Python 3.13.5), PyTorch 2.x
+**Середовище розробки:** PyCharm, Python 3.13, PyTorch 2.14+cu130 (GPU: NVIDIA GeForce RTX 3050 Laptop GPU, 4 GB VRAM)
 
 ---
 
@@ -13,13 +13,13 @@
 
 ---
 
-## 2. Реалізовані завдання та датасети
+## 2. Варіанти завдань та датасети
 
-У лабораторній роботі повністю виконано **обидва варіанти** відповідно до навчальної програми:
+У лабораторній роботі повністю виконано **обидва варіанти** відповідно до офіційних методичних вказівок кафедри:
 
 ### Варіант 1. Класифікація електронних повідомлень (Enron Spam)
 - **Архітектура:** Transformer Encoder ($\text{Embedding} \to \text{Positional Encoding} \to \text{TransformerEncoderLayer} \to \text{Masked Average Pooling} \to \text{Linear Classifier}$)
-- **Датасет:** [`SetFit/enron_spam`](https://huggingface.co/datasets/SetFit/enron_spam) — реальний корпус електронного листування компанії Enron.
+- **Датасет:** [`SetFit/enron_spam`](https://huggingface.co/datasets/SetFit/enron_spam) — реальний корпус листування компанії Enron.
 - **Задача:** Бінарна класифікація (0 = `ham` — легітимний лист, 1 = `spam` — спам).
 - **Обсяг вибірок:** 31 716 записів у сирій навчальній вибірці (після дедуплікації 28 811 листів розбито на 23 048 train та 5 763 validation); 2 000 записів у сирій тестовій вибірці (після усунення дублікатів та перетину з train залишено 1 666 повністю незалежних test: 930 ham, 736 spam).
 - **Балансування класів:** Застосовано зважену функцію втрат `CrossEntropyLoss` із вагами класів, розрахованими за вибіркою Train ($w_{ham} \approx 0.981$, $w_{spam} \approx 1.020$).
@@ -29,113 +29,103 @@
 - **Архітектура:** Transformer Decoder ($\text{Embedding} \to \text{Positional Encoding} \to \text{TransformerDecoderLayer} \to \text{Linear Projection}$)
 - **Датасет:** [`Salesforce/wikitext`](https://huggingface.co/datasets/Salesforce/wikitext) (конфігурація `wikitext-2-raw-v1`) — корпус якісних статей англомовної Вікіпедії.
 - **Задача:** Прогнозування наступного токена (Next-Token Prediction, Causal Language Modeling) зі зсувом цілей на 1 крок ($Y_t = X_{t+1}$).
-- **Обсяг корпусу:** Train — 2 122 137 лексичних токенів, Validation — 221 611, Test — 249 691. Після додавання межі рядка `<eos>` сформовано 33 529 / 3 501 / 3 946 неперекривних вікон довжиною 64 (Train / Validation / Test).
+- **Обсяг корпусу до додавання меж рядків:** Train — 2 122 137 лексичних токенів, Validation — 221 611, Test — 249 691. Під час формування потоку після кожного рядка додається `<eos>`, тому фактичні тензори містять 33 529 / 3 501 / 3 946 неперекривних вікон довжиною 64 (Train / Validation / Test).
 - **Маскування:** Причинна трикутна маска (Causal Mask), що гарантує відсутність доступу до майбутніх токенів під час навчання та генерації.
 - **Ключові метрики:** Perplexity (PPL), BLEU, ROUGE-L на реальних авторегресивних генераціях.
 
 ---
 
-## 3. Структура репозиторію
+## 3. Структура проєкту
 
 ```text
-Neural-Network-Labs-Max/
-├── .gitignore
-└── lab1/
-    ├── README.md                              # Опис лабораторної роботи та інструкція запуску
-    ├── requirements.txt                      # Перелік необхідних залежностей Python
-    ├── utils.py                              # Спільний модуль трансформерних утиліт
-    ├── notebooks/
-    │   ├── 01_enron_eda_preprocessing.ipynb  # EDA, очищення від дублікатів, словник Enron
-    │   ├── 02_enron_transformer_classifier.ipynb # Transformer Encoder: тюнінг, навчання й оцінка
-    │   ├── 03_wikitext_eda_preprocessing.ipynb # EDA, аналіз токенів, формування вікон WikiText-2
-    │   └── 04_wikitext_transformer_decoder.ipynb # Causal Decoder: тюнінг, генерація, PPL, BLEU, ROUGE-L
-    ├── data/
-    │   ├── raw/                              # Локальні сирі файли (enron parquet, wikitext txt)
-    │   │   ├── enron_test.parquet
-    │   │   ├── enron_train.parquet
-    │   │   ├── wikitext2_test.txt
-    │   │   ├── wikitext2_train.txt
-    │   │   └── wikitext2_validation.txt
-    │   └── processed/                        # Підготовлені PyTorch-тензори та словники (.pt)
-    │       ├── enron_processed.pt
-    │       └── wikitext_processed.pt
-    └── outputs/
-        ├── checkpoints/                      # Натреновані чекпоінти моделей (.pt)
-        │   ├── best_enron_transformer.pt     # Ваги класифікатора Enron (~6.07 МБ)
-        │   └── best_wikitext_decoder.pt      # Ваги декодера WikiText-2 (~11.50 МБ)
-        ├── figures/                          # 15 збережених графіків та візуалізацій (PNG)
-        └── metrics/                          # 6 файлів метрик (CSV та JSON)
-            ├── enron_test_metrics.json
-            ├── enron_training_history.csv
-            ├── enron_tuning_results.csv
-            ├── wikitext_test_metrics.json
-            ├── wikitext_training_history.csv
-            └── wikitext_tuning_results.csv
+max/lab1/
+├── README.md                              # Головний опис проєкту, інструкції та результати
+├── requirements.txt                      # Залежності середовища
+├── utils.py                              # Спільні утиліти (токенізація, Vocabulary, PE, маски)
+├── REPORT_DRAFT.md                       # Розгорнутий академічний драфт звіту з формулами та таблицями
+├── DEFENSE_NOTES.md                      # Конспект для захисту та відповіді на 10 контрольних питань
+├── execute_and_save_notebooks.py         # Послідовний запуск 01→04 зі збереженням outputs
+├── notebooks/
+│   ├── 01_enron_eda_preprocessing.ipynb  # EDA, фільтрація, дедуплікація, словник Enron
+│   ├── 02_enron_transformer_classifier.ipynb # Побудова, тюнінг, навчання й оцінка Transformer Encoder
+│   ├── 03_wikitext_eda_preprocessing.ipynb # EDA, аналіз токенів, формування вікон WikiText-2
+│   └── 04_wikitext_transformer_decoder.ipynb # Causal Decoder, тюнінг, генерація, PPL, BLEU, ROUGE-L
+├── data/
+│   ├── raw/                              # Локальні сирі файли (enron parquet, wikitext txt)
+│   └── processed/                        # Серіалізовані PyTorch-тензори та словники (pt)
+├── outputs/
+│   ├── checkpoints/                      # Збережені найкращі чекпоінти моделей (.pt)
+│   │   ├── best_enron_transformer.pt     # Чекпоінт класифікатора Enron
+│   │   └── best_wikitext_decoder.pt      # Чекпоінт мовної моделі WikiText-2
+│   ├── metrics/                          # Результати тюнінгу та тестування у JSON/CSV
+│   │   ├── enron_tuning_results.csv
+│   │   ├── enron_test_metrics.json
+│   │   ├── wikitext_tuning_results.csv
+│   │   └── wikitext_test_metrics.json
+│   └── figures/                          # Збережені візуалізації та графіки
+│       ├── enron_class_distribution.png
+│       ├── enron_length_distribution.png
+│       ├── enron_top_tokens.png
+│       ├── enron_positional_encoding.png
+│       ├── enron_training_loss.png
+│       ├── enron_confusion_matrix.png
+│       ├── wikitext_split_sizes.png
+│       ├── wikitext_top_tokens.png
+│       ├── wikitext_causal_mask.png
+│       └── wikitext_training_loss.png
+└── tests/
+    └── test_lab1.py                      # Компактні unit-тести математики та інференсу
 ```
+
+Одноразові генератори notebooks і дубльований runner після аудиту перенесено до `_cleanup_review/`; вони не потрібні для звичайного запуску лабораторної та збережені лише для трасування історії рефакторингу.
 
 ---
 
-## 4. Порядок запуску та інструкції
+## 4. Встановлення та запуск
 
-### 4.1. Встановлення середовища
-1. Створіть та активуйте віртуальне середовище Python:
-   ```powershell
-   python -m venv .venv
-   .\.venv\Scripts\Activate.ps1
-   ```
-2. Встановіть необхідні залежності:
-   ```powershell
-   pip install -r lab1/requirements.txt
-   ```
-3. (Опціонально) Зареєструйте Jupyter kernel:
-   ```powershell
-   python -m ipykernel install --user --name=lab1_env --display-name="Python (lab1_env)"
-   ```
+### 4.1. Встановлення залежностей
+Активація віртуального середовища та встановлення пакетів:
+```powershell
+.\.venv\Scripts\Activate.ps1
+uv pip install -r max/lab1/requirements.txt
+```
 
-### 4.2. Послідовність відкриття Notebooks
-Усі ноутбуки налаштовані за принципом **notebook-first**. Вони вже містять збережені результати виконання, графіки та числові таблиці. Відкривати рекомендується у такій послідовності:
+### 4.2. Послідовність виконання ноутбуків
+Ноутбуки розроблені за принципом **notebook-first** і залежать лише від артефактів на диску (`data/processed/`):
 
 1. **`notebooks/01_enron_eda_preprocessing.ipynb`**  
-   EDA датасету Enron, усунення витоку даних між train/validation/test, розрахунок вагових коефіцієнтів класів, побудова словника та збереження тензорів у `data/processed/enron_processed.pt`.
+   Завантажує сирий датасет Enron, проводить EDA, очищення від дублікатів, будує `Vocabulary` виключно за train split та зберігає тензори у `data/processed/enron_processed.pt`.
 2. **`notebooks/02_enron_transformer_classifier.ipynb`**  
-   Завантаження `enron_processed.pt`, візуалізація Positional Encoding, порівняльний тюнінг конфігурацій `d_model` та `nhead`, навчання найкращої моделі із збереженням ваг у `outputs/checkpoints/best_enron_transformer.pt`, оцінювання на незалежному тесті.
+   Завантажує `enron_processed.pt`, візуалізує Positional Encoding, проводить порівняльний тюнінг `d_model` та `nhead`, навчає найкращу модель із Early Stopping, зберігає чекпоінт `outputs/checkpoints/best_enron_transformer.pt` та оцінює якість на тестовій вибірці.
 3. **`notebooks/03_wikitext_eda_preprocessing.ipynb`**  
-   EDA корпусу статей Вікіпедії, аналіз частот токенів, формування авторегресивних вікон зі зсувом цілей на 1 токен, збереження у `data/processed/wikitext_processed.pt`.
+   Завантажує корпус WikiText-2, проводить EDA, будує словник за train split, формує авторегресивні контекстні вікна з causal-зсувом ($Y_t = X_{t+1}$) та зберігає тензори у `data/processed/wikitext_processed.pt`.
 4. **`notebooks/04_wikitext_transformer_decoder.ipynb`**  
-   Завантаження `wikitext_processed.pt`, перевірка причинної маски на відсутність заглядання у майбутнє, навчання Transformer Decoder, збереження `outputs/checkpoints/best_wikitext_decoder.pt`, порівняння жадібної генерації та стохастичного семплювання, розрахунок Perplexity, BLEU та ROUGE-L.
+   Завантажує `wikitext_processed.pt`, перевіряє відсутність витоку майбутніх токенів (тест маски), проводить порівняльний тюнінг декодера, навчає мовну модель, генерує текст (Greedy Decoding) та оцінює Perplexity, BLEU і ROUGE-L на тестовому спліті.
 
-### 4.3. Використання збережених Checkpoints без перенавчання
-Вам **не потрібно повторно навчати моделі** протягом багатьох епох.
-- Ваги моделей уже натреновані та збережені у папці `outputs/checkpoints/`.
-- У ноутбуках 02 та 04 комірки оцінювання завантажують збережені чекпоінти автоматично та виконують фінальний інференс за кілька секунд.
+Для перегляду готових результатів повторне навчання не потрібне: відкрийте notebooks, у яких уже збережені outputs. Для контрольованого повторного виконання використовується `FORCE_RETRAIN = False`; моделі завантажуються з checkpoints. Послідовний запуск:
 
-### 4.4. Вирішення проблеми з пошуком `utils.py`
-Усі ноутбуки містять автоматичне динамічне визначення кореня проєкту:
-```python
-current_dir = Path.cwd().resolve()
-if (current_dir / "utils.py").exists():
-    LAB_ROOT = current_dir
-elif (current_dir / ".." / "utils.py").resolve().exists():
-    LAB_ROOT = (current_dir / "..").resolve()
-else:
-    LAB_ROOT = next((p for p in [current_dir, *current_dir.parents] if (p / "utils.py").exists()), current_dir)
-
-if str(LAB_ROOT) not in sys.path:
-    sys.path.insert(0, str(LAB_ROOT))
+```powershell
+.\.venv\Scripts\python.exe max/lab1/execute_and_save_notebooks.py
 ```
-Якщо ви відкриваєте проєкт у PyCharm чи VS Code і запускаєте окремі комірки, середовище самостійно знайде файл `utils.py`. За потреби у PyCharm можна натиснути правою кнопкою миші на папку `lab1` -> `Mark Directory as` -> `Sources Root`.
+
+Ноутбуки 01 і 03 детерміновано перебудовують processed tensors. Перед таким запуском доцільно звірити, що сирі файли не змінювалися.
+
+### 4.3. Запуск автоматичних перевірок (Unit Tests)
+```powershell
+.\.venv\Scripts\pytest.exe max/lab1/tests/test_lab1.py -v
+```
 
 ---
 
 ## 5. Фактичні результати експериментів
 
-Усі наведені нижче результати отримано в ході реальних запусків навчання на GPU (NVIDIA RTX 3050 Laptop).
+Усі наведені нижче результати отримано в ході реальних запусків навчання на локальному GPU (NVIDIA RTX 3050 Laptop).
 
 ### 5.1. Тюнінг гіперпараметрів Transformer Encoder (Enron)
 Фіксовані параметри: `vocab_size = 10000`, `max_seq_len = 64`, `num_layers = 1`, `dim_feedforward = 256`, `dropout = 0.1`, `batch_size = 64`, `lr = 1e-3`.
 
 | Конфігурація | $d_{model}$ | $n_{head}$ | Параметри | Час тюнінгу (5 епох) | Val Loss | Val Accuracy | Val Precision | Val Recall | Val F1-score |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | `d64_h2` | 64 | 2 | 690 114 | 31.4 с | 0.0957 | 0.9658 | 0.9749 | 0.9534 | 0.9640 |
 | `d64_h4` | 64 | 4 | 690 114 | 28.8 с | 0.0892 | 0.9705 | 0.9699 | 0.9685 | 0.9692 |
 | **`d128_h2`** *(найкраща)* | **128** | **2** | **1 412 738** | **34.0 с** | **0.0855** | **0.9721** | **0.9530** | **0.9906** | **0.9715** |
@@ -153,7 +143,7 @@ if str(LAB_ROOT) not in sys.path:
 Фіксовані параметри: `vocab_size = 10000`, `seq_len = 64`, `num_layers = 1`, `dim_feedforward = 256`, `dropout = 0.1`, `batch_size = 64`, `lr = 1e-3`.
 
 | Конфігурація | $d_{model}$ | $n_{head}$ | Параметри | Час тюнінгу (2 епохи) | Val Loss | Val Perplexity |
-| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: |
 | `d64_h2` | 64 | 2 | 1 356 752 | 24.5 с | 5.2996 | 200.26 |
 | `d64_h4` | 64 | 4 | 1 356 752 | 25.1 с | 5.2967 | 199.67 |
 | `d128_h2` | 128 | 2 | 2 768 784 | 33.0 с | 5.1949 | 180.35 |
@@ -164,7 +154,9 @@ if str(LAB_ROOT) not in sys.path:
 - **Mean BLEU (n=50 згенерованих продовжень):** `0.0226`
 - **Mean ROUGE-L (n=50 згенерованих продовжень):** `0.0493`
 
-**Приклади авторегресивної генерації натренованого декодера (Greedy Decoding):**
+Протокол генеративних метрик: перші 50 тестових вікон; перші 15 токенів кожного вікна — prompt; наступні 15 — єдиний reference; генерується до 15 токенів greedy decoding (`argmax`); BLEU обчислюється `sentence_bleu` зі згладжуванням NLTK method 1, ROUGE-L — F1 зі stemming. Значення з іншим prompt/generation length, sampling або усередненням не можна порівнювати з цими числами як з тим самим експериментом.
+
+**Фактичні приклади авторегресивної генерації натренованого декодера (Greedy Decoding):**
 1. *Prompt:* `"the game was developed by"`  
    *Continuation:* `"the , and , and , and , and ,"`
 2. *Prompt:* `"in the second world war the army"`  
@@ -173,15 +165,19 @@ if str(LAB_ROOT) not in sys.path:
    *Continuation:* `"was , and , and , and , and ,"`
 4. *Prompt:* `"after the death of the king"`  
    *Continuation:* `"of the , and , and , and , and"`
+5. *Prompt:* `"advances or contributed outstanding examples " . furthermore , his poems use"`  
+   *Continuation:* `"of the"`
 
 *Аналіз генерації:*  
 Під час жадібного вибору (greedy search / $\arg\max$) компактна модель без переднавчання (1 шар, 2.77 млн параметрів) після кількох коректних локальних переходів (`he -> was`, `use -> of the`) потрапляє в характерну дегенеративну циклічну петлю найчастотніших уніграм корпусу (`", and , and"`). Це типова відома поведінка жадібного декодування в простих мовних моделях (Greedy Decoding Degeneration).
 
-Для усунення зациклення у Ноутбуці №4 реалізовано стохастичне декодування ($T=0.85$, Top-$k=25$, Repetition Penalty $= 1.25$), яке повністю розриває петлі та породжує граматично різноманітні фрагменти тексту.
+Для усунення зациклення додано експериментальне стохастичне декодування ($T=0.85$, Top-$k=25$, Repetition Penalty $= 1.25$), яке повністю розриває петлі та породжує різноманітні енциклопедичні фрагменти без зміни базової моделі чи зміни обов'язкової метрики Perplexity.
 
 ---
 
-## 6. Висновки
+## 6. Висновки та обмеження
 
-1. **Transformer Encoder:** Механізм двонаправленої самоуваги (Self-Attention) з маскованим усередненням токенів показав точність 97.00% Accuracy та 96.68% F1-score при розпізнаванні спаму.
-2. **Transformer Decoder:** Авторегресивна модель з причинною трикутною маскою знизила перплексію до 148.48 на реальних текстах Вікіпедії.
+1. **Ефективність Transformer Encoder для класифікації:** Механізм двонаправленої самоуваги (Self-Attention) з маскованим усередненням токенів показав надзвичайно високу точність (97.0% Accuracy, 96.68% F1) при розпізнаванні спаму. Модель вловлює семантичні взаємозв'язки між словами незалежно від їх позиції в листі.
+2. **Робота Causal Decoder для генерації:** Авторегресивна модель з причинною маскою успішно знизила перплексію з випадкової ($PPL \approx 10000$) до 148.48 на реальних текстах Вікіпедії. Модель коректно відтворює синтаксичні конструкції та пунктуацію.
+3. **Обмеження метрик BLEU та ROUGE-L для відкритої генерації:** Оскільки вільний текст має безліч граматично та семантично коректних синонімічних продовжень, n-грамні метрики збігу з єдиним еталоном (Reference) показують низькі абсолютні значення, що є очікуваним у мовному моделюванні без багатоеталонного оцінювання.
+4. **Обмеження апаратного масштабу:** Використання компактної розмірності ($d_{model}=128$, 1 шар декодера) дозволило повністю виконати дослідження в межах 4 GB VRAM за лічені хвилини. Збільшення кількості шарів (до 4–6) та розміру контекстного вікна (до 256–512) суттєво покращило б довготривалу зв'язність тексту, проте вимагало б значно більших обчислювальних ресурсів.

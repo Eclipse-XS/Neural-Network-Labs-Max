@@ -1,0 +1,79 @@
+{
+  "models": [
+    {
+      "model_id": "churn_predictor_v3",
+      "framework": "LightGBM",
+      "version": "3.4.1",
+      "status": "degraded",
+      "p99_latency_ms": 315.0,
+      "p50_latency_ms": 110.0,
+      "error_rate": 0.038,
+      "availability_pct": 98.62,
+      "slo_latency_ms": 250.0,
+      "slo_availability_pct": 99.9,
+      "requests_per_sec": 1420,
+      "owner": "team-retention",
+      "deployed_at": "2026-10-15T08:30:00Z"
+    },
+    {
+      "model_id": "fraud_detector_v2",
+      "framework": "XGBoost",
+      "version": "2.1.0",
+      "status": "healthy",
+      "p99_latency_ms": 64.0,
+      "p50_latency_ms": 22.0,
+      "error_rate": 0.0012,
+      "availability_pct": 99.98,
+      "slo_latency_ms": 100.0,
+      "slo_availability_pct": 99.95,
+      "requests_per_sec": 4500,
+      "owner": "team-risk",
+      "deployed_at": "2026-09-28T14:15:00Z"
+    },
+    {
+      "model_id": "recommender_ranker_v5",
+      "framework": "PyTorch",
+      "version": "5.0.2",
+      "status": "healthy",
+      "p99_latency_ms": 118.0,
+      "p50_latency_ms": 45.0,
+      "error_rate": 0.004,
+      "availability_pct": 99.91,
+      "slo_latency_ms": 150.0,
+      "slo_availability_pct": 99.9,
+      "requests_per_sec": 8900,
+      "owner": "team-discovery",
+      "deployed_at": "2026-10-20T11:00:00Z"
+    },
+    {
+      "model_id": "llm_router_v1",
+      "framework": "vLLM-Transformers",
+      "version": "1.2.0",
+      "status": "degraded",
+      "p99_latency_ms": 1420.0,
+      "p50_latency_ms": 680.0,
+      "error_rate": 0.062,
+      "availability_pct": 97.40,
+      "slo_latency_ms": 1000.0,
+      "slo_availability_pct": 99.5,
+      "requests_per_sec": 320,
+      "owner": "team-platform",
+      "deployed_at": "2026-11-01T09:45:00Z"
+    },
+    {
+      "model_id": "vision_classifier_v4",
+      "framework": "TorchScript",
+      "version": "4.1.0",
+      "status": "healthy",
+      "p99_latency_ms": 88.0,
+      "p50_latency_ms": 35.0,
+      "error_rate": 0.002,
+      "availability_pct": 99.95,
+      "slo_latency_ms": 120.0,
+      "slo_availability_pct": 99.9,
+      "requests_per_sec": 650,
+      "owner": "team-cv",
+      "deployed_at": "2026-10-10T16:20:00Z"
+    }
+  ]
+}

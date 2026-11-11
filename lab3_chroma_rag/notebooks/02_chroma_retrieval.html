@@ -7796,7 +7796,7 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=28fa5adf">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4eb4eaea">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7827,7 +7827,7 @@ a.anchor-link {
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=bbb1c19e">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4cb451ce">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7835,8 +7835,12 @@ a.anchor-link {
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <h2 id="1.-%D0%A2%D0%B5%D0%BE%D1%80%D0%B5%D1%82%D0%B8%D1%87%D0%BD%D1%96-%D0%B7%D0%B0%D1%81%D0%B0%D0%B4%D0%B8-%D0%B2%D0%B5%D0%BA%D1%82%D0%BE%D1%80%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BF%D0%BE%D1%88%D1%83%D0%BA%D1%83">1. Теоретичні засади векторного пошуку<a class="anchor-link" href="#1.-%D0%A2%D0%B5%D0%BE%D1%80%D0%B5%D1%82%D0%B8%D1%87%D0%BD%D1%96-%D0%B7%D0%B0%D1%81%D0%B0%D0%B4%D0%B8-%D0%B2%D0%B5%D0%BA%D1%82%D0%BE%D1%80%D0%BD%D0%BE%D0%B3%D0%BE-%D0%BF%D0%BE%D1%88%D1%83%D0%BA%D1%83">¶</a></h2><h3 id="1.1-%D0%9A%D0%BE%D1%81%D0%B8%D0%BD%D1%83%D1%81%D0%BD%D0%B0-%D0%BF%D0%BE%D0%B4%D1%96%D0%B1%D0%BD%D1%96%D1%81%D1%82%D1%8C-(Cosine-Similarity)">1.1 Косинусна подібність (Cosine Similarity)<a class="anchor-link" href="#1.1-%D0%9A%D0%BE%D1%81%D0%B8%D0%BD%D1%83%D1%81%D0%BD%D0%B0-%D0%BF%D0%BE%D0%B4%D1%96%D0%B1%D0%BD%D1%96%D1%81%D1%82%D1%8C-(Cosine-Similarity)">¶</a></h3><p>Для запиту з вектором $q \in \mathbb{R}^d$ та документа $d_i \in \mathbb{R}^d$:
 $$\text{Sim}(q, d_i) = \cos(\theta) = \frac{q \cdot d_i}{\|q\| \|d_i\|}$$
-Якщо вектори нормалізовані до одиничної довжини ($\|q\| = 1, \|d_i\| = 1$), то косинусна подібність зводиться до звичайного скалярного добутку: $\text{Sim}(q, d_i) = q \cdot d_i$.
-Режим <code>similarity</code> жадібно обирає $k$ документів із максимальним значенням $\text{Sim}(q, d_i)$. Недолік: якщо в одному документі або розділі є кілька дуже схожих абзаців, усі $k$ позицій будуть заповнені майже ідентичним текстом, ігноруючи інші важливі аспекти запиту.</p>
+Якщо вектори нормалізовані до одиничної довжини ($\|q\| = 1, \|d_i\| = 1$), то косинусна подібність зводиться до звичайного скалярного добутку: $\text{Sim}(q, d_i) = q \cdot d_i$.</p>
+<p><strong>Зв'язок метрики індексації ChromaDB ($L_2$) та косинусної подібності:</strong><br/>
+У ChromaDB векторний простір колекції за замовчуванням налаштовано на евклідову метрику квадрата відстані (Squared L2 Distance):
+$$\|q - d_i\|_2^2 = \|q\|_2^2 + \|d_i\|_2^2 - 2(q \cdot d_i) = 1 + 1 - 2\cos(q, d_i) = 2 - 2\cos(q, d_i)$$
+Оскільки ембеддинги <code>all-MiniLM-L6-v2</code> є $L_2$-нормалізованими ($\|q\|_2 = \|d_i\|_2 = 1$), мінімізація евклідової відстані в ChromaDB є строго монотонно еквівалентною максимізації косинусної подібності $\cos(q, d_i)$. Ранжування за зростанням відстані $L_2^2$ повертає такий самий порядок документів, як і сортування за спаданням косинуса.</p>
+<p>Режим <code>similarity</code> жадібно обирає $k$ документів із максимальним значенням $\text{Sim}(q, d_i)$ (тобто з найменшою евклідовою відстанню). Недолік: якщо в одному документі або розділі є кілька дуже схожих абзаців, усі $k$ позицій будуть заповнені майже ідентичним текстом, ігноруючи інші важливі аспекти запиту.</p>
 <h3 id="1.2-%D0%90%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%BC-Maximal-Marginal-Relevance-(MMR)">1.2 Алгоритм Maximal Marginal Relevance (MMR)<a class="anchor-link" href="#1.2-%D0%90%D0%BB%D0%B3%D0%BE%D1%80%D0%B8%D1%82%D0%BC-Maximal-Marginal-Relevance-(MMR)">¶</a></h3><p>MMR вирішує проблему надлишковості (redundancy penalty). Спочатку витягується більший набір кандидатів $\text{fetch\_k} &gt; k$ за косинусною подібністю ($C$). Потім ітеративно обирається наступний документ $d_i \in C \setminus S$ за правилом:
 $$\text{MMR}(q, C, S) = \arg\max_{d_i \in C \setminus S} \left[ \lambda \cdot \text{Sim}_1(d_i, q) - (1 - \lambda) \max_{d_j \in S} \text{Sim}_2(d_i, d_j) \right]$$
 де:</p>
@@ -7849,7 +7853,7 @@ $$\text{MMR}(q, C, S) = \arg\max_{d_i \in C \setminus S} \left[ \lambda \cdot \t
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=cab5ec2a">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=bcddacdd">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7912,8 +7916,15 @@ $$\text{MMR}(q, C, S) = \arg\max_{d_i \in C \setminus S} \left[ \lambda \cdot \t
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
-<pre>C:\Users\Eclipse\PycharmProjects\neural-network-technologies-and-systems\NNTS_VARIANT_2\.venv\Lib\site-packages\tqdm\auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+<pre>C:\Users\Eclipse\PycharmProjects\neural-network-technologies-and-systems\.venv-lab04\Lib\site-packages\tqdm\auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
   from .autonotebook import tqdm as notebook_tqdm
+</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
+<pre>Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 </pre>
 </div>
 </div>
@@ -7926,20 +7937,13 @@ $$\text{MMR}(q, C, S) = \arg\max_{d_i \in C \setminus S} \left[ \lambda \cdot \t
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
-<pre>Loading weights: 100%|██████████| 103/103 [00:00&lt;00:00, 6463.20it/s]</pre>
+<pre>Loading weights: 100%|██████████| 103/103 [00:00&lt;00:00, 2690.55it/s]</pre>
 </div>
 </div>
 <div class="jp-OutputArea-child">
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
 <pre>
-</pre>
-</div>
-</div>
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="application/vnd.jupyter.stderr" tabindex="0">
-<pre>Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
 </pre>
 </div>
 </div>
@@ -7953,7 +7957,7 @@ $$\text{MMR}(q, C, S) = \arg\max_{d_i \in C \setminus S} \left[ \lambda \cdot \t
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=db3e9174">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0a43ed3c">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7963,7 +7967,7 @@ $$\text{MMR}(q, C, S) = \arg\max_{d_i \in C \setminus S} \left[ \lambda \cdot \t
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=f5aa97f6">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=741841cf">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8027,7 +8031,7 @@ $$\text{MMR}(q, C, S) = \arg\max_{d_i \in C \setminus S} \left[ \lambda \cdot \t
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=199dff5c">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=7dce52be">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8048,7 +8052,7 @@ $$\text{MMR}(q, C, S) = \arg\max_{d_i \in C \setminus S} \left[ \lambda \cdot \t
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=b8fd1d03">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=170aac3d">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8133,7 +8137,7 @@ $$\text{MMR}(q, C, S) = \arg\max_{d_i \in C \setminus S} \left[ \lambda \cdot \t
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=1c0b9f55">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cecfdf9f">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8164,7 +8168,7 @@ $$\text{Relevance} = \frac{1}{k} \sum_{i=1}^k \frac{e_i \cdot q}{\|e_i\| \|q\|}$
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=24e9c39f">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ce96b39f">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8289,15 +8293,15 @@ $$\text{Relevance} = \frac{1}{k} \sum_{i=1}^k \frac{e_i \cdot q}{\|e_i\| \|q\|}$
 
 --- Порівняльна таблиця для k=4 ---
    lambda  fetch_k  k  mean_relevance  mean_pairwise_dist  unique_sources  latency_ms
-0     0.2        8  4          0.4143              0.7135               3       25.65
-1     0.2       12  4          0.4214              0.7363               3       22.21
-2     0.2       16  4          0.3682              0.7598               3       23.93
-3     0.5        8  4          0.5397              0.5600               2       23.86
-4     0.5       12  4          0.5397              0.5600               2       29.00
-5     0.5       16  4          0.5397              0.5600               2       23.39
-6     0.8        8  4          0.5397              0.5600               2       21.72
-7     0.8       12  4          0.5397              0.5600               2       22.71
-8     0.8       16  4          0.5397              0.5600               2       27.06
+0     0.2        8  4          0.4143              0.7135               3       13.82
+1     0.2       12  4          0.4214              0.7363               3       18.32
+2     0.2       16  4          0.3682              0.7598               3       15.54
+3     0.5        8  4          0.5397              0.5600               2       14.94
+4     0.5       12  4          0.5397              0.5600               2       16.60
+5     0.5       16  4          0.5397              0.5600               2       14.26
+6     0.8        8  4          0.5397              0.5600               2       14.91
+7     0.8       12  4          0.5397              0.5600               2       20.26
+8     0.8       16  4          0.5397              0.5600               2       32.11
 </pre>
 </div>
 </div>
@@ -8317,7 +8321,7 @@ $$\text{Relevance} = \frac{1}{k} \sum_{i=1}^k \frac{e_i \cdot q}{\|e_i\| \|q\|}$
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=73acb676">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4706a040">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8347,7 +8351,7 @@ $$\text{Relevance} = \frac{1}{k} \sum_{i=1}^k \frac{e_i \cdot q}{\|e_i\| \|q\|}$
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=b6437ad1">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5b289f73">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8363,7 +8367,7 @@ $$\text{Diversity Ratio} = \frac{\text{Unique Documents Retrieved}}{k}$$</p>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=b521e910">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=44609e54">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8489,7 +8493,7 @@ Query ID                        Category                                        
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0e5d256b">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=95567c88">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8499,7 +8503,7 @@ Query ID                        Category                                        
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=fe6871f1">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ce5054a5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8555,7 +8559,7 @@ Query ID                        Category                                        
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=c0962299">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=408f5d6c">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8570,7 +8574,7 @@ Query ID                        Category                                        
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ef31eadc">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a97b6ff2">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8621,7 +8625,7 @@ MMR джерела:
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=396ae45c">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=afae1aac">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8631,7 +8635,7 @@ MMR джерела:
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=f43d01b6">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=aad052f9">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8671,7 +8675,7 @@ MMR джерела:
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=ff30f5af">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0198230d">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>

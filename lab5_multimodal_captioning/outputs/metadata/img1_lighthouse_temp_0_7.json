@@ -1,0 +1,18 @@
+{
+  "run_id": "img1_lighthouse_temp_0_7",
+  "image_id": "img1_lighthouse",
+  "image_file": "01_coastal_lighthouse.png",
+  "category": "Landscape / Maritime",
+  "series": "temperature",
+  "prompt_style": "descriptive",
+  "prompt_text": "Describe this image in a well-structured paragraph, highlighting key objects, colors, and setting.",
+  "temperature": 0.7,
+  "max_new_tokens": 128,
+  "generated_tokens": 114,
+  "char_count": 532,
+  "latency_sec": 6.374,
+  "tokens_per_sec": 17.89,
+  "caption": "The image presents a stylized representation of a lighthouse, set against a serene ocean with gentle waves. The lighthouse, constructed of white and red striped rods, is positioned on a rocky cliff. The sky, painted in hues of orange, is dotted with a small, dark, dot-like object, perhaps a star. The ocean, a deep blue, extends to the horizon, meeting the sky at a point where the orange and blue lines meet. The overall setting suggests a peaceful scene during sunset, with the lighthouse standing tall, reflecting the sky above.",
+  "model_id": "llava-hf/llava-interleave-qwen-0.5b-hf",
+  "device": "cuda:0"
+}

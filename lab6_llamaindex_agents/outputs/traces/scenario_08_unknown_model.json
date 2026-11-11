@@ -1,0 +1,32 @@
+{
+  "scenario_id": "scenario_08_unknown_model",
+  "category": "Boundary / Missing Entity",
+  "prompt": "What is the P99 latency and health status of autonomous_driving_v10?",
+  "expected_tools": [
+    "query_model_registry"
+  ],
+  "tools_called": [
+    "query_model_registry"
+  ],
+  "tool_call_count": 1,
+  "tool_selection_correct": true,
+  "task_success": true,
+  "elapsed_sec": 5.22,
+  "response_length_chars": 292,
+  "final_response": "The model `autonomous_driving_v10` is not registered in the model registry. The available registered models are: ['churn_predictor_v3', 'fraud_detector_v2', 'recommender_ranker_v5', 'llm_router_v1', 'vision_classifier_v4'].\n\nPlease verify the model name or consult the team for clarification.",
+  "trace_events": [
+    {
+      "type": "ToolCall",
+      "tool_name": "query_model_registry",
+      "tool_kwargs": {
+        "model_id": "autonomous_driving_v10"
+      },
+      "tool_id": "ejie562alS6JpSMHqfAovCKAn2kgPxJx"
+    },
+    {
+      "type": "ToolCallResult",
+      "tool_name": "query_model_registry",
+      "tool_output": "Model 'autonomous_driving_v10' not found. Available registered models: ['churn_predictor_v3', 'fraud_detector_v2', 'recommender_ranker_v5', 'llm_router_v1', 'vision_classifier_v4']"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+# MLOps Production Incident Response Runbook
+
+## Section 1: Latency Violation Protocols (P99 Latency > SLO)
+When a model service exhibits p99 latency exceeding its defined SLO:
+1. Immediate Triage:
+   - Check if traffic surge (requests per second) exceeds provisioned replica capacity (>1500 RPS per replica for tree models, >300 RPS for neural/LLM models).
+   - If CPU/GPU saturation >85%, trigger horizontal auto-scaler: `kubectl scale deployment <model-name> --replicas=+2`.
+2. Mitigation Actions:
+   - For `churn_predictor_v3`: If p99 latency exceeds 250ms, enable feature-cache fast-path and fall back to lightweight ensemble mode (depth=4). Target recovery time: 5 minutes.
+   - For `llm_router_v1`: If p99 latency exceeds 1000ms, enable speculative decoding, enforce strict max_tokens clamp (max 512 tokens), and redirect 40% of non-critical classification prompts to `qwen3:4b-instruct` local endpoint.
+3. Escalation:
+   - If p99 latency remains degraded after 15 minutes, notify primary on-call engineer and page `team-platform`.
+
+## Section 2: Error Rate and Availability Degradation (Availability < 99.9% or Error Rate > 2%)
+When error rate exceeds 2% or availability falls below the 99.9% SLA:
+1. Diagnostics:
+   - Inspect upstream schema drift and input payload validation errors (HTTP 422 vs HTTP 500).
+   - Verify feature store connectivity (Redis cache timeout threshold: 15ms).
+2. Remediation:
+   - For `churn_predictor_v3`: High error rate (>3%) typically indicates missing batch features in the user retention vector. Activate imputed median fallback profile `churn_fallback_v3_imputed.bin`.
+   - For `llm_router_v1`: High error rate (>5%) indicates CUDA OOM or KV-cache allocation exhaustion on vLLM worker nodes. Restart worker pod pool with chunked prefill enabled (`--enable-chunked-prefill`) and clear orphan GPU memory.
+   - If automated mitigation fails, execute immediate roll-back to the previous stable release candidate via canary pipeline: `mlflow models rollback --model-id=<model_id>`.
+
+## Section 3: Safe Operating Envelope and Capacity Guidelines
+1. `fraud_detector_v2` (XGBoost):
+   - Latency target: p99 <= 100ms (nominal 64ms).
+   - Availability target: >= 99.95%.
+   - Capacity: Up to 5000 RPS. Safe operating margin >= 35ms.
+2. `recommender_ranker_v5` (PyTorch):
+   - Latency target: p99 <= 150ms (nominal 118ms).
+   - Availability target: >= 99.90%.
+   - Capacity: Up to 10000 RPS. Safe operating margin >= 30ms.
+3. `vision_classifier_v4` (TorchScript):
+   - Latency target: p99 <= 120ms (nominal 88ms).
+   - Availability target: >= 99.90%.
+   - Capacity: Up to 800 RPS. Safe operating margin >= 30ms.
+
+## Section 4: Rollback and Post-Mortem Requirements
+- Any automated or manual rollback requires creating an incident ticket in Jira/Linear tagged with `[P1-MLOps]`.
+- Post-mortem document must include: root cause analysis, timeline of metrics breach, automated mitigation effectiveness, and preventative architectural actions.

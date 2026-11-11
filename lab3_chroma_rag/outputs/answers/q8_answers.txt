@@ -6,13 +6,13 @@ FILTER: {'source': '08_security_and_reproducibility.txt'}
 ============================================================
 SIMILARITY RETRIEVER ANSWER:
 ============================================================
-Adversarial evasion attacks can be mitigated through defensive strategies such as adversarial data augmentation during training and input purification using denoising autoencoders [08_security_and_reproducibility.txt]. These techniques enhance model robustness by exposing the model to perturbed inputs during training, thereby improving its ability to generalize under adversarial conditions.
+Adversarial evasion attacks can be mitigated through adversarial data augmentation during training and input purification using denoising autoencoders, as outlined in [08_security_and_reproducibility.txt] under section 1.3. These defenses help improve model robustness by exposing the model to perturbed inputs during training, thereby reducing susceptibility to evasion attacks.
 
 Exact determinism across PyTorch runs is achieved by implementing comprehensive deterministic controls, including:
-- Seed pinning for random number generators in Python's `random`, NumPy, PyTorch CPU, and PyTorch CUDA via `random.seed(seed)`, `np.random.seed(seed)`, `torch.manual_seed(seed)`, and `torch.cuda.manual_seed_all(seed)` [08_security_and_reproducibility.txt].
-- Enforcing deterministic algorithm behavior with `torch.use_deterministic_algorithms(True)` and setting `torch.backends.cudnn.deterministic = True` [08_security_and_reproducibility.txt].
+- Seed pinning for random number generators in Python, NumPy, PyTorch CPU, and PyTorch CUDA using explicit seed initialization [08_security_and_reproducibility.txt, section 2.1].
+- Enforcing deterministic algorithm behavior via `torch.use_deterministic_algorithms(True)` and setting `torch.backends.cudnn.deterministic = True` [08_security_and_reproducibility.txt, section 2.1].
 
-These measures ensure bitwise reproducibility of model behavior across runs, which is critical for compliance audits, forensic investigations, and empirical research [08_security_and_reproducibility.txt].
+These measures ensure bitwise reproducibility of model behavior across runs, which is critical for compliance audits and forensic investigations [08_security_and_reproducibility.txt, section 2.1].
 
 ============================================================
 MMR RETRIEVER ANSWER:
@@ -20,7 +20,7 @@ MMR RETRIEVER ANSWER:
 Adversarial evasion attacks can be mitigated through defensive strategies such as adversarial data augmentation during training and input purification using denoising autoencoders, as outlined in [08_security_and_reproducibility.txt] under section 1.3.
 
 Exact determinism across PyTorch runs is achieved by implementing comprehensive deterministic controls, including:
-- Seed pinning for random number generators in Python, NumPy, PyTorch CPU, and PyTorch CUDA via explicit initialization of seeds [08_security_and_reproducibility.txt, section 2.1].
-- Enforcing deterministic algorithm modes using `torch.use_deterministic_algorithms(True)` and setting `torch.backends.cudnn.deterministic = True` [08_security_and_reproducibility.txt, section 2.1].
+- Pinning random number generator seeds for Python's `random`, NumPy, PyTorch CPU, and PyTorch CUDA using `random.seed(seed)`, `np.random.seed(seed)`, `torch.manual_seed(seed)`, and `torch.cuda.manual_seed_all(seed)` [08_security_and_reproducibility.txt, section 2.1].
+- Enforcing deterministic algorithm behavior via `torch.use_deterministic_algorithms(True)` and setting `torch.backends.cudnn.deterministic = True` [08_security_and_reproducibility.txt, section 2.1].
 
-These measures ensure bitwise reproducibility, which is critical for compliance audits, forensic investigations, and empirical research [08_security_and_reproducibility.txt, section 2.1].
+These measures ensure bitwise reproducibility of model execution, which is critical for compliance audits, forensic investigations, and empirical research [08_security_and_reproducibility.txt, section 2.1].

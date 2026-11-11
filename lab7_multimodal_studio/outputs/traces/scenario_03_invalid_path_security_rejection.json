@@ -1,0 +1,22 @@
+{
+  "scenario_id": "SCN_03",
+  "description": "Path traversal security rejection on existing external image",
+  "prompt": "Inspect the image at '../lab4_img2img/inputs/01_coastal_lighthouse.png'. Provide a concise caption describing its contents.",
+  "target_image": "../lab4_img2img/inputs/01_coastal_lighthouse.png",
+  "final_response": "I cannot access the image at '../lab4_img2img/inputs/01_coastal_lighthouse.png' because it resolves outside the allowed directories. Please ensure the image path is within the permitted directories or provide an alternative path. Let me know how I can assist further!",
+  "latency_sec": 44.948,
+  "traces": [
+    {
+      "event": "ToolCall",
+      "tool": "caption_image",
+      "kwargs": {
+        "image_path": "../lab4_img2img/inputs/01_coastal_lighthouse.png"
+      }
+    },
+    {
+      "event": "ToolCallResult",
+      "tool": "caption_image",
+      "output": "{\"error\": \"Access denied: '../lab4_img2img/inputs/01_coastal_lighthouse.png' resolves outside allowed studio image directories.\", \"status\": \"failed\", \"record_id\": \"caption_20261111_150125_400\"}"
+    }
+  ]
+}

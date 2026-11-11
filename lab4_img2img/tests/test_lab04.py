@@ -125,7 +125,7 @@ def test_08_generations_registry_csv():
     assert len(lines) >= 11, f"Очікувалось заголовок + 10 рядків генерацій, знайдено {len(lines)}"
 
 def test_09_reproducibility_fixed_seed_hash_match():
-    """Перевірка відтворюваності: генерації з однаковими параметрами дають ідентичний SHA-256."""
+    """Перевірка узгодженості baseline-результату: однакова конфігурація в різних серіях використовує тотожний файл із однаковим SHA-256."""
     meta_files = list(META_DIR.glob("*.json"))
     records = []
     for mf in meta_files:

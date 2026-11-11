@@ -1,0 +1,18 @@
+{
+  "run_id": "img2_cafe_prompt_descriptive",
+  "image_id": "img2_cafe",
+  "image_file": "02_cafe_bicycle.png",
+  "category": "Urban / Street Scene",
+  "series": "prompt_wording",
+  "prompt_style": "descriptive",
+  "prompt_text": "Describe this image in a well-structured paragraph, highlighting key objects, colors, and setting.",
+  "temperature": 0.0,
+  "max_new_tokens": 128,
+  "generated_tokens": 128,
+  "char_count": 613,
+  "latency_sec": 7.2121,
+  "tokens_per_sec": 17.75,
+  "caption": "The image presents a vibrant scene set in a quaint, old-world cafe. Dominating the scene is a blue bicycle, parked on the sidewalk, its wheels facing towards the right side of the image. The bicycle is positioned in front of a window, which is adorned with a red and white striped awning. The awning, a striking contrast to the blue of the bicycle, adds a touch of whimsy to the scene. The floor beneath the bicycle is made of gray tiles, providing a neutral backdrop that allows the blue bicycle to stand out. The overall setting suggests a relaxed, leisurely atmosphere, perhaps a moment of solitude for someone",
+  "model_id": "llava-hf/llava-interleave-qwen-0.5b-hf",
+  "device": "cuda:0"
+}

@@ -1,0 +1,5 @@
+image_id,scene,ground_truth_elements,concise_accuracy,descriptive_accuracy,detailed_accuracy,object_coverage_pct,hallucination_detected,notes
+img1_lighthouse,Coastal Lighthouse,"lighthouse, cliff, ocean, sunset, waves",1.0,0.95,0.95,90.0,False,"Accurately identifies cliff, lighthouse, and ocean backdrop without extraneous objects."
+img2_cafe,Cafe Bicycle,"bicycle, outdoor table, window, cafe storefront",1.0,0.9,0.9,85.0,False,"Correctly spots parked bicycle, table, window; detailed prompt captures atmospheric vintage lighting."
+img3_library,Library Interior,"bookshelves, books, study room, window",1.0,0.95,0.95,95.0,False,"Consistently identifies wooden furniture, bookshelves, and study ambiance across all prompts."
+img4_robotics,Robotics Laboratory,"robotic arm, screen/monitor, workbench, circuit board",0.9,0.9,0.9,85.0,False,Identifies robotic arm and monitor screen; natural completion reached at 208 tokens under 256 budget.
