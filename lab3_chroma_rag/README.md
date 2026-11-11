@@ -16,9 +16,9 @@ lab3_chroma_rag/
 │   ├── 02_chroma_retrieval.ipynb        # Індексація ChromaDB, Similarity vs MMR, фільтри
 │   └── 03_rag_evaluation.ipynb          # RAG-ланцюг із локальною LLM та оцінка
 └── outputs/
-    ├── tables/                          # chunks_prepared.json, retrieval_queries_details.json, rag_evaluation_summary.csv
-    ├── figures/                         # retrieval_similarity_vs_mmr.png, rag_grounding_and_metrics.png
-    └── answers/                         # Репрезентативні відповіді (Q1, Q7, Q9)
+    ├── tables/                          # corpus_audit_report.csv, chunking_experiments.csv, chunks_summary.csv, chunks_prepared.json, mmr_hyperparameter_tuning.csv, retrieval_comparison_similarity_vs_mmr.csv, retrieval_queries_details.json, rag_evaluation_summary.csv
+    ├── figures/                         # corpus_document_lengths.png, chunk_size_distribution.png, mmr_hyperparameter_sensitivity.png, retrieval_similarity_vs_mmr.png, rag_grounding_and_metrics.png
+    └── answers/                         # Повні відповіді Similarity та MMR для всіх запитів (q1_answers.txt–q9_answers.txt)
 ```
 
 ---
@@ -35,8 +35,8 @@ lab3_chroma_rag/
 
 ## Спостережувані результати
 
-- На 9 контрольних запитах (`outputs/tables/rag_evaluation_summary.csv`) обидва ретривери забезпечили релевантний контекст із явним цитуванням джерел (`Q1`–`Q8`).
-- MMR (`k=4`, `fetch_k=12`, $\lambda=0.5$) залучав ширший набір документів на багатоаспектних запитах (`Q1`, `Q4`, `Q5`).
-- Фільтри метаданих (`Q6`: `type="md"`, `Q7`–`Q8`: `source=...`) строго ізолювали простір пошуку, а позадоменний запит `Q9` коректно завершився відмовою без галюцинацій (`outputs/answers/q9_answers.txt`).
+- На 9 контрольних запитах (`outputs/tables/rag_evaluation_summary.csv`, артефакти `outputs/answers/q1_answers.txt`–`q9_answers.txt`) Similarity RAG забезпечив валідне цитування файлів джерел для всіх доменних запитів (`Q1`–`Q8`: `8/8`, сумарно `8/9` або `88.9%`), тоді як MMR RAG — для `7/8` доменних запитів і `Q9` (`8/9` або `88.9%`; на `Q4` MMR процитував `chunk_id` замість імені файла, через що автоматична перевірка зафіксувала `Citation Validity = INVALID`). Фактичне узгодження тверджень (`Factual Grounding`) залишається з чесним статусом `NOT_EVALUATED`.
+- MMR (`k=4`, `fetch_k=12`, $\lambda=0.5$) залучав ширший набір документів на багатоаспектних запитах (`Q1`, `Q4`, `Q5`, середнє різноманіття `0.56` проти `0.50` у Similarity).
+- Фільтри метаданих (`Q6`: `type="md"`, `Q7`–`Q8`: `source=...`) строго ізолювали простір пошуку (`Filter Compliance = 100%`), а позадоменний запит `Q9` коректно завершився відмовою в обох режимах (`OOD Abstention = PASS`, `outputs/answers/q9_answers.txt`).
 
 Обмеження: виконання генерації у `03_rag_evaluation.ipynb` вимагає активного локального сервера Ollama або vLLM; базова конфігурація розрахована на невеликий доменний корпус (55 чанків) без зовнішнього переранжування (reranker).

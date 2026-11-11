@@ -1,0 +1,18 @@
+QUERY ID: Q2
+CATEGORY: Multi-Doc Synthesis
+QUERY: How do point-in-time correct joins in a feature store prevent data leakage during training dataset generation?
+FILTER: None
+
+============================================================
+SIMILARITY RETRIEVER ANSWER:
+============================================================
+Point-in-time correct joins in a feature store prevent data leakage during training dataset generation by ensuring that only data available up to the observation timestamp $t_{\text{obs}}$ is used in feature computation. Specifically, the feature store evaluates the exact state of a feature as of $t_{\text{obs}}$, and any feature update occurring at a time $t > t_{\text{obs}}$ is explicitly excluded from the training tuple. This temporal restriction prevents the inclusion of future information in the training dataset, thereby avoiding temporal data leakage [02_feature_engineering.md].
+
+This mechanism directly addresses the failure mode of temporal leakage—where normalization or feature computation spans the entire historical partition rather than being confined to the causal training window—ensuring that the training data reflects only the information that was available at the time of observation [01_data_quality.md]. As a result, the training dataset remains causally valid and free from data leakage.
+
+============================================================
+MMR RETRIEVER ANSWER:
+============================================================
+Point-in-time correct joins in a feature store prevent data leakage during training dataset generation by ensuring that only the state of features as of the observation timestamp $t_{\text{obs}}$ is used in training. This means that any feature update occurring after $t_{\text{obs}}$ is explicitly excluded from the training tuple, thereby preventing the inclusion of future information that would otherwise introduce temporal data leakage [02_feature_engineering.md]. By enforcing this temporal boundary, the feature store guarantees that the training data reflects only the causal history up to the observation time, aligning with the principle of avoiding future data leakage [01_data_quality.md]. This mechanism directly addresses the failure mode of temporal leakage, where normalization or feature computation spans beyond the causal training window [01_data_quality.md].
+
+Thus, point-in-time correct joins ensure that the training dataset is constructed using only past and present information, maintaining temporal consistency and preventing data leakage. [02_feature_engineering.md]

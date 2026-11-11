@@ -29,8 +29,12 @@ The primary incident severity levels are defined as:
 
 - Severity 3 (P3 - Moderate): Moderate covariate drift (0.10 ≤ PSI < 0.25) across auxiliary non-critical features, with minor latency degradation within acceptable buffer limits. [07_incident_response.txt | ID: 07_incident_response_chunk_003]
 
-The automated circuit breaker strategies for production ML include:
+The document does not explicitly define all severity levels (e.g., P1 or P2), but it establishes that machine learning incidents are classified differently from traditional software defects, with model failures often presenting as "silent degradation" rather than error codes. [07_incident_response.txt | ID: 07_incident_response_chunk_001]
 
-- Fallback Heuristics: Diverting live requests to rule-based fallback decision engines or deterministic business heuristics when confidence scores violate sanity thresholds.  
-- Rollback to Golden Baseline: Automatic rollback to the previous validated model checkpoint (N-1 release) via atomic traffic rerouting at the API gateway layer.  
+The primary automated circuit breaker strategies for production ML include:
+
+- Fallback Heuristics: Diverting live requests to rule-based fallback decision engines or deterministic business heuristics when confidence scores violate sanity thresholds. [07_incident_response.txt | ID: 07_incident_response_chunk_005]
+- Rollback to Golden Baseline: Automatic rollback to the previous validated model checkpoint (N-1 release) via atomic traffic rerouting at the API gateway layer. [07_incident_response.txt | ID: 07_incident_response_chunk_005]
 - Throttling and Graceful Degradation: Dropping non-essential compute-intensive features or switching to lightweight quantized models under high load. [07_incident_response.txt | ID: 07_incident_response_chunk_005]
+
+These strategies are implemented to prevent widespread damage during model failures. [07_incident_response.txt | ID: 07_incident_response_chunk_005]

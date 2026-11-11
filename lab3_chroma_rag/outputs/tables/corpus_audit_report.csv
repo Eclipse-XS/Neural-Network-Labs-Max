@@ -1,0 +1,9 @@
+filename,extension,type,characters,words,lines,sha256,full_sha256,is_empty,is_duplicate
+01_data_quality.md,.md,md,3511,439,27,cca1a7976f7fb048...,cca1a7976f7fb04824d79686f2a0efdcd0d977f8f8707ff987ae5c0edd4ee19c,False,False
+02_feature_engineering.md,.md,md,3209,385,30,cd4c22b38609e5ea...,cd4c22b38609e5ea55ff145b4a19a518978164d358289949ef4d74e08690631c,False,False
+03_model_training.md,.md,md,2882,362,27,254464141091f0ae...,254464141091f0ae80fe936917093f7f1f329de709f2d9dabccdf32a0ebeeee6,False,False
+04_validation_and_metrics.md,.md,md,2673,319,31,6be0ca7d7f011ef7...,6be0ca7d7f011ef73b7e64d9e3d677412b3465848289eedf736b71c3cbbe432c,False,False
+05_deployment_architecture.md,.md,md,2771,343,26,7d3981ba5e4579bb...,7d3981ba5e4579bb3c616af0f05afdf904058c3fd27efbf93cbfabf4ece9f5d9,False,False
+06_model_monitoring.md,.md,md,2637,326,34,06fd4be3e722d1e8...,06fd4be3e722d1e8020863718c789c371f2905b91ab16adbe996797c1bcff4d5,False,False
+07_incident_response.txt,.txt,txt,3125,406,41,43d14a59dd85a80d...,43d14a59dd85a80d1de37f2e8ef9a7f243674d31d69952213020e2a84165d9bc,False,False
+08_security_and_reproducibility.txt,.txt,txt,3076,356,31,b1e27b054edb00f2...,b1e27b054edb00f23d083acb5467659e777a51aa07829ddf8ce24f7130af08be,False,False
