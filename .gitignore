@@ -30,3 +30,10 @@ Thumbs.db
 *.tmp
 *.bak
 .env
+
+
+# Generated notebook HTML exports
+lab3_chroma_rag/notebooks/*.html
+lab3_chroma_rag/outputs/html/
+lab4_img2img/notebooks/*.html
+lab4_img2img/outputs/html/

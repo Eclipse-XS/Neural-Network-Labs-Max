@@ -60,7 +60,7 @@ lab2_vllm/
 Виконувати в PowerShell:
 
 ```powershell
-wsl -d Ubuntu-24.04 -u vllm-lab -- bash /mnt/c/Users/Eclipse/PycharmProjects/neural-network-technologies-and-systems/vllm-lab/start-server.sh
+wsl -d Ubuntu-24.04 -u vllm-lab -- bash ~/vllm-lab/start-server.sh
 ```
 
 Ця команда займає поточне вікно до зупинки сервера через `Ctrl+C`.
@@ -103,7 +103,7 @@ CLI не підміняє відсутню модель першою модел�
 Клієнт запускається тим самим ізольованим середовищем WSL2, де встановлено `openai`. Вихідний код залишається у Windows-каталозі проєкту. Виконувати в Ubuntu WSL2:
 
 ```bash
-cd /mnt/c/Users/Eclipse/PycharmProjects/neural-network-technologies-and-systems/max/lab2_vllm
+cd lab2_vllm
 /home/vllm-lab/lab2/.venv/bin/python -m pip install -r requirements.txt
 ```
 
@@ -184,7 +184,7 @@ system → user → assistant → user → assistant
 Виконувати в Ubuntu WSL2 з каталогу проєкту:
 
 ```bash
-cd /mnt/c/Users/Eclipse/PycharmProjects/neural-network-technologies-and-systems/max/lab2_vllm
+cd lab2_vllm
 /home/vllm-lab/lab2/.venv/bin/python -m pytest -q
 ```
 
