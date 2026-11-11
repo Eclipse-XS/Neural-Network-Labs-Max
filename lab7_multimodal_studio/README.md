@@ -30,7 +30,7 @@ lab7_multimodal_studio/
 │   ├── 02_integrated_workflows.ipynb            # Офлайн-аналіз 3 JSON-трейсів, безпеки та gallery.db
 │   └── 03_evaluation_and_analysis.ipynb         # Порівняння затримок, аудит артефактів і VRAM
 └── outputs/
-    ├── gallery/                                 # gallery.db (12 записів) і 14 збережених PNG-зображень
+    ├── gallery/                                 # gallery.db (13 записів: 12 успішних + 1 тест безпеки) і 15 збережених PNG-зображень
     ├── traces/                                  # 3 JSON-трейси (caption/gallery, VQA->Img2Img, path rejection)
     ├── tables/                                  # studio_model_benchmarks.csv
     └── figures/                                 # multimodal_latency_breakdown.png
@@ -59,6 +59,6 @@ streamlit run lab7_multimodal_studio/app.py
 | SD 1.5 Img2Img (Cyberpunk) | Cafe Bicycle | `4.933` | `—` |
 | LlamaIndex Agent Multi-Tool | Robotics + Gallery | `52.675` | `146` |
 
-Безпека та персистентність: `validate_safe_image_path` відхиляє спроби обходу шляхів (зокрема `../lab4_img2img/inputs/...`, `../../etc/shadow`, `C:/Windows/System32/cmd.exe`), а `gallery.db` містить 12 консистентних записів, що посилаються на наявні файли у `outputs/gallery/`.
+Безпека та персистентність: `validate_safe_image_path` відхиляє спроби обходу шляхів (зокрема `../lab4_img2img/inputs/...`, `../../etc/shadow`, `C:/Windows/System32/cmd.exe`), а `gallery.db` містить 13 записів (12 успішних операцій, що посилаються на 15 наявних PNG-файлів у `outputs/gallery/`, та 1 відхилену спробу path traversal зі статусом `failed`).
 
 Обмеження: одночасне завантаження LLaVA, SD 1.5 та Ollama на GPU з 4 ГБ VRAM вимагає почергового звільнення пам'яті через `ModelLifecycleManager`; багатоінструментні запити агента мають підвищену затримку (~53 с).
