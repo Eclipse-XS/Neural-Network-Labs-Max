@@ -1,0 +1,6 @@
+task,subject,latency_sec,tokens
+LLaVA Caption (Concise),Lighthouse,3.101,10
+LLaVA VQA (Equipment),Robotics Lab,0.387,2
+SD 1.5 Img2Img (Van Gogh),Lighthouse,6.13,0
+SD 1.5 Img2Img (Cyberpunk),Cafe Bicycle,4.933,0
+LlamaIndex Agent Multi-Tool,Robotics + Gallery,52.675,146

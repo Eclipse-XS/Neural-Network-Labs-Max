@@ -1,12 +1,11 @@
 import json
-import importlib.util
 from pathlib import Path
 import pytest
 import nbformat
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 NOTEBOOKS_DIR = PROJECT_ROOT / "notebooks"
-BUILDERS_DIR = PROJECT_ROOT
+OUTPUTS_DIR = PROJECT_ROOT / "outputs"
 
 CONTROL_CHARS = set([chr(i) for i in range(32) if i not in (9, 10, 13)]) # exclude \t, \n, \r
 
@@ -54,21 +53,19 @@ def test_lab03_notebook02_l2_and_cosine_formula_integrity():
     assert "$L_2$" in sec1_text
     assert "$L_2^2$" in sec1_text
 
-def test_lab03_builders_generate_clean_markdown():
-    """Перевірка того, що всі скрипти-білдери ЛР3 створюють чисті комірки без керуючих символів."""
-    builder_specs = [
-        (BUILDERS_DIR / "build_notebook_01.py", "build_notebook_01"),
-        (BUILDERS_DIR / "build_notebook_02.py", "build_notebook_02"),
-        (BUILDERS_DIR / "build_notebook_03.py", "build_lab03_notebook_03"),
-    ]
-    for b_path, fn_name in builder_specs:
-        assert b_path.exists(), f"Білдер {b_path.name} не існує"
-        spec = importlib.util.spec_from_file_location("mod_l3_" + b_path.stem, b_path)
-        mod = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(mod)
-        fn = getattr(mod, fn_name)
-        nb = fn()
-        for idx, cell in enumerate(nb.cells):
-            if cell.cell_type == "markdown":
-                found = [repr(ch) for ch in cell.source if ch in CONTROL_CHARS]
-                assert len(found) == 0, f"{b_path.name} комірка {idx} містить керуючі символи: {found}"
+def test_lab03_notebooks_structure_and_dependencies():
+    """Перевірка логічної структури, порядку виконання та взаємозв'язків блокнотів ЛР3."""
+    nb1_path = NOTEBOOKS_DIR / "01_corpus_preparation.ipynb"
+    nb2_path = NOTEBOOKS_DIR / "02_chroma_retrieval.ipynb"
+    nb3_path = NOTEBOOKS_DIR / "03_rag_evaluation.ipynb"
+    
+    for path in [nb1_path, nb2_path, nb3_path]:
+        assert path.exists(), f"Блокнот {path.name} обов'язковий"
+        with open(path, "r", encoding="utf-8") as f:
+            nb = nbformat.read(f, as_version=4)
+        assert len(nb.cells) >= 15, f"Блокнот {path.name} повинен бути змістовним (знайдено лише {len(nb.cells)} комірок)"
+        code_cells = [c for c in nb.cells if c.cell_type == "code"]
+        assert len(code_cells) >= 5, f"Блокнот {path.name} повинен містити безпосередній виконуваний код"
+        # Перевірка наявності вихідних результатів
+        outputs_count = sum(len(c.get("outputs", [])) for c in code_cells)
+        assert outputs_count > 0, f"Блокнот {path.name} повинен містити верифіковані виходи"

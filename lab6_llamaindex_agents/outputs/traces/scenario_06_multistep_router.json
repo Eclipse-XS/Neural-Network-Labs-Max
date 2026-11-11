@@ -1,0 +1,76 @@
+{
+  "scenario_id": "scenario_06_multistep_router",
+  "category": "Multi-Step Chaining",
+  "prompt": "Analyze llm_router_v1: check its error rate and availability, calculate its latency SLO margin, and retrieve the recovery protocol from the runbook.",
+  "expected_tools": [
+    "query_model_registry",
+    "calculate_slo_margin",
+    "consult_incident_runbook"
+  ],
+  "tools_called": [
+    "list_degraded_models",
+    "query_model_registry",
+    "calculate_slo_margin",
+    "consult_incident_runbook"
+  ],
+  "tool_call_count": 4,
+  "tool_selection_correct": true,
+  "task_success": false,
+  "elapsed_sec": 50.74,
+  "response_length_chars": 2316,
+  "final_response": "### Analysis of `llm_router_v1`:\n\n#### 1. **Error Rate and Availability**:\n- **Error Rate**: 6.2% (exceeds the 2% threshold for error rate degradation).\n- **Availability**: 97.4% (below the 99.5% SLO target).\n- Both metrics indicate a **critical degradation** in service health.\n\n#### 2. **Latency SLO Margin**:\n- **P99 Latency**: 1420 ms (exceeds SLO target of 1000 ms).\n- **SLO Margin Calculation**:\n  - Difference: 1420 ms - 1000 ms = **420 ms**.\n  - Margin Percentage: 42.0%.\n- **Status**: **Violation** (Critical severity).\n\n#### 3. **Recovery Protocol from Runbook**:\n- **Immediate Triage**:\n  - Traffic is at 320 RPS, which is below the threshold for replica capacity (300 RPS for LLM models), so no scaling is triggered.\n  - CPU/GPU saturation is not explicitly reported, but the error rate suggests potential resource exhaustion.\n- **Mitigation Actions**:\n  - Enable **speculative decoding**.\n  - Enforce **strict max_tokens clamp** (max 512 tokens).\n  - Redirect **40% of non-critical classification prompts** to the local `qwen3:4b-instruct` endpoint to offload traffic.\n- **Escalation**:\n  - If latency remains degraded after 15 minutes, notify the primary on-call engineer and page `team-platform`.\n\n- **Error Rate Remediation**:\n  - Given the error rate of 6.2%, this indicates **CUDA OOM or KV-cache allocation exhaustion** on vLLM worker nodes.\n  - **Action**: Restart the worker pod pool with **chunked prefill enabled** (`--enable-chunked-prefill`) and clear orphan GPU memory.\n  - If automated mitigation fails, execute an **immediate rollback** to the previous stable release via the canary pipeline.\n\n---\n\n### Summary:\n`llm_router_v1` is in a **critical degraded state** due to:\n- A **42% violation** of the latency SLO.\n- An **error rate of 6.2%** and **availability of 97.4%**, both below SLA thresholds.\n\n**Recommended Actions**:\n1. Apply speculative decoding and max token clamp.\n2. Redirect 40% of non-critical prompts to `qwen3:4b-instruct`.\n3. Restart vLLM worker pods with `--enable-chunked-prefill`.\n4. Clear orphan GPU memory.\n5. If no improvement within 15 minutes, initiate rollback to the previous stable version.\n\n⚠️ **Note**: Destructive operations (e.g., full rollback) should only be performed if the runbook explicitly permits them and no alternative mitigations are effective.",
+  "trace_events": [
+    {
+      "type": "ToolCall",
+      "tool_name": "list_degraded_models",
+      "tool_kwargs": {},
+      "tool_id": "COf4QvvvwJgxLdxVT87hWzwWyFMkSnTo"
+    },
+    {
+      "type": "ToolCallResult",
+      "tool_name": "list_degraded_models",
+      "tool_output": "[\n  {\n    \"model_id\": \"churn_predictor_v3\",\n    \"framework\": \"LightGBM\",\n    \"version\": \"3.4.1\",\n    \"status\": \"degraded\",\n    \"p99_latency_ms\": 315.0,\n    \"p50_latency_ms\": 110.0,\n    \"error_rate\": 0.038,\n    \"availability_pct\": 98.62,\n    \"slo_latency_ms\": 250.0,\n    \"slo_availability_pct\": 99.9,\n    \"requests_per_sec\": 1420,\n    \"owner\": \"team-retention\",\n    \"deployed_at\": \"2026-10-15T08:30:00Z\"\n  },\n  {\n    \"model_id\": \"llm_router_v1\",\n    \"framework\": \"vLLM-Transformers\",\n    \"version\": \"1.2.0\",\n    \"status\": \"degraded\",\n    \"p99_latency_ms\": 1420.0,\n    \"p50_latency_ms\": 680.0,\n    \"error_rate\": 0.062,\n    \"availability_pct\": 97.4,\n    \"slo_latency_ms\": 1000.0,\n    \"slo_availability_pct\": 99.5,\n    \"requests_per_sec\": 320,\n    \"owner\": \"team-platform\",\n    \"deployed_at\": \"2026-11-01T09:45:00Z\"\n  }\n]"
+    },
+    {
+      "type": "ToolCall",
+      "tool_name": "query_model_registry",
+      "tool_kwargs": {
+        "model_id": "llm_router_v1"
+      },
+      "tool_id": "NlvN8wDuR0qtQv5B7ucB9mJicJ4MrJKi"
+    },
+    {
+      "type": "ToolCallResult",
+      "tool_name": "query_model_registry",
+      "tool_output": "{\n  \"model_id\": \"llm_router_v1\",\n  \"framework\": \"vLLM-Transformers\",\n  \"version\": \"1.2.0\",\n  \"status\": \"degraded\",\n  \"p99_latency_ms\": 1420.0,\n  \"p50_latency_ms\": 680.0,\n  \"error_rate\": 0.062,\n  \"availability_pct\": 97.4,\n  \"slo_latency_ms\": 1000.0,\n  \"slo_availability_pct\": 99.5,\n  \"requests_per_sec\": 320,\n  \"owner\": \"team-platform\",\n  \"deployed_at\": \"2026-11-01T09:45:00Z\"\n}"
+    },
+    {
+      "type": "ToolCall",
+      "tool_name": "calculate_slo_margin",
+      "tool_kwargs": {
+        "metric_value": 1420,
+        "slo_target": 1000,
+        "metric_type": "latency"
+      },
+      "tool_id": "mtibCbmKWI0D9iaHSZgNBqgmayX9FSYR"
+    },
+    {
+      "type": "ToolCallResult",
+      "tool_name": "calculate_slo_margin",
+      "tool_output": "{\"metric_type\": \"latency\", \"value_ms\": 1420, \"slo_target_ms\": 1000, \"diff_ms\": 420, \"margin_pct\": 42.0, \"status\": \"VIOLATION\", \"severity\": \"Critical\"}"
+    },
+    {
+      "type": "ToolCall",
+      "tool_name": "consult_incident_runbook",
+      "tool_kwargs": {
+        "query": "recovery protocol for llm_router_v1 degraded state"
+      },
+      "tool_id": "urBsjeXt431deMqb55LcYmdySbZVdQae"
+    },
+    {
+      "type": "ToolCallResult",
+      "tool_name": "consult_incident_runbook",
+      "tool_output": "## Section 1: Latency Violation Protocols (P99 Latency > SLO)\nWhen a model service exhibits p99 latency exceeding its defined SLO:\n1. Immediate Triage:\n   - Check if traffic surge (requests per second) exceeds provisioned replica capacity (>1500 RPS per replica for tree models, >300 RPS for neural/LLM models).\n   - If CPU/GPU saturation >85%, trigger horizontal auto-scaler: `kubectl scale deployment <model-name> --replicas=+2`.\n2. Mitigation Actions:\n   - For `churn_predictor_v3`: If p99 latency exceeds 250ms, enable feature-cache fast-path and fall back to lightweight ensemble mode (depth=4). Target recovery time: 5 minutes.\n   - For `llm_router_v1`: If p99 latency exceeds 1000ms, enable speculative decoding, enforce strict max_tokens clamp (max 512 tokens), and redirect 40% of non-critical classification prompts to `qwen3:4b-instruct` local endpoint.\n3. Escalation:\n   - If p99 latency remains degraded after 15 minutes, notify primary on-call engineer and page `team-platform`.\n\n## Section 2: Error Rate and Availability Degradation (Availability < 99.9% or Error Rate > 2%)\nWhen error rate exceeds 2% or availability falls below the 99.9% SLA:\n1. Diagnostics:\n   - Inspect upstream schema drift and input payload validation errors (HTTP 422 vs HTTP 500).\n   - Verify feature store connectivity (Redis cache timeout threshold: 15ms).\n2. Remediation:\n   - For `churn_predictor_v3`: High error rate (>3%) typically indicates missing batch features in the user retention vector. Activate imputed median fallback profile `churn_fallback_v3_imputed.bin`.\n   - For `llm_router_v1`: High error rate (>5%) indicates CUDA OOM or KV-cache allocation exhaustion on vLLM worker nodes. Restart worker pod pool with chunked prefill enabled (`--enable-chunked-prefill`) and clear orphan GPU memory.\n   - If automated mitigation fails, execute immediate roll-back to the previous stable release candidate via canary pipeline: `mlflow models rollback --model-id=<model_id>`."
+    }
+  ]
+}
