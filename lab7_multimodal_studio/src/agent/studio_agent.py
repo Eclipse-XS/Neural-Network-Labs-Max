@@ -8,7 +8,7 @@ from PIL import Image
 from ..models.llava_service import LlavaService
 from ..models.diffusion_service import DiffusionService
 from ..storage.gallery_service import GalleryService
-from ..utils.security import validate_safe_image_path, to_portable_path
+from ..utils.security import validate_safe_image_path, to_portable_path, sanitize_path_string
 
 class StudioAgent:
     """Intelligent agent orchestrator for Multimodal Studio using LlamaIndex AgentWorkflow."""
@@ -78,6 +78,7 @@ class StudioAgent:
                 })
             except Exception as e:
                 portable_p = to_portable_path(image_path, studio_root=root)
+                clean_err = sanitize_path_string(str(e), studio_root=root)
                 rec_id = gallery.add_record(
                     task_type="caption",
                     prompt=style,
@@ -85,9 +86,9 @@ class StudioAgent:
                     output_text="",
                     latency_sec=0.0,
                     status="failed",
-                    error_message=str(e)
+                    error_message=clean_err
                 )
-                return json.dumps({"error": str(e), "status": "failed", "record_id": rec_id})
+                return json.dumps({"error": clean_err, "status": "failed", "record_id": rec_id})
 
         def answer_visual_question(image_path: str, question: str) -> str:
             """Answer a question about the visual contents of the image at image_path."""
@@ -113,6 +114,7 @@ class StudioAgent:
                 })
             except Exception as e:
                 portable_p = to_portable_path(image_path, studio_root=root)
+                clean_err = sanitize_path_string(str(e), studio_root=root)
                 rec_id = gallery.add_record(
                     task_type="vqa",
                     prompt=question,
@@ -120,9 +122,9 @@ class StudioAgent:
                     output_text="",
                     latency_sec=0.0,
                     status="failed",
-                    error_message=str(e)
+                    error_message=clean_err
                 )
-                return json.dumps({"error": str(e), "status": "failed", "record_id": rec_id})
+                return json.dumps({"error": clean_err, "status": "failed", "record_id": rec_id})
 
         def transform_image_style(image_path: str, prompt: str, strength: float = 0.6) -> str:
             """Apply creative image-to-image transformation using Stable Diffusion 1.5."""
@@ -150,6 +152,7 @@ class StudioAgent:
                 })
             except Exception as e:
                 portable_p = to_portable_path(image_path, studio_root=root)
+                clean_err = sanitize_path_string(str(e), studio_root=root)
                 rec_id = gallery.add_record(
                     task_type="transformation",
                     prompt=prompt,
@@ -157,9 +160,9 @@ class StudioAgent:
                     output_text="",
                     latency_sec=0.0,
                     status="failed",
-                    error_message=str(e)
+                    error_message=clean_err
                 )
-                return json.dumps({"error": str(e), "status": "failed", "record_id": rec_id})
+                return json.dumps({"error": clean_err, "status": "failed", "record_id": rec_id})
 
         def inspect_studio_gallery(limit: int = 5) -> str:
             """Retrieve recent generation and analysis records from the studio gallery database."""
@@ -205,8 +208,8 @@ class StudioAgent:
                 # Clean any arguments from absolute paths for portable logging
                 clean_kwargs = {}
                 for k, v in event.tool_kwargs.items():
-                    if isinstance(v, str) and (":" in v or "\\" in v):
-                        clean_kwargs[k] = to_portable_path(v, studio_root=self.studio_root)
+                    if isinstance(v, str):
+                        clean_kwargs[k] = sanitize_path_string(to_portable_path(v, studio_root=self.studio_root), studio_root=self.studio_root)
                     else:
                         clean_kwargs[k] = v
                 traces.append({
@@ -215,10 +218,11 @@ class StudioAgent:
                     "kwargs": clean_kwargs
                 })
             elif isinstance(event, ToolCallResult):
+                clean_output = sanitize_path_string(str(event.tool_output), studio_root=self.studio_root)
                 traces.append({
                     "event": "ToolCallResult",
                     "tool": event.tool_name,
-                    "output": str(event.tool_output)[:300]
+                    "output": clean_output[:300]
                 })
                 
         response = await handler

@@ -74,6 +74,7 @@ lab7_multimodal_studio/
 │   └── figures/                 # Графік розподілу затримок сервісів
 └── tests/
     ├── test_services.py         # Тести сервісів, утиліт, безпеки та персистентності
+    ├── test_security_boundary.py# Повний набір тестів безпеки пісочниці та санітизації шляхів
     ├── test_notebooks.py        # Валідація валідності та виконання блокнотів
     └── test_app.py              # Синтаксична та UI Smoke перевірка Streamlit-додатку (AppTest)
 ```
@@ -143,5 +144,5 @@ streamlit run app.py
 ### Запуск верифікаційних тестів
 ```bash
 pytest tests/ -v
-# 20 passed in ~6.0s (Tier 1-3)
+# 32 passed in ~14.0s (Tier 1-3)
 ```

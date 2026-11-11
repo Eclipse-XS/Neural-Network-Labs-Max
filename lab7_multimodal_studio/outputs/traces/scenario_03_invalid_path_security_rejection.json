@@ -16,7 +16,7 @@
     {
       "event": "ToolCallResult",
       "tool": "caption_image",
-      "output": "{\"error\": \"Access denied: '../lab4_img2img/inputs/01_coastal_lighthouse.png' resolves outside allowed directories: ['C:\\\\\\\\Users\\\\\\\\Eclipse\\\\\\\\PycharmProjects\\\\\\\\neural-network-technologies-and-systems\\\\\\\\max\\\\\\\\lab7_multimodal_studio\\\\\\\\assets', 'C:\\\\\\\\Users\\\\\\\\Eclipse\\\\\\\\PycharmProjects\\\\\\\\neural-"
+      "output": "{\"error\": \"Access denied: '../lab4_img2img/inputs/01_coastal_lighthouse.png' resolves outside allowed studio image directories.\", \"status\": \"failed\", \"record_id\": \"caption_20261111_150125_400\"}"
     }
   ]
 }
