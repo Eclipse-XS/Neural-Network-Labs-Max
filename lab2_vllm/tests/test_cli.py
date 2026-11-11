@@ -1,7 +1,13 @@
+import sys
+from pathlib import Path
 from datetime import datetime, timezone
 from types import SimpleNamespace
 
 import pytest
+
+LAB2_DIR = Path(__file__).resolve().parent.parent
+if str(LAB2_DIR) not in sys.path:
+    sys.path.insert(0, str(LAB2_DIR))
 
 import cli
 

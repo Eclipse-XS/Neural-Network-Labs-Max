@@ -2,8 +2,7 @@ import time
 import gc
 import torch
 from PIL import Image
-from typing import Tuple, Optional
-from transformers import AutoProcessor, LlavaForConditionalGeneration
+from typing import Tuple, Optional, Any
 from ..utils.device import get_device, clean_gpu_memory, ModelLifecycleManager
 
 MODEL_ID = "llava-hf/llava-interleave-qwen-0.5b-hf"
@@ -14,8 +13,8 @@ class LlavaService:
     def __init__(self, model_id: str = MODEL_ID):
         self.model_id = model_id
         self.device = get_device()
-        self.processor: Optional[AutoProcessor] = None
-        self.model: Optional[LlavaForConditionalGeneration] = None
+        self.processor: Optional[Any] = None
+        self.model: Optional[Any] = None
         
         # Register with coordinated lifecycle manager
         self.manager = ModelLifecycleManager.get_instance()
@@ -23,6 +22,13 @@ class LlavaService:
 
     def _ensure_loaded(self):
         if self.model is None or self.processor is None:
+            try:
+                from transformers import AutoProcessor, LlavaForConditionalGeneration
+            except ImportError as e:
+                raise ImportError(
+                    f"The 'transformers' library is required to run LlavaService. "
+                    f"Please install transformers: {e}"
+                )
             # Unload any conflicting heavy models (e.g. Stable Diffusion) before loading LLaVA
             self.manager.prepare_for_model("llava")
             dtype = torch.float16 if self.device.type == "cuda" else torch.float32

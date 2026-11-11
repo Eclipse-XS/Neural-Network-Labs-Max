@@ -12,9 +12,10 @@
 
 Лабораторна робота №7 є підсумковим комплексним проектом дисципліни, що об'єднує напрацювання попередніх досліджень в єдину виробничу систему:
 1. **Мультимодальний зір (Vision-Language):** Генерація текстових підписів та візуальні запитання-відповіді (VQA) на основі моделі `LLaVA-Interleave-Qwen-0.5B`.
-2. **Генеративні дифузійні моделі (Image-to-Image):** Стилізація та художня трансформація вхідних зображень за допомогою `Stable Diffusion 1.5 Img2Img` (реюзабельність та розвиток результатів Лабораторної №4).
+2. **Генеративні дифузійні моделі (Image-to-Image):** Стилізація та художня трансформація вхідних зображень за допомогою `Stable Diffusion 1.5 Img2Img` (розвиток результатів Лабораторної №4).
 3. **Автономна агентна оркестрація:** Інтелектуальний диспетчер на базі `LlamaIndex AgentWorkflow` та локальної моделі `qwen3:4b-instruct` (Ollama), що автономно вибирає потрібні інструменти студії під запити користувача.
 4. **Персистентне сховище та аудит:** Збереження історії промптів, параметрів, затримок та згенерованих зображень у локальній базі даних `SQLite` (`outputs/gallery/gallery.db`), що гарантує збереження даних між перезапусками.
+5. **Модуль безпеки та ізоляції пісочниці:** `validate_safe_image_path` перевіряє розширення, розмірність та блокує атаки типу Path Traversal (`../../etc/shadow`).
 
 ```
 +-----------------------------------------------------------------------------------------+
@@ -52,28 +53,29 @@ lab7_multimodal_studio/
 ├── app.py                       # Головна точка входу Streamlit-додатку
 ├── src/                         # Продакшн-модулі повторного використання
 │   ├── models/
-│   │   ├── llava_service.py     # Двигун інференсу LLaVA Captioning та VQA
-│   │   └── diffusion_service.py # Конвеєр Stable Diffusion 1.5 Img2Img
+│   │   ├── llava_service.py     # Двигун інференсу LLaVA Captioning та VQA (Lazy Loading)
+│   │   └── diffusion_service.py # Конвеєр Stable Diffusion 1.5 Img2Img (Lazy Loading)
 │   ├── agent/
-│   │   └── studio_agent.py      # Агент LlamaIndex для мультимодальної маршрутизації
+│   │   └── studio_agent.py      # Агент LlamaIndex для мультимодальної маршрутизації (Lazy Loading)
 │   ├── storage/
-│   │   └── gallery_service.py   # SQLite-база та файлове сховище галереї
+│   │   └── gallery_service.py   # SQLite-база та файлове сховище галереї з авто-міграцією
 │   └── utils/
-│       └── device.py            # Управління пам'яттю GPU (VRAM) та кліринг
+│       ├── device.py            # Управління пам'яттю GPU (VRAM) та життєвим циклом моделей
+│       └── security.py          # Валідація шляхів та захист пісочниці від Path Traversal
 ├── notebooks/                   # Академічні дослідницькі блокноти
-│   ├── 01_multimodal_models.ipynb       # Ізольований бенчмаркінг LLaVA та SD 1.5
-│   ├── 02_integrated_workflows.ipynb    # Агентні ланцюжки та аудит персистентності
-│   └── 03_evaluation_and_analysis.ipynb # Системне оцінювання затримок та якості
+│   ├── 01_multimodal_models.ipynb       # Дослідження LLaVA та SD 1.5, профілювання VRAM
+│   ├── 02_integrated_workflows.ipynb    # Агентні сценарії (SCN 1-3) та аудит персистентності
+│   └── 03_evaluation_and_analysis.ipynb # Системне оцінювання затримок, Ground Truth та матриця збоїв
 ├── assets/                      # Кураторські тестові зображення (512x512)
 ├── outputs/
 │   ├── gallery/                 # gallery.db та збережені візуальні артефакти
-│   ├── traces/                  # Структурні JSON-трейси роботи агента
+│   ├── traces/                  # Структурні JSON-трейси роботи агента (SCN 1-3)
 │   ├── tables/                  # studio_model_benchmarks.csv
 │   └── figures/                 # Графік розподілу затримок сервісів
 └── tests/
-    ├── test_services.py         # Тести сервісів, утиліт та персистентності
+    ├── test_services.py         # Тести сервісів, утиліт, безпеки та персистентності
     ├── test_notebooks.py        # Валідація валідності та виконання блокнотів
-    └── test_app.py              # Синтаксична перевірка Streamlit-додатку
+    └── test_app.py              # Синтаксична та UI Smoke перевірка Streamlit-додатку (AppTest)
 ```
 
 ---
@@ -103,15 +105,27 @@ lab7_multimodal_studio/
 
 ---
 
-## 4. Результати емпіричного оцінювання продуктивності
+## 4. Результати емпіричного оцінювання та сценарії агента
 
+### Реальні вимірювання затримок компонентів:
 | Модуль / Задача | Модель | Вхідний об'єкт | Затримка (с) | Обсяг відповіді |
 |---|---|---|:---:|:---:|
-| **LLaVA Caption (Concise)** | `LLaVA-Interleave-0.5B` | Lighthouse | 3.10 | 10 слів |
+| **LLaVA Caption (Descriptive)** | `LLaVA-Interleave-0.5B` | Lighthouse | 3.10 | 10 слів |
 | **LLaVA VQA (Equipment)** | `LLaVA-Interleave-0.5B` | Robotics Lab | 0.39 | 2 слова |
 | **SD 1.5 Img2Img (Van Gogh)** | `SD 1.5 (25 steps, s=0.6)` | Lighthouse | 6.13 | $512\times512$ PNG |
-| **SD 1.5 Img2Img (Cyberpunk)** | `SD 1.5 (25 steps, s=0.55)` | Cafe Bicycle | 4.93 | $512\times512$ PNG |
-| **LlamaIndex Multi-Tool Agent** | `AgentWorkflow + qwen3:4b` | Robotics + Gallery | 52.68 | 146 слів (2 інструменти) |
+| **SD 1.5 Img2Img (Cyberpunk)** | `SD 1.5 (25 steps, s=0.65)` | Cafe Bicycle | 4.93 | $512\times512$ PNG |
+| **LlamaIndex Multi-Tool Agent (SCN 1)** | `AgentWorkflow + qwen3:4b` | Robotics + Gallery | 52.68 | 146 слів (2 інструменти) |
+
+### Трасовані сценарії агента (`outputs/traces/`):
+| Сценарій | Цільове завдання | Інструменти | Затримка | Security Enforcement | User Task Success |
+|:---:|---|---|:---:|:---:|:---:|
+| **SCN_01** | Опис лабораторії та перегляд галереї | `caption_image`, `inspect_studio_gallery` | 52.68 с | ✅ OK | ✅ SUCCESS |
+| **SCN_02** | Cross-Component: VQA маяка $\rightarrow$ SD 1.5 Van Gogh | `answer_visual_question`, `transform_image_style` | 127.92 с | ✅ OK | ✅ SUCCESS |
+| **SCN_03** | Спроба Path Traversal (`../../etc/shadow`) | `caption_image` (заблоковано пісочницею) | 5.37 с | ✅ 100% BLOCKED | ❌ FAILED (Заборонено) |
+
+- **Tool Selection Accuracy:** **100.0%** (3/3 сценарії обрали відповідні інструменти).
+- **Security Policy Enforcement:** **100.0%** (1/1 загроза коректно нейтралізована).
+- **User Task Success Rate:** **66.7%** (2 легітимні виконано, 1 заборонена безпечно відхилена).
 
 ---
 
@@ -129,4 +143,5 @@ streamlit run app.py
 ### Запуск верифікаційних тестів
 ```bash
 pytest tests/ -v
+# 20 passed in 6.0s (Tier 1-3)
 ```

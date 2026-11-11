@@ -37,6 +37,11 @@ class GalleryService:
                     error_message TEXT
                 )
             """)
+            existing_cols = [r[1] for r in cursor.execute("PRAGMA table_info(studio_records)")]
+            if "status" not in existing_cols:
+                cursor.execute("ALTER TABLE studio_records ADD COLUMN status TEXT DEFAULT 'success'")
+            if "error_message" not in existing_cols:
+                cursor.execute("ALTER TABLE studio_records ADD COLUMN error_message TEXT")
             conn.commit()
 
     def add_record(

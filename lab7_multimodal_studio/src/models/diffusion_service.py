@@ -2,8 +2,7 @@ import time
 import gc
 import torch
 from PIL import Image
-from typing import Tuple, Optional
-from diffusers import StableDiffusionImg2ImgPipeline
+from typing import Tuple, Optional, Any
 from ..utils.device import get_device, clean_gpu_memory, ModelLifecycleManager
 
 DIFFUSION_MODEL_ID = "stable-diffusion-v1-5/stable-diffusion-v1-5"
@@ -14,7 +13,7 @@ class DiffusionService:
     def __init__(self, model_id: str = DIFFUSION_MODEL_ID):
         self.model_id = model_id
         self.device = get_device()
-        self.pipeline: Optional[StableDiffusionImg2ImgPipeline] = None
+        self.pipeline: Optional[Any] = None
         
         # Register with coordinated lifecycle manager
         self.manager = ModelLifecycleManager.get_instance()
@@ -22,6 +21,13 @@ class DiffusionService:
 
     def _ensure_loaded(self):
         if self.pipeline is None:
+            try:
+                from diffusers import StableDiffusionImg2ImgPipeline
+            except ImportError as e:
+                raise ImportError(
+                    f"The 'diffusers' library is required to run DiffusionService. "
+                    f"Please install diffusers: {e}"
+                )
             # Unload any conflicting heavy models (e.g. LLaVA) before loading Diffusion
             self.manager.prepare_for_model("diffusion")
             dtype = torch.float16 if self.device.type == "cuda" else torch.float32

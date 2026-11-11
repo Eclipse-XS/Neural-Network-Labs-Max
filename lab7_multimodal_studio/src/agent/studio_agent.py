@@ -5,10 +5,6 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 from PIL import Image
 
-from llama_index.llms.openai_like import OpenAILike
-from llama_index.core.agent.workflow import AgentWorkflow, ToolCall, ToolCallResult
-from llama_index.core.memory import ChatMemoryBuffer
-
 from ..models.llava_service import LlavaService
 from ..models.diffusion_service import DiffusionService
 from ..storage.gallery_service import GalleryService
@@ -26,6 +22,13 @@ class StudioAgent:
         api_base: str = "http://127.0.0.1:11434/v1",
         studio_root: Optional[Path] = None
     ):
+        try:
+            from llama_index.llms.openai_like import OpenAILike
+            from llama_index.core.agent.workflow import AgentWorkflow, ToolCall, ToolCallResult
+            from llama_index.core.memory import ChatMemoryBuffer
+        except ImportError as e:
+            raise ImportError(f"The 'llama-index' library is required to run StudioAgent: {e}")
+
         self.studio_root = studio_root or Path(__file__).resolve().parent.parent.parent
         self.llava = llava_service or LlavaService()
         self.diffusion = diffusion_service or DiffusionService()
@@ -44,7 +47,7 @@ class StudioAgent:
         self.memory = ChatMemoryBuffer.from_defaults()
         self.workflow = self._build_workflow()
 
-    def _build_workflow(self) -> AgentWorkflow:
+    def _build_workflow(self) -> Any:
         llava = self.llava
         diffusion = self.diffusion
         gallery = self.gallery
@@ -191,6 +194,7 @@ class StudioAgent:
     async def run_request(self, user_prompt: str) -> Tuple[str, List[Dict[str, Any]], float]:
         """Execute user prompt through the agent workflow, capturing streaming events and traces."""
         import time
+        from llama_index.core.agent.workflow import ToolCall, ToolCallResult
         t0 = time.time()
         handler = self.workflow.run(user_msg=user_prompt, memory=self.memory)
         traces = []

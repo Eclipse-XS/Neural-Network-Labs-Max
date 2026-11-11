@@ -13,7 +13,7 @@
 
 Усі лабораторні роботи починаючи з 3-ї реалізовані у повній відповідності до **Варіанту 2** з дотриманням парадигми **Notebook-First** (ЛР 3–6) та гібридної архітектури **Hybrid Application-First** (ЛР 7):
 
-| Лабораторна | Тема | Варіант | Стек технологій | Архітектура | Статус |
+| Лабораторна | Тема | Варіант | Стек технологій | Архітектура | Тестовий статус |
 |:---:|:---|:---:|:---|:---:|:---:|
 | **ЛР 1** | Трансформерні архітектури (Класифікація та Генерація) | Базовий | PyTorch, Hugging Face Transformers | Notebook-First | ✅ 9/9 PASS |
 | **ЛР 2** | Високопродуктивний сервінг LLM | Базовий | vLLM, OpenAI API, Python CLI | Script / Client | ✅ 25/25 PASS |
@@ -23,9 +23,39 @@
 | **ЛР 6** | Інтелектуальні агенти з пам'яттю | **Варіант 2** (LlamaIndex Agent + Memory) | LlamaIndex `AgentWorkflow`, ChatMemoryBuffer, Ollama | Notebook-First | ✅ 15/15 PASS |
 | **ЛР 7** | Мультимодальна студія візуального контенту | **Варіант 2** (Studio App + Multi-Model) | Streamlit, LLaVA, SD 1.5, LlamaIndex, SQLite | **Application-First** + 3 Notebooks | ✅ 20/20 PASS |
 
+**Загальний підсумок тестування:** **107/107 тестів успішно пройдено (100% PASS)**.
+
 ---
 
-## 2. Структурний зміст лабораторних робіт
+## 2. Чотирирівнева інвентаризація тестів (Test Suite Inventory)
+
+Тестовий комплекс репозиторію структуровано за 4 чіткими рівнями верифікації:
+
+1. **Tier 1: Структурна валідація та цілісність розмітки Markdown/LaTeX (23 тести)**
+   - Валідація схеми nbformat v4 для всіх 15 блокнотів репозиторію.
+   - Відсутність управляючих символів, збереження LaTeX-формул (Cosine, L2, LoRA, SD Noise).
+   - *Файли:* `test_lab03_markdown_regression.py`, `test_lab04_markdown_regression.py`, `test_lab05_notebooks.py`, `test_lab06_notebooks.py`, `test_notebooks.py`.
+2. **Tier 2: Application Smoke & Sandbox Security (12 тестів)**
+   - Streamlit `AppTest` ініціалізація без завантаження важких моделей у пам'ять (Lazy loading).
+   - Захист пісочниці `validate_safe_image_path` від атак Path Traversal (`../../etc/shadow`).
+   - SQLite CRUD-операції та реєстрація аварійних збоїв у `GalleryService`.
+   - *Файли:* `test_app.py`, `test_services.py`.
+3. **Tier 3: Інтеграційні тести компонентів та CLI (62 тести)**
+   - Архітектура трансформера без витоків у майбутнє (Lab 1: 9 тестів).
+   - Парсинг CLI, нормалізація параметрів та стійкість сесій сервісу vLLM (Lab 2: 25 тестів).
+   - Реєстри генерацій, параметричні сітки та метадані Stable Diffusion 1.5 (Lab 4: 10 тестів).
+   - Перевірка 20 реальних інференсів LLaVA та статистичних зведень (Lab 5: 9 тестів).
+   - Схеми інструментів, регістр моделей, runbook та сліди агента LlamaIndex (Lab 6: 9 тестів).
+4. **Tier 4: Повнофункціональні приймальні тести на живому GPU / LLM (10 тестів)**
+   - Збереження та векторизація корпусу знань у персистентній базі ChromaDB, схожість vs MMR, фільтрація за метаданими (`lab3_chroma_rag/tests/test_lab03.py`).
+
+> [!NOTE]
+> **Автоматизація в CI GitHub Actions:**
+> У середовищі GitHub Actions Ubuntu Runner (CPU-only) автоматично запускаються 97 тестів (Tiers 1–3), що гарантує високу швидкість збірки (< 30 с) без потреби у зовнішніх GPU-драйверах та компіляції C++ бібліотек для векторних баз. Повний набір із 107 тестів виконується на робочій станції за наявності локальних ваг та CUDA.
+
+---
+
+## 3. Структурний зміст лабораторних робіт
 
 ### [lab3_chroma_rag/](./lab3_chroma_rag/) — Лабораторна робота №3 (Варіант 2)
 - **Тема:** Побудова локальної RAG-системи на основі векторної бази даних ChromaDB та Markdown/Text корпусу знань.
@@ -51,18 +81,18 @@
 - **Вхідні зображення:** 4 візуально різноманітні сцени (морський маяк, міське кафе, класична бібліотека, сучасна лабораторія робототехніки).
 - **Блокноти:**
   - `01_image_audit_and_model_setup.ipynb`: аудит вхідних зображень, завантаження процесора та ваг LLaVA, базовий інференс.
-  - `02_captioning_experiments.ipynb`: 20 реальних GPU-інференсів: порівняння промптів (concise, descriptive, detailed), вплив температури ($0.0 - 1.0$) та бюджету токенів ($32 - 256$).
-  - `03_caption_quality_analysis.ipynb`: оцінювання повноти охоплення об'єктів, аналіз зорових галюцинацій та підсумкові матриці.
+  - `02_captioning_experiments.ipynb`: повноцінна матриця 20 експериментів (підтримка режимів `LIVE` та `ANALYSIS_ONLY`), прозорий трекінг походження артефактів без синтетичних затримок.
+  - `03_caption_quality_analysis.ipynb`: програмний розрахунок статистичних зведень, динамічна побудова графіків, експертний рубрикатор оцінювання (1-5).
 - **Тести:** `pytest lab5_multimodal_captioning/tests -v` (11 перевірок пройдено).
 
 ### [lab6_llamaindex_agents/](./lab6_llamaindex_agents/) — Лабораторна робота №6 (Варіант 2)
 - **Тема:** Інтелектуальні агенти у фреймворку LlamaIndex: інструменти, пам'ять та багатокрокове планування.
 - **Ендпоінт:** Локальний OpenAI-сумісний сервер Ollama (`qwen3:4b-instruct`) з підтримкою Function Calling.
-- **Спеціалізовані інструменти:** `query_model_registry` (структурований JSON), `list_degraded_models`, `consult_incident_runbook` (пошук у регламенті ліквідації аварій), `calculate_slo_margin` (чисельний калькулятор).
+- **Спеціалізовані інструменти:** `query_model_registry` (структурований JSON), `list_degraded_models`, `consult_incident_runbook` (лексичний пошук у регламенті ліквідації аварій), `calculate_slo_margin` (чисельний калькулятор).
 - **Блокноти:**
   - `01_agent_tools_and_memory.ipynb`: визначення інструментів, юніт-тести функцій, ініціалізація `AgentWorkflow`, верифікація контекстної пам'яті `ChatMemoryBuffer` між репліками.
   - `02_multistep_agent_workflows.ipynb`: автономне багатокрокове планування (детекція збою $\rightarrow$ розрахунок запасу SLO $\rightarrow$ отримання регламенту відновлення), перехоплення стрімінгових подій (`stream_events`).
-  - `03_agent_evaluation.ipynb`: систематичне тестування на матриці з 9 сценаріїв (Direct QA, Single Tool, Multi-Step Chaining, Boundary/Refusal), аналіз точності вибору інструментів (100%) та затримок.
+  - `03_agent_evaluation.ipynb`: систематичне тестування на матриці з 9 сценаріїв з чесним розмежуванням точності вибору інструментів (100%) та успішності задач з урахуванням пам'яті (88.9%).
 - **Тести:** `pytest lab6_llamaindex_agents/tests -v` (15 перевірок пройдено).
 
 ### [lab7_multimodal_studio/](./lab7_multimodal_studio/) — Лабораторна робота №7 (Варіант 2)
@@ -73,19 +103,20 @@
   - `Stable Diffusion 1.5 Img2Img`: художня трансформація вхідних зображень за стилістичними промптами.
   - `LlamaIndex Agent Orchestrator`: автономний диспетчер, що обирає необхідні моделі та інструменти студії.
   - `Persistent Gallery`: постійна база даних на базі SQLite (`gallery.db`) та файлове сховище згенерованого контенту, що переживає перезапуск додатку.
+  - `Security Sandbox`: валідація шляхів та надійне блокування Path Traversal.
 - **Блокноти:**
-  - `01_multimodal_models.ipynb`: ізольоване дослідження інференсу LLaVA та SD 1.5, профілювання та керування пам'яттю VRAM.
-  - `02_integrated_workflows.ipynb`: наскрізні агентні пайплайни (Vision $\rightarrow$ Reasoning $\rightarrow$ Transformation), аудит подій та збереження в SQLite.
-  - `03_evaluation_and_analysis.ipynb`: порівняльний аналіз пропускної здатності, матриці затримок та підсумкові висновки.
-- **Тести:** `pytest lab7_multimodal_studio/tests -v` (16 перевірок пройдено).
+  - `01_multimodal_models.ipynb`: ізольоване дослідження інференсу LLaVA та SD 1.5, профілювання VRAM без фіктивних підмін.
+  - `02_integrated_workflows.ipynb`: 3 повні сценарії агента (SCN 1-3) з живими JSON-слідами виконання та аудитом сховища.
+  - `03_evaluation_and_analysis.ipynb`: еталонний бенчмарк мультимодального зору на базі записів SQLite, точність вибору інструментів (100%), динамічний розподіл часу та матриця збоїв.
+- **Тести:** `pytest lab7_multimodal_studio/tests -v` (20 перевірок пройдено).
 
 ---
 
-## 3. Інструкція із запуску та перевірки
+## 4. Інструкція із запуску та перевірки
 
 ### 1. Активація віртуального оточення
 ```bash
-# Використання підготовленого віртуального середовища Python 3.13 / PyTorch CUDA
+# Використання підготовленого віртуального середовища Python / PyTorch CUDA
 ..\.venv-lab04\Scripts\activate
 ```
 
@@ -97,24 +128,6 @@ streamlit run app.py
 
 ### 3. Запуск повного набору тестів репозиторію
 ```bash
-# Лабораторна робота 1
-pytest lab1/tests -v
-
-# Лабораторна робота 2
-pytest lab2_vllm/tests -v
-
-# Лабораторна робота 3 (Варіант 2)
-pytest lab3_chroma_rag/tests -v
-
-# Лабораторна робота 4 (Варіант 2)
-pytest lab4_img2img/tests -v
-
-# Лабораторна робота 5 (Варіант 2)
-pytest lab5_multimodal_captioning/tests -v
-
-# Лабораторна робота 6 (Варіант 2)
-pytest lab6_llamaindex_agents/tests -v
-
-# Лабораторна робота 7 (Варіант 2)
-pytest lab7_multimodal_studio/tests -v
+# Запуск усіх 107 тестів локально
+pytest lab1/tests lab2_vllm/tests lab3_chroma_rag/tests lab4_img2img/tests lab5_multimodal_captioning/tests lab6_llamaindex_agents/tests lab7_multimodal_studio/tests -v
 ```

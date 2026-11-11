@@ -14,9 +14,6 @@ if str(STUDIO_ROOT) not in sys.path:
 from src.utils.device import get_gpu_memory_info, clean_gpu_memory, ModelLifecycleManager
 from src.utils.security import validate_safe_image_path, to_portable_path
 from src.storage.gallery_service import GalleryService
-from src.models.llava_service import LlavaService
-from src.models.diffusion_service import DiffusionService
-from src.agent.studio_agent import StudioAgent
 
 st.set_page_config(
     page_title="Multimodal Visual Content Studio | Lviv Polytechnic",
@@ -35,10 +32,12 @@ gallery = get_gallery()
 # Cached model services (lazy initialization)
 @st.cache_resource
 def get_llava_service():
+    from src.models.llava_service import LlavaService
     return LlavaService()
 
 @st.cache_resource
 def get_diffusion_service():
+    from src.models.diffusion_service import DiffusionService
     return DiffusionService()
 
 # Sidebar: System telemetry & hardware status
@@ -257,6 +256,7 @@ with tabs[3]:
     if st.button("Run Agent Workflow", type="primary", key="btn_agent"):
         with st.spinner("Autonomous agent planning and executing tool calls..."):
             try:
+                from src.agent.studio_agent import StudioAgent
                 agent = StudioAgent(
                     llava_service=get_llava_service(),
                     diffusion_service=get_diffusion_service(),
