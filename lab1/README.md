@@ -44,7 +44,6 @@ max/lab1/
 ├── utils.py                              # Спільні утиліти (токенізація, Vocabulary, PE, маски)
 ├── REPORT_DRAFT.md                       # Розгорнутий академічний драфт звіту з формулами та таблицями
 ├── DEFENSE_NOTES.md                      # Конспект для захисту та відповіді на 10 контрольних питань
-├── execute_and_save_notebooks.py         # Послідовний запуск 01→04 зі збереженням outputs
 ├── notebooks/
 │   ├── 01_enron_eda_preprocessing.ipynb  # EDA, фільтрація, дедуплікація, словник Enron
 │   ├── 02_enron_transformer_classifier.ipynb # Побудова, тюнінг, навчання й оцінка Transformer Encoder
@@ -77,7 +76,6 @@ max/lab1/
     └── test_lab1.py                      # Компактні unit-тести математики та інференсу
 ```
 
-Одноразові генератори notebooks і дубльований runner після аудиту перенесено до `_cleanup_review/`; вони не потрібні для звичайного запуску лабораторної та збережені лише для трасування історії рефакторингу.
 
 ---
 
@@ -87,7 +85,7 @@ max/lab1/
 Активація віртуального середовища та встановлення пакетів:
 ```powershell
 .\.venv\Scripts\Activate.ps1
-uv pip install -r max/lab1/requirements.txt
+pip install -r requirements.txt
 ```
 
 ### 4.2. Послідовність виконання ноутбуків

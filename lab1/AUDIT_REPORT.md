@@ -54,7 +54,6 @@ Raw corpus містить `2 122 137/221 611/249 691` лексичних ток�
 - Усі notebooks повторно виконано 01→04 з чистими kernels; outputs збережено.
 - Моделі, raw data, processed tensors, histories, metrics, figures і backups не видалялися.
 
-Резервна копія до змін: `C:\Users\Eclipse\.codex\backups\neural-network-technologies-and-systems\max-lab1-pre-audit-20261008-1900`.
 
 ## 4. Final Structure
 
@@ -66,9 +65,7 @@ max/lab1/
 ├── AUDIT_REPORT.md
 ├── requirements.txt
 ├── utils.py
-├── execute_and_save_notebooks.py
 ├── notebooks/                 # 4 виконані notebooks із outputs
-├── notebooks_backup/          # історичні резервні копії
 ├── data/
 │   ├── raw/
 │   └── processed/
@@ -77,7 +74,6 @@ max/lab1/
 │   ├── metrics/
 │   └── figures/
 ├── tests/
-└── _cleanup_review/           # 7 скриптів і caches, нічого не видалено
 ```
 
 ## 5. Validation
