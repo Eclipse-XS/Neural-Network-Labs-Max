@@ -30,3 +30,14 @@ Thumbs.db
 *.tmp
 *.bak
 .env
+
+# Model and dataset caches (never commit downloaded checkpoints)
+.cache/
+huggingface/
+models/
+*.ckpt
+*.safetensors
+
+# Local notebook execution artifacts
+**/outputs/run_logs/
+**/outputs/tmp/

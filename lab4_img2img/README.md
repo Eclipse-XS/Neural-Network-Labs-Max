@@ -1,69 +1,26 @@
-# Лабораторна робота №4: Генерування зображень за допомогою Stable Diffusion
-## Варіант №2: Image-to-Image (SD/SDXL)
+# Lab 4: Stable Diffusion Image-to-Image
 
-Цей проєкт містить повну, незалежну та експериментально верифіковану реалізацію варіанта №2 лабораторної роботи №4 з дисципліни «Нейромережеві технології і системи».
+Мета: дослідити кероване перетворення реальних зображень Stable Diffusion. Варіант 2: Img2Img з контрольованою зміною `strength`, CFG, steps і negative prompt.
 
----
+## Технології та входи
 
-## 1. Склад проєкту
+- Diffusers `StableDiffusionImg2ImgPipeline`;
+- `stable-diffusion-v1-5/stable-diffusion-v1-5`;
+- PyTorch FP16, CUDA і model CPU offload;
+- 3 RGB зображення 512×512 у `inputs/`.
 
-```text
-lab04_img2img/
-├── README.md                              # Опис структури та інструкції запуску
-├── inputs/                                # 3 оригінальні вхідні зображення (512x512)
-│   ├── 01_coastal_lighthouse.png
-│   ├── 02_cafe_bicycle.png
-│   └── 03_library_interior.png
-├── notebooks/
-│   ├── 01_input_images_and_pipeline.ipynb # Аудит входів, завантаження Img2Img, baseline
-│   ├── 02_parameter_experiments.ipynb     # Експерименти: strength, CFG, steps, negative prompt
-│   └── 03_results_analysis.ipynb          # Порівняльні сітки, аналіз продуктивності, теорія LoRA
-├── outputs/
-│   ├── images/                            # Згенеровані зображення у високій якості
-│   │   ├── baseline/
-│   │   ├── strength/
-│   │   ├── cfg/
-│   │   ├── steps/
-│   │   └── negative_prompt/
-│   ├── figures/                           # Порівняльні сітки та графіки аналізу
-│   ├── metadata/                          # Повні JSON-метадані кожного запуску
-│   └── tables/                            # Зведений CSV реєстр усіх генерацій
-├── tests/
-│   └── test_lab04.py                      # 10 автоматичних тестів pytest
-└── report/
-    ├── report.md                          # Повний академічний звіт (15 розділів)
-    ├── defense_notes.md                   # Відповіді на 10 контрольних запитань методички
-    └── methodology_audit.md               # Матриця відповідності вимогам методички
-```
+Встановлення виконується з кореневого `requirements.txt`. Для практичного запуску рекомендовано CUDA GPU з 4+ GiB VRAM, достатньо RAM і доступ до Hugging Face. Model checkpoints у Git не зберігаються.
 
----
+## Порядок виконання
 
-## 2. Швидкий запуск
+1. `notebooks/01_img2img_pipeline.ipynb` — validation inputs, environment, pipeline і baseline inference.
+2. `notebooks/02_parameter_experiments.ipynb` — one-factor-at-a-time серії з фіксованим seed.
+3. `notebooks/03_results_analysis.ipynb` — traceability, grids, latency та обмеження метрик.
 
-### Вимоги:
-- Python 3.12+ у віртуальному середовищі (`NNTS_VARIANT_2/.venv`);
-- Відеокарта з підтримкою CUDA (NVIDIA GeForce RTX 3050 Laptop GPU або аналогічна з $\ge 4$ ГБ VRAM);
-- Бібліотеки `diffusers==0.41.0`, `transformers==5.20.2`, `accelerate==1.15.0`, `torch==2.6.0+cu124`.
+Запускайте Jupyter з `lab4_img2img/notebooks`. Кожен inference має записувати prompt, negative prompt, model id, seed, strength, CFG, steps, latency, device та hashes input/output. Збіг hashes уже збережених файлів не є repeatability experiment; для такого висновку потрібні два фактичні запуски однакової конфігурації.
 
-### Запуск тестів:
-```powershell
-.\NNTS_VARIANT_2\.venv\Scripts\python.exe -m pytest NNTS_VARIANT_2/lab04_img2img/tests/test_lab04.py -v
-```
+## Outputs і відомі проблеми
 
-### Запуск ноутбуків у Jupyter:
-```powershell
-.\NNTS_VARIANT_2\.venv\Scripts\jupyter.exe lab
-```
+`outputs/images`, `outputs/metadata`, `outputs/tables`, `outputs/figures`. Наявні outputs — історичні артефакти. Якість не визначається лише SSIM або pixel similarity. «Оптимальна» конфігурація потребує наперед визначеного критерію. Результати можуть відрізнятися між GPU, драйверами та версіями Diffusers/PyTorch.
 
----
-
-## 3. Ключові результати
-1. **Модель:** `stable-diffusion-v1-5/stable-diffusion-v1-5` (FP16 + model CPU offload) — стабільна генерація без OOM на 4 ГБ VRAM (~5.5–6 с на зображення $512 \times 512$).
-2. **Вхідні дані:** 3 структуровані оригінальні зображення (Маяк, Кафе з велосипедом, Бібліотека).
-3. **Експерименти:**
-   - `strength` ($0.3 \to 0.6 \to 0.9$): доведено математичний зв'язок із фактичною кількістю кроків денойзингу ($9 \to 18 \to 27$) та перехід від строгого збереження геометрії до повної перебудови сцени.
-   - `guidance_scale` ($5.0 \to 7.5 \to 10.0$): значення 7.5 визнано оптимальним стандартом; понад 8.5 виникає гіперконтрастність і втрата півтонів.
-   - `num_inference_steps` ($20 \to 30 \to 50$): доведено лінійну залежність часу інференсу ($4.46\text{с} \to 5.79\text{с} \to 8.42\text{с}$) та спадну віддачу від збільшення кроків понад 30.
-   - `negative_prompt`: підтверджено усунення хроматичного шуму та підвищення мікроконтрасту.
-4. **Метадані:** кожна генерація супроводжується повним JSON-файлом із фіксацією SHA-256 входу і виходу, часу, заліза та гіперпараметрів.
-5. **LoRA:** теоретично обґрунтовано факторизацію оновлень $\Delta W = B \cdot A$, яка скорочує кількість тренованих параметрів на >98%.
+Fast tests: `pytest lab4_img2img/tests -m "not integration" -v`. GPU smoke test є окремим integration test; skip означає «не виконано».

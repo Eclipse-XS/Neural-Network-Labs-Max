@@ -1,57 +1,29 @@
-# Нейромережеві технології і системи — Лабораторні роботи
+# Neural Network Labs Max
 
-**Національний технічний університет України «КПІ ім. Ігоря Сікорського»**  
-**Кафедра обчислювального інтелекту та смарт-систем**  
-**Спеціальність:** 122 «Комп’ютерні науки»  
+Репозиторій містить лабораторні роботи з нейромережевих технологій. Поточний notebook-first рефакторинг охоплює лише Labs 3–4; Labs 1–2 не змінено.
 
----
+| Лабораторна | Варіант | Основний workflow |
+|---|---|---|
+| [Lab 3](lab3_chroma_rag/README.md) | 2: ChromaDB + Markdown/TXT | corpus → chunks → embeddings → Chroma → retrieval → RAG |
+| [Lab 4](lab4_img2img/README.md) | 2: Stable Diffusion Img2Img | inputs → pipeline → controlled experiments → analysis |
 
-## Огляд репозиторію
+## Встановлення
 
-Даний репозиторій містить повний комплекс програмних реалізацій, виконаних Jupyter-ноутбуків, датасетів, згенерованих результатів та академічних звітів з дисципліни «Нейромережеві технології і системи».
+```powershell
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install --upgrade pip
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+```
 
-| Лабораторна | Тема | Варіант | Стек технологій | Статус |
-|---|---|---|---|---|
-| **Лабораторна №1** | Дослідження нейромережевих архітектур | Варіант 1 | PyTorch, torchvision, CNN | ✅ Завершено |
-| **Лабораторна №2** | Високопродуктивний інференс LLM через vLLM | Варіант 1 | vLLM, OpenAI API, CLI | ✅ Завершено |
-| **Лабораторна №3** | Реалізація RAG-системи для витягування знань | **Варіант №2** (ChromaDB + Markdown/Текст) | LangChain, ChromaDB, all-MiniLM-L6-v2, Ollama API (`qwen3:4b-instruct`) | ✅ Завершено (10/10 PASS) |
-| **Лабораторна №4** | Генерування зображень за допомогою Stable Diffusion | **Варіант №2** (Image-to-Image, 3 сюжети) | Diffusers, StableDiffusionImg2ImgPipeline, SD 1.5 FP16, CPU Offload | ✅ Завершено (10/10 PASS) |
+Перед повним виконанням потрібні мережевий доступ для моделей, Ollama з `qwen3:4b-instruct` для Lab 3 та CUDA GPU для практичного виконання Lab 4. CPU-запуск diffusion технічно можливий, але не є прийнятним коротким smoke test.
 
----
+## Порядок запуску
 
-## Структура нових лабораторних робіт
+Запускати notebooks у числовому порядку з їхньої директорії. Fast tests:
 
-### [lab3_chroma_rag/](./lab3_chroma_rag/) — Лабораторна робота №3 (Варіант №2)
-- **`data/knowledge_base/`** — 8 авторських технічних документів з життєвого циклу MLOps (6 `.md`, 2 `.txt`).
-- **`notebooks/`** — 3 повністю виконані блокноти з багатим візуальним виводом:
-  - `01_corpus_preparation.ipynb` — завантаження через `DirectoryLoader`, порівняння чанкінгу, аудит метаданих (`source`, `type`).
-  - `02_chroma_retrieval.ipynb` — створення та верифікація персистентної ChromaDB (55 векторів), підбір гіперпараметрів MMR, фільтрація за метаданими.
-  - `03_rag_evaluation.ipynb` — побудова RAG-ланцюга з локальною LLM `qwen3:4b-instruct`, перевірка стійкості до галюцинацій та оцінка заземленості.
-- **`outputs/`** — персистентне сховище ChromaDB, згенеровані таблиці, відповіді LLM та порівняльні графіки.
-- **`report/`** — офіційні звіти у форматах `report.docx`, `report.pdf`, Markdown-звіт `report.md`, матеріали до захисту `defense_notes.md` та аудит методички `methodology_audit.md`.
-- **`tests/test_lab03.py`** — набір автоматичних тестів (10/10 PASS).
+```powershell
+.\.venv\Scripts\python.exe -m pytest lab3_chroma_rag/tests lab4_img2img/tests -m "not integration" -v
+```
 
-### [lab4_img2img/](./lab4_img2img/) — Лабораторна робота №4 (Варіант №2)
-- **`inputs/`** — 3 оригінальні вхідні цифрові зображення $512 \times 512$ RGB (Маяк, Кафе з велосипедом, Бібліотека).
-- **`notebooks/`** — 3 повністю виконані блокноти:
-  - `01_input_images_and_pipeline.ipynb` — діагностика середовища CUDA, ініціалізація `StableDiffusionImg2ImgPipeline` FP16 + CPU offload, базові стилізації.
-  - `02_parameter_experiments.ipynb` — контрольовані параметричні серії (`strength`, `CFG`, `steps`, `negative prompt`) при фіксованому `seed=42`.
-  - `03_results_analysis.ipynb` — поглиблений візуальний аналіз, бенчмарк продуктивності GPU (RTX 3050) та теорія LoRA.
-- **`outputs/`** — 14 згенерованих PNG-файлів, 13 детальних файлів JSON метаданих, CSV-реєстр та аналітичні графіки.
-- **`report/`** — офіційні звіти у форматах `report.docx`, `report.pdf`, Markdown-звіт `report.md`, матеріали до захисту `defense_notes.md` та матриця відповідності методичці `methodology_audit.md`.
-- **`tests/test_lab04.py`** — набір автоматичних тестів (10/10 PASS).
+Integration tests не маскують відсутність моделей або сервісів як успішний inference. Статус перевірки наведено у [FINAL_ACCEPTANCE.md](FINAL_ACCEPTANCE.md), вихідні обмеження — у [REFACTOR_AUDIT.md](REFACTOR_AUDIT.md).
 
----
-
-## Відтворюваність та запуск
-
-1. Встановлення залежностей:
-   ```bash
-   pip install -r requirements.txt
-   ```
-2. Запуск тестів:
-   ```bash
-   pytest lab3_chroma_rag/tests/ lab4_img2img/tests/ -v
-   ```
-3. Локальний LLM-сервер:
-   Підтримує будь-який OpenAI-сумісний інтерфейс (Ollama, vLLM, LM Studio) на `http://127.0.0.1:11434/v1`.

@@ -1,4 +1,5 @@
 # ЗВІТ З ЛАБОРАТОРНОЇ РОБОТИ №4
+> Історичний звіт попереднього виконання. Числові та якісні висновки нижче не є доказом повторного запуску після notebook-first рефакторингу; актуальний статус наведено у кореневому `FINAL_ACCEPTANCE.md`.
 ## Тема: Генерування зображень за допомогою Stable Diffusion
 **Дисципліна:** Нейромережеві технології і системи  
 **Спеціальність:** 122 «Комп’ютерні науки (Обчислювальний інтелект та смарт-системи)»  
@@ -116,7 +117,7 @@ flowchart TD
 ## 8. Хід виконання роботи
 
 Реалізація структурована у трьох взаємопов'язаних Jupyter-ноутбуках:
-1. `notebooks/01_input_images_and_pipeline.ipynb`: перевірка CUDA та пам'яті, завантаження та хешування вхідних зображень, завантаження `StableDiffusionImg2ImgPipeline` із `enable_model_cpu_offload()`, виконання базових перетворень (baseline) для всіх 3 сюжетів.
+1. `notebooks/01_img2img_pipeline.ipynb`: перевірка CUDA та пам'яті, завантаження та хешування вхідних зображень, завантаження `StableDiffusionImg2ImgPipeline` із `enable_model_cpu_offload()`, виконання базових перетворень (baseline) для всіх 3 сюжетів.
 2. `notebooks/02_parameter_experiments.ipynb`: проведення серійних експериментів для сюжету маяка при суворо фіксованому генераторі випадковості (`seed = 42`):
    - варіювання `strength` ($0.3, 0.6, 0.9$);
    - варіювання `CFG` ($5.0, 7.5, 10.0$);
@@ -245,7 +246,7 @@ flowchart TD
   - Notebook 01: ![Скріншот 01](../outputs/figures/screenshot_nb01_pipeline.png)
   - Notebook 02: ![Скріншот 02](../outputs/figures/screenshot_nb02_experiments.png)
   - Notebook 03: ![Скріншот 03](../outputs/figures/screenshot_nb03_analysis.png)
-- Виконаний Jupyter Notebook 1: [`notebooks/01_input_images_and_pipeline.ipynb`](../notebooks/01_input_images_and_pipeline.ipynb)
+- Виконаний Jupyter Notebook 1: [`notebooks/01_img2img_pipeline.ipynb`](../notebooks/01_img2img_pipeline.ipynb)
 - Виконаний Jupyter Notebook 2: [`notebooks/02_parameter_experiments.ipynb`](../notebooks/02_parameter_experiments.ipynb)
 - Виконаний Jupyter Notebook 3: [`notebooks/03_results_analysis.ipynb`](../notebooks/03_results_analysis.ipynb)
 - Вхідні зображення: директорія [`inputs/`](../inputs/)
