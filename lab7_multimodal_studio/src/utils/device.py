@@ -1,4 +1,6 @@
 import gc
+import threading
+from functools import wraps
 import torch
 from typing import Dict, Any, Optional
 
@@ -25,14 +27,24 @@ def get_gpu_memory_info() -> Dict[str, Any]:
     allocated = torch.cuda.memory_allocated(dev) / (1024 ** 2)
     reserved = torch.cuda.memory_reserved(dev) / (1024 ** 2)
     total = props.total_memory / (1024 ** 2)
+    free_bytes, _ = torch.cuda.mem_get_info(dev)
     
     return {
         "device": props.name,
         "allocated_mb": round(allocated, 2),
         "reserved_mb": round(reserved, 2),
         "total_mb": round(total, 2),
-        "free_mb": round(total - allocated, 2)
+        "free_mb": round(free_bytes / (1024 ** 2), 2)
     }
+
+# Streamlit sessions share cached services; lock the whole inference, not just loading.
+_INFERENCE_LOCK = threading.RLock()
+def serialized_inference(function):
+    @wraps(function)
+    def wrapped(*args, **kwargs):
+        with _INFERENCE_LOCK:
+            return function(*args, **kwargs)
+    return wrapped
 
 class ModelLifecycleManager:
     """
@@ -53,8 +65,12 @@ class ModelLifecycleManager:
             cls._instance = ModelLifecycleManager()
         return cls._instance
 
+    @serialized_inference
     def register(self, name: str, service: Any) -> None:
         """Register a model service instance for lifecycle coordination."""
+        previous = self._registered_services.get(name)
+        if previous is not None and previous is not service:
+            previous.unload()
         self._registered_services[name] = service
 
     def prepare_for_model(self, target_service_name: str) -> None:
@@ -69,6 +85,7 @@ class ModelLifecycleManager:
         clean_gpu_memory()
         self._active_service = target_service_name
 
+    @serialized_inference
     def release_all(self) -> None:
         """Unload all registered models and flush CUDA memory."""
         for name, service in list(self._registered_services.items()):

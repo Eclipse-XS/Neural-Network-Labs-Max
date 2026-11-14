@@ -1,0 +1,335 @@
+aiohappyeyeballs==2.7.1
+    # via aiohttp
+aiohttp==3.14.5
+    # via llama-index-core
+aiosignal==1.4.0
+    # via aiohttp
+aiosqlite==0.22.1
+    # via llama-index-core
+annotated-types==0.8.0
+    # via pydantic
+anyio==4.16.0
+    # via
+    #   httpx
+    #   httpx2
+    #   openai
+asttokens==3.0.2
+    # via stack-data
+attrs==26.1.0
+    # via
+    #   aiohttp
+    #   jsonschema
+    #   referencing
+banks==2.5.1
+    # via llama-index-core
+certifi==2026.10.23
+    # via
+    #   httpcore
+    #   httpx
+    #   requests
+charset-normalizer==3.5.2
+    # via requests
+click==8.5.1
+    # via nltk
+cloudpickle==3.1.2
+    # via joblib
+colorama==0.4.6
+    # via
+    #   griffecli
+    #   ipython
+    #   pytest
+    #   tqdm
+comm==0.2.3
+    # via ipykernel
+contourpy==1.4.0
+    # via matplotlib
+cycler==0.12.1
+    # via matplotlib
+dataclasses-json==0.6.7
+    # via llama-index-core
+debugpy==1.8.22
+    # via ipykernel
+defusedxml==0.7.1
+    # via nltk
+deprecated==3.0.1
+    # via
+    #   banks
+    #   llama-index-core
+    #   llama-index-instrumentation
+dirtyjson==1.0.8
+    # via llama-index-core
+executing==2.3.0
+    # via stack-data
+fastjsonschema==2.22.3
+    # via nbformat
+filetype==1.2.0
+    # via
+    #   banks
+    #   llama-index-core
+fonttools==4.68.0
+    # via matplotlib
+frozenlist==1.8.0
+    # via
+    #   aiohttp
+    #   aiosignal
+fsspec==2026.9.0
+    # via llama-index-core
+greenlet==3.5.6
+    # via sqlalchemy
+griffe==2.4.1
+    # via banks
+griffecli==2.4.1
+    # via griffe
+griffelib==2.4.1
+    # via
+    #   griffe
+    #   griffecli
+h11==0.16.0
+    # via
+    #   httpcore
+    #   httpcore2
+httpcore==1.0.9
+    # via httpx
+httpcore2==2.16.0
+    # via httpx2
+httpx==0.28.1
+    # via llama-index-core
+httpx2==2.16.0
+    # via openai
+idna==3.20
+    # via
+    #   anyio
+    #   httpx
+    #   httpx2
+    #   requests
+    #   yarl
+iniconfig==2.3.1
+    # via pytest
+ipykernel==7.3.0
+    # via -r C:/Users/Eclipse/AppData/Local/Temp/nn-repro-6529c2430e444da197a08d87b1df7277/max/lab6_llamaindex_agents/requirements.txt
+ipython==9.18.1
+    # via ipykernel
+ipython-pygments-lexers==1.1.1
+    # via ipython
+jedi==0.20.1
+    # via ipython
+jinja2==3.1.6
+    # via banks
+jiter==0.19.0
+    # via openai
+joblib==1.6.0
+    # via nltk
+jsonschema==4.26.0
+    # via nbformat
+jsonschema-specifications==2025.9.1
+    # via jsonschema
+jupyter-client==8.10.0
+    # via
+    #   ipykernel
+    #   nbclient
+jupyter-core==5.9.1
+    # via
+    #   ipykernel
+    #   jupyter-client
+    #   nbclient
+    #   nbformat
+kiwisolver==1.5.1
+    # via matplotlib
+llama-index-core==0.14.26
+    # via
+    #   -r C:/Users/Eclipse/AppData/Local/Temp/nn-repro-6529c2430e444da197a08d87b1df7277/max/lab6_llamaindex_agents/requirements.txt
+    #   llama-index-llms-openai
+    #   llama-index-llms-openai-like
+llama-index-instrumentation==0.6.0
+    # via llama-index-workflows
+llama-index-llms-openai==0.9.0
+    # via llama-index-llms-openai-like
+llama-index-llms-openai-like==0.9.0
+    # via -r C:/Users/Eclipse/AppData/Local/Temp/nn-repro-6529c2430e444da197a08d87b1df7277/max/lab6_llamaindex_agents/requirements.txt
+llama-index-workflows==2.26.1
+    # via llama-index-core
+markupsafe==3.0.4
+    # via jinja2
+marshmallow==3.26.2
+    # via dataclasses-json
+matplotlib==3.11.2
+    # via -r C:/Users/Eclipse/AppData/Local/Temp/nn-repro-6529c2430e444da197a08d87b1df7277/max/lab6_llamaindex_agents/requirements.txt
+matplotlib-inline==0.2.2
+    # via
+    #   ipykernel
+    #   ipython
+multidict==7.2.1
+    # via
+    #   aiohttp
+    #   yarl
+mypy-extensions==1.2.0
+    # via typing-inspect
+nbclient==0.11.0
+    # via -r C:/Users/Eclipse/AppData/Local/Temp/nn-repro-6529c2430e444da197a08d87b1df7277/max/lab6_llamaindex_agents/requirements.txt
+nbformat==5.11.1
+    # via
+    #   -r C:/Users/Eclipse/AppData/Local/Temp/nn-repro-6529c2430e444da197a08d87b1df7277/max/lab6_llamaindex_agents/requirements.txt
+    #   nbclient
+nest-asyncio==1.6.0
+    # via llama-index-core
+nest-asyncio2==1.7.4
+    # via ipykernel
+networkx==3.7
+    # via llama-index-core
+nltk==3.10.4
+    # via llama-index-core
+numpy==2.5.4
+    # via
+    #   contourpy
+    #   llama-index-core
+    #   matplotlib
+    #   pandas
+openai==3.51.0
+    # via llama-index-llms-openai
+packaging==26.3
+    # via
+    #   ipykernel
+    #   marshmallow
+    #   matplotlib
+    #   pytest
+pandas==2.3.3
+    # via -r C:/Users/Eclipse/AppData/Local/Temp/nn-repro-6529c2430e444da197a08d87b1df7277/max/lab6_llamaindex_agents/requirements.txt
+parso==0.8.7
+    # via jedi
+pillow==13.0.0
+    # via
+    #   llama-index-core
+    #   matplotlib
+platformdirs==4.14.5
+    # via
+    #   banks
+    #   jupyter-core
+    #   llama-index-core
+pluggy==1.7.0
+    # via pytest
+prompt-toolkit==3.0.53
+    # via ipython
+propcache==0.5.4
+    # via
+    #   aiohttp
+    #   yarl
+psutil==7.2.2
+    # via
+    #   ipykernel
+    #   ipython
+pure-eval==0.2.4
+    # via stack-data
+pydantic==2.14.3
+    # via
+    #   banks
+    #   llama-index-core
+    #   llama-index-instrumentation
+    #   llama-index-workflows
+    #   openai
+pydantic-core==2.50.4
+    # via pydantic
+pygments==2.21.0
+    # via
+    #   ipython
+    #   ipython-pygments-lexers
+    #   pytest
+pyparsing==3.3.3
+    # via matplotlib
+pytest==9.1.1
+    # via -r C:/Users/Eclipse/AppData/Local/Temp/nn-repro-6529c2430e444da197a08d87b1df7277/max/lab6_llamaindex_agents/requirements.txt
+python-dateutil==4.0.0
+    # via
+    #   jupyter-client
+    #   matplotlib
+    #   pandas
+pytz==2026.6
+    # via pandas
+pyyaml==6.0.3
+    # via llama-index-core
+pyzmq==27.3.0
+    # via
+    #   ipykernel
+    #   jupyter-client
+referencing==0.37.0
+    # via
+    #   jsonschema
+    #   jsonschema-specifications
+regex==2026.11.9
+    # via
+    #   nltk
+    #   tiktoken
+requests==2.34.2
+    # via
+    #   llama-index-core
+    #   tiktoken
+rpds-py==2026.9.1
+    # via
+    #   jsonschema
+    #   referencing
+setuptools==84.2.1
+    # via llama-index-core
+sniffio==1.3.1
+    # via openai
+sqlalchemy==2.1.8
+    # via llama-index-core
+stack-data==0.6.3
+    # via ipython
+tenacity==9.2.1
+    # via llama-index-core
+tiktoken==0.14.0
+    # via llama-index-core
+tinytag==2.3.2
+    # via llama-index-core
+tornado==6.6.1
+    # via
+    #   ipykernel
+    #   jupyter-client
+tqdm==4.70.1
+    # via
+    #   llama-index-core
+    #   nltk
+traitlets==5.16.1
+    # via
+    #   ipykernel
+    #   ipython
+    #   jupyter-client
+    #   jupyter-core
+    #   matplotlib-inline
+    #   nbclient
+    #   nbformat
+truststore==0.10.5
+    # via
+    #   httpcore2
+    #   httpx2
+typing-extensions==4.16.0
+    # via
+    #   anyio
+    #   jupyter-client
+    #   llama-index-core
+    #   llama-index-workflows
+    #   openai
+    #   pydantic
+    #   pydantic-core
+    #   sqlalchemy
+    #   typing-inspect
+    #   typing-inspection
+typing-inspect==0.9.0
+    # via
+    #   dataclasses-json
+    #   llama-index-core
+typing-inspection==0.4.5
+    # via pydantic
+tzdata==2026.6
+    # via
+    #   pandas
+    #   python-dateutil
+urllib3==2.8.0
+    # via requests
+wcwidth==0.9.4
+    # via prompt-toolkit
+wrapt==2.5.2
+    # via
+    #   deprecated
+    #   llama-index-core
+yarl==1.25.1
+    # via aiohttp

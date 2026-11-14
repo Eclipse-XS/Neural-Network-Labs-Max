@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+import uuid
 import os
 import json
 import sqlite3
@@ -19,8 +21,18 @@ class GalleryService:
         self.db_path = self.storage_dir / db_name
         self._init_db()
 
+    @contextmanager
+    def _connection(self):
+        conn = sqlite3.connect(self.db_path, timeout=30)
+        try:
+            conn.execute("PRAGMA busy_timeout=30000")
+            with conn:
+                yield conn
+        finally:
+            conn.close()
+
     def _init_db(self):
-        with sqlite3.connect(self.db_path) as conn:
+        with self._connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
                 CREATE TABLE IF NOT EXISTS studio_records (
@@ -57,7 +69,7 @@ class GalleryService:
         error_message: Optional[str] = None
     ) -> str:
         """Save a new generation/caption/VQA record persistently."""
-        record_id = f"{task_type}_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S_%f')[:19]}"
+        record_id = f"{task_type}_{uuid.uuid4().hex}"
         timestamp = datetime.datetime.now().isoformat()
         
         input_image_rel = None
@@ -77,7 +89,7 @@ class GalleryService:
             
         params_str = json.dumps(parameters, ensure_ascii=False)
         
-        with sqlite3.connect(self.db_path) as conn:
+        with self._connection() as conn:
             cursor = conn.cursor()
             cursor.execute("""
                 INSERT INTO studio_records (
@@ -94,7 +106,7 @@ class GalleryService:
 
     def get_all_records(self, limit: int = 50) -> List[Dict[str, Any]]:
         """Retrieve recent generation records sorted by timestamp descending."""
-        with sqlite3.connect(self.db_path) as conn:
+        with self._connection() as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute(
@@ -118,7 +130,7 @@ class GalleryService:
 
     def get_record(self, record_id: str) -> Optional[Dict[str, Any]]:
         """Retrieve a specific record by ID."""
-        with sqlite3.connect(self.db_path) as conn:
+        with self._connection() as conn:
             conn.row_factory = sqlite3.Row
             cursor = conn.cursor()
             cursor.execute("SELECT * FROM studio_records WHERE id = ?", (record_id,))

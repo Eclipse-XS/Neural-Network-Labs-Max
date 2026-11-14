@@ -1,0 +1,8 @@
+# Keep the upstream Jinja template: a legacy Go TEMPLATE disables tool support
+# with the current Ollama runner. CPU residency avoids 4 GB GPU contention.
+FROM qwen3:4b
+PARAMETER num_ctx 4096
+PARAMETER num_gpu 0
+PARAMETER temperature 0.1
+PARAMETER num_predict 1024
+SYSTEM "Use tools when needed and answer concisely."

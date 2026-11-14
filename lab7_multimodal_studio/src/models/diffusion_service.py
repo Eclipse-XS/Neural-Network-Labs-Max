@@ -3,7 +3,7 @@ import gc
 import torch
 from PIL import Image
 from typing import Tuple, Optional, Any
-from ..utils.device import get_device, clean_gpu_memory, ModelLifecycleManager
+from ..utils.device import get_device, clean_gpu_memory, ModelLifecycleManager, serialized_inference
 
 DIFFUSION_MODEL_ID = "stable-diffusion-v1-5/stable-diffusion-v1-5"
 
@@ -33,15 +33,21 @@ class DiffusionService:
             dtype = torch.float16 if self.device.type == "cuda" else torch.float32
             self.pipeline = StableDiffusionImg2ImgPipeline.from_pretrained(
                 self.model_id,
+                revision="451f4fe16113bff5a5d2269ed5ad43b0592e9a14",
                 torch_dtype=dtype,
+                variant="fp16" if self.device.type == "cuda" else None,
+                use_safetensors=True,
                 safety_checker=None
             )
             if self.device.type == "cuda":
                 # Enable CPU offload to fit safely in 4 GB VRAM alongside other services
                 self.pipeline.enable_model_cpu_offload()
+                self.pipeline.enable_attention_slicing()
+                self.pipeline.vae.enable_slicing()
             else:
                 self.pipeline.to(self.device)
 
+    @serialized_inference
     def transform_image(
         self,
         image: Image.Image,
@@ -53,6 +59,8 @@ class DiffusionService:
         seed: int = 42
     ) -> Tuple[Image.Image, float]:
         """Perform Image-to-Image diffusion transformation on input image."""
+        if not 0 < strength <= 1 or num_inference_steps < 1 or int(strength * num_inference_steps) < 1:
+            raise ValueError("strength * num_inference_steps must be at least 1")
         self._ensure_loaded()
         
         rgb_image = image.convert("RGB").resize((512, 512))

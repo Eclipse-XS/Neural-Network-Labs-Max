@@ -41,3 +41,18 @@ lab4_img2img/outputs/html/
 # Local derived caches rebuilt by notebooks
 lab1/data/processed/*.pt
 lab3_chroma_rag/outputs/chroma_db/
+
+# Isolated lab environments and reproducibility execution artifacts
+**/.venv/
+**/__pycache__/
+**/.pytest_cache/
+**/outputs/reproducibility-run.ipynb
+**/outputs/smoke/
+**/*.egg-info/
+
+**/resolve.log
+**/install.log
+
+**/cuda-install.log
+
+**/dependency-check.log

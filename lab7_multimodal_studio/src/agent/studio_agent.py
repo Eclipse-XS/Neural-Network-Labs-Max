@@ -18,7 +18,7 @@ class StudioAgent:
         llava_service: Optional[LlavaService] = None,
         diffusion_service: Optional[DiffusionService] = None,
         gallery_service: Optional[GalleryService] = None,
-        llm_model: str = "qwen3:4b-instruct",
+        llm_model: str = "qwen3:4b-studio",
         api_base: str = "http://127.0.0.1:11434/v1",
         studio_root: Optional[Path] = None
     ):
@@ -36,12 +36,14 @@ class StudioAgent:
         self._AgentWorkflow = AgentWorkflow
         
         self.llm = OpenAILike(
-            model=llm_model,
-            api_base=api_base,
+            model=os.getenv("OLLAMA_MODEL", llm_model),
+            api_base=os.getenv("OLLAMA_BASE_URL", api_base),
             api_key="ollama",
             is_chat_model=True,
             is_function_calling_model=True,
             context_window=4096,
+            max_tokens=1024,
+            timeout=180.0,
             temperature=0.1
         )
         
@@ -192,39 +194,56 @@ class StudioAgent:
             [caption_image, answer_visual_question, transform_image_style, inspect_studio_gallery],
             llm=self.llm,
             system_prompt=system_prompt,
+            timeout=300.0,
             verbose=False
         )
 
     async def run_request(self, user_prompt: str) -> Tuple[str, List[Dict[str, Any]], float]:
-        """Execute user prompt through the agent workflow, capturing streaming events and traces."""
+        """Await completion and collect events concurrently so failed streams cannot hang UI."""
         import time
+        from contextlib import suppress
         from llama_index.core.agent.workflow import ToolCall, ToolCallResult
-        t0 = time.time()
+        started = time.monotonic()
         handler = self.workflow.run(user_msg=user_prompt, memory=self.memory)
         traces = []
-        
-        async for event in handler.stream_events():
-            if isinstance(event, ToolCall):
-                # Clean any arguments from absolute paths for portable logging
-                clean_kwargs = {}
-                for k, v in event.tool_kwargs.items():
-                    if isinstance(v, str):
-                        clean_kwargs[k] = sanitize_path_string(to_portable_path(v, studio_root=self.studio_root), studio_root=self.studio_root)
-                    else:
-                        clean_kwargs[k] = v
-                traces.append({
-                    "event": "ToolCall",
-                    "tool": event.tool_name,
-                    "kwargs": clean_kwargs
-                })
-            elif isinstance(event, ToolCallResult):
-                clean_output = sanitize_path_string(str(event.tool_output), studio_root=self.studio_root)
-                traces.append({
-                    "event": "ToolCallResult",
-                    "tool": event.tool_name,
-                    "output": clean_output[:300]
-                })
-                
-        response = await handler
-        elapsed = time.time() - t0
-        return str(response), traces, round(elapsed, 3)
+        completed_tools = []
+
+        async def collect_events():
+            async for event in handler.stream_events():
+                if isinstance(event, ToolCall):
+                    kwargs = {
+                        key: sanitize_path_string(value, studio_root=self.studio_root)
+                        if isinstance(value, str) else value
+                        for key, value in event.tool_kwargs.items()
+                    }
+                    traces.append({"event": "ToolCall", "tool": event.tool_name, "kwargs": kwargs})
+                elif isinstance(event, ToolCallResult):
+                    output = sanitize_path_string(str(event.tool_output), studio_root=self.studio_root)
+                    traces.append({"event": "ToolCallResult", "tool": event.tool_name, "output": output[:300]})
+                    completed_tools.append({"tool": event.tool_name, "output": output})
+
+        collector = asyncio.create_task(collect_events())
+        try:
+            response = await asyncio.wait_for(handler, timeout=300.0)
+            # Some workflow versions leave their event iterator open after completion.
+            with suppress(asyncio.TimeoutError):
+                await asyncio.wait_for(collector, timeout=5.0)
+            text = str(response).strip()
+            if not text and completed_tools:
+                # Tool execution may succeed while a thinking model exhausts its
+                # final-answer budget. Retry without tool schemas or prior memory.
+                from llama_index.core.llms import ChatMessage
+                summary = await asyncio.wait_for(self.llm.achat([
+                    ChatMessage(role="system", content="Summarize these completed tool results concisely. Do not invent results."),
+                    ChatMessage(role="user", content=json.dumps(completed_tools, ensure_ascii=False)),
+                ]), timeout=180.0)
+                text = (summary.message.content or "").strip()
+                traces.append({"event": "FinalizationRetry", "tool": "llm", "output": text[:300]})
+            if not text:
+                raise RuntimeError("Agent returned no final answer; completed tool records remain saved in the gallery.")
+            return text, traces, round(time.monotonic() - started, 3)
+        finally:
+            if not collector.done():
+                collector.cancel()
+            with suppress(asyncio.CancelledError):
+                await collector

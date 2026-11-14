@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import datetime
@@ -9,8 +10,8 @@ from typing import Any
 
 from openai import APIConnectionError, APIError, OpenAI
 
-DEFAULT_BASE_URL = "http://127.0.0.1:8000/v1"
-DEFAULT_MODEL = "Qwen/Qwen2.5-1.5B-Instruct-AWQ"
+DEFAULT_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434/v1")
+DEFAULT_MODEL = os.getenv("OLLAMA_MODEL", "qwen3:4b-studio")
 DEFAULT_SYSTEM_PROMPT = "You are a helpful and concise assistant."
 DEFAULT_DIALOGS_DIR = Path(__file__).resolve().parent / "outputs" / "dialogs"
 EXIT_COMMANDS = {"exit", "quit"}

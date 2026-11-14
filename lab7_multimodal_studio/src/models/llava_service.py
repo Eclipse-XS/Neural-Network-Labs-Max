@@ -3,7 +3,7 @@ import gc
 import torch
 from PIL import Image
 from typing import Tuple, Optional, Any
-from ..utils.device import get_device, clean_gpu_memory, ModelLifecycleManager
+from ..utils.device import get_device, clean_gpu_memory, ModelLifecycleManager, serialized_inference
 
 MODEL_ID = "llava-hf/llava-interleave-qwen-0.5b-hf"
 
@@ -32,14 +32,16 @@ class LlavaService:
             # Unload any conflicting heavy models (e.g. Stable Diffusion) before loading LLaVA
             self.manager.prepare_for_model("llava")
             dtype = torch.float16 if self.device.type == "cuda" else torch.float32
-            self.processor = AutoProcessor.from_pretrained(self.model_id)
+            self.processor = AutoProcessor.from_pretrained(self.model_id, revision="1090956dd1c79bc93ae98dcf395590369435ec91")
             self.model = LlavaForConditionalGeneration.from_pretrained(
                 self.model_id,
+                revision="1090956dd1c79bc93ae98dcf395590369435ec91",
                 torch_dtype=dtype,
                 low_cpu_mem_usage=True
             ).to(self.device)
             self.model.eval()
 
+    @serialized_inference
     def generate_caption(
         self,
         image: Image.Image,
@@ -60,7 +62,7 @@ class LlavaService:
         
         rgb_image = image.convert("RGB")
         try:
-            inputs = self.processor(text=prompt, images=rgb_image, return_tensors="pt").to(self.device)
+            inputs = self.processor(text=prompt, images=rgb_image, return_tensors="pt").to(self.device, dtype=self.model.dtype)
             
             t0 = time.time()
             with torch.inference_mode():
@@ -80,6 +82,7 @@ class LlavaService:
             clean_gpu_memory()
             raise
 
+    @serialized_inference
     def answer_question(
         self,
         image: Image.Image,
@@ -99,7 +102,7 @@ class LlavaService:
         
         rgb_image = image.convert("RGB")
         try:
-            inputs = self.processor(text=prompt, images=rgb_image, return_tensors="pt").to(self.device)
+            inputs = self.processor(text=prompt, images=rgb_image, return_tensors="pt").to(self.device, dtype=self.model.dtype)
             
             t0 = time.time()
             with torch.inference_mode():

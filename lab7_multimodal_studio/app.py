@@ -230,9 +230,9 @@ with tabs[2]:
                 st.success(f"Transformation complete in {latency:.2f}s (Saved to Gallery: `{rec_id}`)")
                 col_out1, col_out2 = st.columns(2)
                 with col_out1:
-                    st.image(img_sd, caption="Original Input Image", use_container_width=True)
+                    st.image(img_sd, caption="Original Input Image", width="stretch")
                 with col_out2:
-                    st.image(result_img, caption="Transformed Output Image", use_container_width=True)
+                    st.image(result_img, caption="Transformed Output Image", width="stretch")
             except Exception as e:
                 clean_gpu_memory()
                 st.error(f"Transformation error: {e}")
@@ -305,7 +305,7 @@ with tabs[4]:
             }
             for r in records
         ])
-        st.dataframe(df_records, use_container_width=True)
+        st.dataframe(df_records, width="stretch")
         
         st.markdown("### Browsable Visual Artifacts")
         gallery_dir = STUDIO_ROOT / "outputs" / "gallery"

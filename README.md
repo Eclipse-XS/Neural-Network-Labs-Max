@@ -1,5 +1,7 @@
 # Нейромережеві технології і системи — Лабораторні роботи 1–7
 
+Start with [REPRODUCIBILITY.md](REPRODUCIBILITY.md) for isolated Windows environments, pinned dependencies, model/data reconstruction and live smoke tests for Labs 1-7.
+
 Реалізації лабораторних робіт із курсу «Технології та системи нейронних мереж» (Національний університет «Львівська політехніка», кафедра систем штучного інтелекту, спеціальність 122 «Комп'ютерні науки»). Проєкт охоплює трансформерні моделі на PyTorch, сервінг локальних LLM через vLLM, RAG-конвеєр на ChromaDB, Image-to-Image генерацію на Stable Diffusion 1.5, мультимодальний аналіз зображень із LLaVA, агентні системи LlamaIndex та інтегрований веб-додаток Streamlit.
 
 ---
@@ -63,26 +65,17 @@ Neural-Network-Labs-Max/
 
 ## Вимоги до середовища та запуск
 
-Кожен модуль використовує локальне віртуальне середовище Python 3.11+:
+Перевірено Windows 11 x64, Python 3.13, NVIDIA RTX 3050 4 GB. Кожна робота має окрему `.venv` і повний `requirements.lock.txt`.
 
 ```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
+.\setup.ps1 -Lab 1
+.\run.ps1 -Lab 1 -Smoke
+.\run.ps1 -Lab 1
 ```
 
-| Робота | Платформа | Апаратні вимоги | Зовнішні моделі та сервіси |
-|:---:|:---|:---|:---|
-| **ЛР 1** | Windows / Linux / macOS | CPU або CUDA GPU (4 ГБ VRAM) | Локальні дані у `lab1/data/raw/` |
-| **ЛР 2** | Linux або Windows WSL2 | NVIDIA GPU (від 4 ГБ VRAM) | Сервер vLLM + `Qwen/Qwen2.5-1.5B-Instruct-AWQ` |
-| **ЛР 3** | Windows / Linux / macOS | CPU для embeddings, GPU для LLM | `all-MiniLM-L6-v2` + vLLM (`:8000`) або Ollama `qwen3:4b-instruct` (`:11434`) |
-| **ЛР 4** | Windows / Linux | NVIDIA GPU з CUDA (від 4 ГБ VRAM) | Hugging Face `stable-diffusion-v1-5/stable-diffusion-v1-5` |
-| **ЛР 5** | Windows / Linux / macOS | GPU для `LIVE`, CPU для `ANALYSIS_ONLY` | Hugging Face `llava-hf/llava-interleave-qwen-0.5b-hf` |
-| **ЛР 6** | Windows / Linux / macOS | CPU або GPU для Ollama | Локальний сервер Ollama (`qwen3:4b-instruct`) |
-| **ЛР 7** | Windows / Linux | NVIDIA GPU (від 4 ГБ VRAM) + CPU | LLaVA-0.5B, SD 1.5, Ollama `qwen3:4b-instruct` |
+Для робіт 4, 5, 7 додайте `-Cuda` до setup. Роботи 2, 3, 6, 7 використовують Ollama на localhost:11434; setup відтворює CPU-модель `qwen3:4b-studio` з публічних вагів і збереженого Modelfile. Попередній локальний alias `qwen3:4b-instruct` не потрібний. Сервер vLLM залишається альтернативним endpoint, але цей сценарій WSL2 не перевірявся. Моделі, контрольні суми, сервіси та межі тестування описані в [REPRODUCIBILITY.md](REPRODUCIBILITY.md).
 
----
-
-## Основні спостережувані результати
+## Історичні експериментальні результати
 
 - **ЛР 1:** Transformer Encoder на Enron Spam (`d_model=128`, 2 голови) досяг Test Accuracy `97.00%` і F1 `96.68%`; Causal Decoder на WikiText-2 (`d_model=128`, 4 голови) досяг Test Perplexity `148.48` (BLEU `0.0226`, ROUGE-L `0.0493`).
 - **ЛР 2:** CLI-клієнт забезпечує багатоходовий діалог із vLLM (`Qwen2.5-1.5B-Instruct-AWQ`), керування `temperature`, `max_tokens` та системними ролями з автоматичним збереженням сесій у Markdown.
@@ -90,7 +83,7 @@ python -m venv .venv
 - **ЛР 4:** На RTX 3050 (4 ГБ VRAM) у FP16 із CPU offload виконано 10 унікальних конфігурацій Stable Diffusion 1.5 Img2Img (`4.92–10.04` с/зображення), що продемонстрували компроміс між `strength`, `guidance_scale`, `steps` та вплив `negative_prompt`.
 - **ЛР 5:** LLaVA-0.5B у FP16 обробила 4 сцени у 20 конфігураціях (стиль промпту, температура, бюджет токенів); середня точність за рубрикатором склала `0.90–1.00` із середнім покриттям ключових об'єктів `88.8%` без зафіксованих галюцинацій.
 - **ЛР 6:** Агент LlamaIndex з 4 інструментами виконав 9 MLOps-сценаріїв із середньою затримкою `18.6` с, точністю вибору інструментів `8/9` (`88.9%`) та коректною відмовою на небезпечному запиті `scenario_09`.
-- **ЛР 7:** Об'єднано LLaVA-0.5B, SD 1.5 Img2Img, агента LlamaIndex, валідацію шляхів (`validate_safe_image_path`) та SQLite-сховище (`gallery.db`, 12 записів) у єдиний Streamlit-додаток.
+- **ЛР 7:** Об'єднано LLaVA-0.5B, SD 1.5 Img2Img, агента LlamaIndex, валідацію шляхів (`validate_safe_image_path`) та SQLite-сховище (`gallery.db`, 12 успішних експериментальних записів) у єдиний Streamlit-додаток.
 
 ---
 
